@@ -13,6 +13,10 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "exceljs",
+              "file-saver"
+            ],
             "outputPath": "dist/poui-projects",
             "index": "src/index.html",
             "browser": "src/main.ts",

@@ -22,10 +22,9 @@ import {
   PoTableModule,
   PoToolbarModule
 } from '@po-ui/ng-components';
-import { ProAppConfigService, ProThreadInfoService } from '@totvs/protheus-lib-core';
-import * as XLSX from 'xlsx'; // Importa a biblioteca xlsx
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { RelatorioRecapService } from './relatorio-rcap.component.service';
-
 @Component({
   selector: 'app-relatorio-rcap',
   templateUrl: './relatorio-rcap.component.html',
@@ -55,9 +54,6 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     private http: HttpClient,
     private sampleAirfare: RelatorioRecapService,
     private poNotification: PoNotificationService,
-    private poDialog: PoDialogService,
-    private proAppConfigService: ProAppConfigService,
-    private proThreadInfoService: ProThreadInfoService,
 
   ) { }
 
@@ -74,19 +70,16 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   loading = false;
   totalRegistros = 0;
   totalPaginas = 0;
-  tipo: string = '1'
-  workflow: string = '2'
+  tipo: string = '3'
+  papeleta: string = '2'
   liquidado: string = '3'
   imprimir: string = 'N'
   notaFiscal: string = ''
   fornecedor: string = ''
   path: string = 'C:\\temp';
-  private pendingFilter = false;
   startDate: Date = new Date(new Date().setDate(new Date().getDate() - 1));
   endDate: Date = new Date(new Date().setDate(new Date().getDate() - 1));
   folderGerada: string = '';
-
-
   pizzaItens: Array<PoChartSerie> = []
   colunaItens: Array<PoChartSerie> = []
   tipoCol = 'column'; // Tipo de gráfico (coluna)
@@ -94,6 +87,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   totalNotas = 0;
 
   chartOptions: PoChartOptions = {
+    tooltip: true,
     legend: true,
   };
 
@@ -104,7 +98,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
 
   ];
 
-  workflowOptions: PoSelectOption[] = [
+  papeletaOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
     { label: 'Nota Fiscal', value: '2' },
     { label: 'Ambos', value: '3' }
@@ -138,8 +132,8 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     this.tipo = value
   }
 
-  onChangeWorkflow(value: any): void {
-    this.workflow = value
+  onChangePapeleta(value: any): void {
+    this.papeleta = value
   }
 
   onChangeLiquidado(value: any): void {
@@ -206,7 +200,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       dataInicial: this.ToAAAMMDD(this.startDate),
       dataFinal: this.ToAAAMMDD(this.endDate),
       tipo: this.tipo,
-      workflow: this.workflow,
+      workflow: this.papeleta,
       liquidado: this.liquidado,
       notaFiscal: this.notaFiscal,
       fornecedor: this.fornecedor,
@@ -222,7 +216,6 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       next: (response) => {
 
         this.items = response?.dados ?? [];
-
         const totalPedido = this.items.filter(i => i.contrato.trim() === '').length;
         const totalContrato = this.items.filter(i => i.contrato.trim() !== '').length;
 
@@ -272,11 +265,12 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
         if (this.imprimir === 'S') {
           const fileName = this.normalizarNomeArquivo(response?.zipName);
           const downloadUrl = this.montarUrlDownload(response);
+          const folder = response?.folder;
 
           if (!downloadUrl) {
             this.poNotification.warning('Não foi possível montar a URL do ZIP.');
           } else {
-            this.baixarArquivoPorUrl(downloadUrl, fileName);
+            this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
           }
         }
 
@@ -303,15 +297,83 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     return `${y}${m}${d}`;
   }
 
-  exportToExcel(): void {
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.items); // Converte os dados para a planilha
-    const wb: XLSX.WorkBook = XLSX.utils.book_new(); // Cria um novo arquivo Excel
-    XLSX.utils.book_append_sheet(wb, ws, 'Erros'); // Adiciona a planilha com o nome "Erros"
+  async exportToExcel(): Promise<void> {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Relatório RCAP');
 
+    // Definição das colunas
+    worksheet.columns = [
+      { header: 'Item', key: 'item', width: 10 },
+      { header: 'Filial', key: 'filial', width: 10 },
+      { header: 'Nota', key: 'nota', width: 15 },
+      { header: 'Série', key: 'serie', width: 10 },
+      { header: 'Fornecedor', key: 'fornecedor', width: 15 },
+      { header: 'Loja', key: 'loja', width: 10 },
+      { header: 'Razão Social', key: 'razao', width: 60 },
+      { header: 'CNPJ', key: 'cnpj', width: 20 },
+      { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Dt PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Dt 3Way', key: 'Dt3Way', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Tipo', key: 'tipo', width: 10 },
+      { header: 'Estado', key: 'estado', width: 10 },
+      { header: 'Líquido', key: 'liquido', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Bruto', key: 'bruto', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'INSS', key: 'inss', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'PIS', key: 'pis', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'COFINS', key: 'cofins', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'CSLL', key: 'csll', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Desconto', key: 'desconto', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Despesa', key: 'despesa', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Pedido', key: 'pedido', width: 15 },
+      { header: 'R$ Pedido', key: 'TTPedido', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'R$ Saldo', key: 'diferenca', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Usuário', key: 'user', width: 35 }
+    ];
+
+    // Cabeçalho estilizado
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '4e73df' }
+    };
+    worksheet.getRow(1).alignment = { horizontal: 'center' };
+
+    // Converter datas para objetos Date
+    const rows = this.items.map(item => ({
+      ...item,
+      emissao: new Date(item.emissao),
+      digitacao: new Date(item.digitacao),
+      vencimento: new Date(item.vencimento),
+      DtPreNota: new Date(item.DtPreNota),
+      Dt3Way: new Date(item.Dt3Way)
+    }));
+
+    worksheet.addRows(rows);
+
+    // 3. Aplicar bordas, alinhamento e cores condicionais 
+    worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
+      row.eachCell((cell: ExcelJS.Cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+        if (rowNumber > 1) {
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        }
+      });
+
+    });
+
+    worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+
+    const buffer = await workbook.xlsx.writeBuffer();
     const now = new Date();
-    const stamp = now.toLocaleString('pt-BR').replace(/[/: ]/g, '_');
-    const name = `RecapImpostos_${stamp}.xls`;
-    XLSX.writeFile(wb, name);
+    const stamp = now.toISOString().replace(/[:.]/g, '-');
+    saveAs(new Blob([buffer]), `RecapImpostos_${stamp}.xlsx`);
   }
 
   private normalizarNomeArquivo(nome?: string): string {
@@ -319,6 +381,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   }
 
   private montarUrlDownload(resp: any): string | null {
+
     const folder = resp?.folder;
     const fileName = this.normalizarNomeArquivo(resp?.zipName);
 
@@ -326,10 +389,28 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       return null;
     }
 
-    return `${this.API_URL}/listar-relatorio-rcap/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
+    return `${this.API_URL}/listar-relatorio-rcap/download/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
   }
 
-  private baixarArquivoPorUrl(url: string, fileName: string): void {
+  private deletarArquivos(folder: string, fileName: string): void {
+    if (!folder || !fileName) {
+      return;
+    }
+
+    const url = `${this.API_URL}/listar-relatorio-rcap/excluir/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
+
+    this.http.get(url, { headers: this.getHeader() }).subscribe({
+      next: () => {
+        this.poNotification.success('Arquivos excluídos com sucesso.');
+      },
+      error: (err) => {
+        console.error('Erro ao excluir arquivos:', err);
+        this.poNotification.error('Falha ao excluir arquivos.');
+      }
+    });
+  }
+
+  private baixarArquivoPorUrl(url: string, fileName: string, folder: string): void {
     this.http.get(url, {
       headers: this.getHeader(),
       responseType: 'blob'
@@ -342,12 +423,18 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(objectUrl);
+
+        // ✅ só depois que o navegador disparou o download
+        setTimeout(() => {
+          URL.revokeObjectURL(objectUrl);
+          this.deletarArquivos(folder, fileName);
+        }, 1000); // pequeno delay para garantir que o download foi iniciado
       },
       error: (err) => {
         console.error('Erro ao baixar ZIP:', err);
       }
     });
   }
+
 
 }
