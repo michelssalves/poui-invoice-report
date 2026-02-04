@@ -207,10 +207,10 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       path: this.path
     };
 
-    this.http.post<any>(
+    this.http.get<any>(
       `assets/dados.json`,
-      body,
-      { headers: this.getHeader() }
+      { params: body }
+
     ).subscribe({
       next: (response) => {
 
