@@ -39,6 +39,7 @@
                     <po-button p-label="Filtrar" p-kind="secondary" (p-click)="filtrar()">
                     </po-button>
                     <po-button p-label="Excel" p-kind="primary" (p-click)="exportToExcel()"></po-button>
+
                 </div>
             </div>
         </po-accordion-item>
@@ -56,29 +57,37 @@
                         <po-chart [p-options]="chartOptions" [p-series]="pizzaItens">
                         </po-chart>
                     </po-container>
-                    <po-container class="po-md-3" [p-height]="435">
-                        <po-widget>
-                            <div class="po-font-title po-text-center">{{totalNotas}}</div>
-                            <div class="po-text-center">NF's</div>
-                        </po-widget>
-                        <po-widget>
-                            <div class="po-font-title po-text-center">R$ {{totalLiquido}}</div>
-                            <div class="po-text-center">Liquido</div>
-                        </po-widget>
-                        <po-widget>
-                            <div class="po-font-title po-text-center">R$ {{totalBruto}}</div>
-                            <div class="po-text-center">Bruto</div>
-                        </po-widget>
-                        <po-widget>
-                            <div class="po-font-title po-text-center">R$ {{totalImpostos}}</div>
-                            <div class="po-text-center">Impostos</div>
-                        </po-widget>
+                    <po-container class="po-md-3 widgets-coluna" [p-height]="435">
+                        <div class="widgets-wrapper">
+                            <po-widget class="widget-card">
+                                <div class="widget-value">{{ totalNotas }}</div>
+                                <div class="widget-label">NFs</div>
+                            </po-widget>
+
+                            <po-widget class="widget-card">
+                                <div class="widget-value">{{ mediaDiasSLA }} D</div>
+                                <div class="widget-label">Média Dia</div>
+                            </po-widget>
+
+                            <po-widget class="widget-card">
+                                <div class="widget-value">{{ mediaHorasSLA }} h</div>
+                                <div class="widget-label">Média Horas</div>
+                            </po-widget>
+
+                            <po-widget class="widget-card destaque">
+                                <div class="widget-value">{{ totalHorasSLA }} h</div>
+                                <div class="widget-label">Horas SLA</div>
+                            </po-widget>
+                        </div>
                     </po-container>
+
+
                 </div>
             </div>
         </po-accordion-item>
     </po-accordion>
     <po-table class="rcap-table" p-container="border" [p-sort]="true" [p-striped]="true" [p-columns]="columns"
-        [p-items]="items" [p-max-columns]="15" [p-virtual-scroll]="true">
+        [p-items]="items" [p-max-columns]="16" [p-virtual-scroll]="true">
+
     </po-table>
 </div>

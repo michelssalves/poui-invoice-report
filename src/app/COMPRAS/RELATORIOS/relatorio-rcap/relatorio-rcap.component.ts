@@ -85,6 +85,10 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   tipoCol = 'column'; // Tipo de gráfico (coluna)
   tipoPizza = 'line'; // Tipo de gráfico (pizza)
   totalNotas = 0;
+  totalHorasSLA = 0;
+  mediaHorasSLA = 0;
+  mediaDiasSLA = 0;
+
 
   chartOptions: PoChartOptions = {
     tooltip: true,
@@ -183,7 +187,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       'Authorization': 'Basic ' + btoa('admin:tcp_tcp'),
       'Content-Type': 'application/json',
       'tenantid': '02,01',
-      'x-erp-module': 'EST'
+      'x-erp-module': 'COM'
     });
 
   }
@@ -214,74 +218,110 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     ).subscribe({
       next: (response) => {
 
+        // 1) primeiro popula items
         this.items = response?.dados ?? [];
-        const totalPedido = this.items.filter(i => i.contrato.trim() === '').length;
-        const totalContrato = this.items.filter(i => i.contrato.trim() !== '').length;
 
-        const mapaUsuarios: Record<string, number> = {};
-
-        this.items.forEach(i => {
-          const usuario = i.codUsr;
-          if (!usuario) return;
-
-          mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
-        });
-
-        this.colunaItens = Object.keys(mapaUsuarios).map(usuario => ({
-          label: usuario,
-          data: [mapaUsuarios[usuario]]
-        }));
-
-        this.pizzaItens = [
-          { label: 'Pedido', data: totalPedido, color: 'po-color-08' },
-          { label: 'Contrato', data: totalContrato, color: 'po-color-07' },
-        ];
-
-        this.totalNotas = this.items.length;
-        const round2 = (value: number) => Math.round(value * 100) / 100;
-
-        this.totalLiquido = round2(
-          this.items.reduce((sum, item) => sum + (item.liquido || 0), 0)
-        );
-
-        this.totalBruto = round2(
-          this.items.reduce((sum, item) => sum + (item.bruto || 0), 0)
-        );
-
-        this.totalImpostos = round2(
-          this.items.reduce(
-            (sum, item) =>
-              sum +
-              (item.inss || 0) +
-              (item.pis || 0) +
-              (item.cofins || 0) +
-              (item.csll || 0) +
-              (item.ipi || 0),
-            0
-          )
-        );
-
-        // 2️⃣ Se imprimir = 'S', baixa o ZIP
-        if (this.imprimir === 'S') {
-          const fileName = this.normalizarNomeArquivo(response?.zipName);
-          const downloadUrl = this.montarUrlDownload(response);
-          const folder = response?.folder;
-
-          if (!downloadUrl) {
-            this.poNotification.warning('Não foi possível montar a URL do ZIP.');
-          } else {
-            this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
-          }
+        if (this.items.length === 0) {
+          this.loading = false;
+          return;
         }
 
-        this.loading = false;
+        // 2) calcula ano a partir da digitacao (YYYY/MM/DD)
+        const ano = Number(this.items[0]?.digitacao?.slice(0, 4)) || new Date().getFullYear();
+
+        // 3) carrega feriados e só depois calcula horas úteis e o resto
+        this.carregarFeriadosBrasilApi(ano).then(() => {
+
+          // horas úteis por item
+          this.items.forEach(item => {
+            item.horas3Way = this.calcularHorasUteis(item.Dt3Way, item.digitacao);
+          });
+
+          this.totalHorasSLA = this.items.reduce(
+            (sum, item) => sum + (item.horas3Way || 0),
+            0
+          );
+
+          this.mediaHorasSLA = this.items.length
+            ? Math.round(this.totalHorasSLA / this.items.length)
+            : 0;
+
+          this.mediaDiasSLA = this.items.length
+            ? Math.round((this.totalHorasSLA / 24 / this.items.length) * 100) / 100
+            : 0;
+
+          const totalPedido = this.items.filter(i => !i.contrato || i.contrato.trim() === '').length;
+          const totalContrato = this.items.filter(i => i.contrato && i.contrato.trim() !== '').length;
+
+          const mapaUsuarios: Record<string, number> = {};
+          this.items.forEach(i => {
+            const usuario = i.codUsr;
+            if (!usuario) return;
+            mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
+          });
+
+          this.colunaItens = Object.keys(mapaUsuarios).map(usuario => ({
+            label: usuario,
+            data: [mapaUsuarios[usuario]]
+          }));
+
+          this.pizzaItens = [
+            { label: 'Pedido', data: totalPedido, color: 'po-color-08' },
+            { label: 'Contrato', data: totalContrato, color: 'po-color-07' }
+          ];
+
+          this.totalNotas = this.items.length;
+
+          const round2 = (value: number) => Math.round(value * 100) / 100;
+
+          this.totalLiquido = round2(
+            this.items.reduce((sum, item) => sum + (item.liquido || 0), 0)
+          );
+
+          this.totalBruto = round2(
+            this.items.reduce((sum, item) => sum + (item.bruto || 0), 0)
+          );
+
+          this.totalImpostos = round2(
+            this.items.reduce(
+              (sum, item) =>
+                sum +
+                (item.inss || 0) +
+                (item.pis || 0) +
+                (item.cofins || 0) +
+                (item.csll || 0) +
+                (item.ipi || 0),
+              0
+            )
+          );
+
+          // download ZIP se imprimir
+          if (this.imprimir === 'S') {
+            const fileName = this.normalizarNomeArquivo(response?.zipName);
+            const downloadUrl = this.montarUrlDownload(response);
+            const folder = response?.folder;
+
+            if (!downloadUrl) {
+              this.poNotification.warning('Não foi possível montar a URL do ZIP.');
+            } else {
+              this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
+            }
+          }
+
+          this.loading = false;
+        }).catch(err => {
+          console.error('Erro ao carregar feriados', err);
+          this.loading = false;
+        });
       },
+
       error: (err) => {
         console.error(err);
         this.loading = false;
       }
     });
   }
+
 
   ToAAAMMDD(date: string | Date): string {
     const realDate = typeof date === 'string' ? new Date(date) : date;
@@ -311,6 +351,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       { header: 'Loja', key: 'loja', width: 10 },
       { header: 'Razão Social', key: 'razao', width: 60 },
       { header: 'CNPJ', key: 'cnpj', width: 20 },
+      { header: 'Natureza', key: 'natureza', width: 15 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Dt PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
@@ -378,6 +419,65 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     saveAs(new Blob([buffer]), `RecapImpostos_${stamp}.xlsx`);
   }
 
+  // exemplo de "vetor" para consulta rápida
+  private feriadosSet = new Set<string>();
+  private parseDate(data: string): Date {
+    const [ano, mes, dia] = data.split('/').map(Number);
+    return new Date(ano, mes - 1, dia);
+  }
+
+  private isDiaUtil(date: Date): boolean {
+    const day = date.getDay();
+    if (day === 0 || day === 6) return false;
+
+    const iso = date.toISOString().slice(0, 10);
+    if (this.feriadosSet.has(iso)) return false;
+
+    return true;
+  }
+
+  private calcularHorasUteis(dataInicio: string, dataFim: string): number {
+    if (!dataInicio || !dataFim) return 0;
+
+    const inicio = this.parseDate(dataInicio);
+    const fim = this.parseDate(dataFim);
+    if (inicio > fim) return 0;
+
+    let horas = 0;
+    const d = new Date(inicio);
+
+    while (d <= fim) {
+      if (this.isDiaUtil(d)) horas += 24;
+      d.setDate(d.getDate() + 1);
+    }
+
+    return horas;
+  }
+
+  private carregarFeriadosBrasilApi(ano: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      this.http
+        .get<Array<{ date: string }>>(
+          `https://brasilapi.com.br/api/feriados/v1/${ano}`
+        )
+        .subscribe({
+          next: (feriados) => {
+            this.feriadosSet = new Set((feriados ?? []).map(f => f.date));
+
+            console.log('Feriados carregados:', Array.from(this.feriadosSet));
+            resolve();
+          },
+          error: () => {
+            // fallback: segue sem feriados
+            this.feriadosSet.clear();
+            resolve();
+          }
+        });
+    });
+  }
+
+
+
   private normalizarNomeArquivo(nome?: string): string {
     return (nome || 'Papeletas.zip').trim();
   }
@@ -426,11 +526,10 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
         a.click();
         document.body.removeChild(a);
 
-        // ✅ só depois que o navegador disparou o download
         setTimeout(() => {
           URL.revokeObjectURL(objectUrl);
           this.deletarArquivos(folder, fileName);
-        }, 1000); // pequeno delay para garantir que o download foi iniciado
+        }, 1000);
       },
       error: (err) => {
         console.error('Erro ao baixar ZIP:', err);

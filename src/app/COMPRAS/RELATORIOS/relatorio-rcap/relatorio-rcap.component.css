@@ -92,3 +92,44 @@
 }
 
 
+.widgets-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.widget-card {
+  border-radius: 8px;
+  padding: 12px 10px; /* antes: 18px 12px */
+  transition: all .2s ease;
+}
+
+
+.widget-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.widget-value {
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--po-color-neutral-dark-80);
+}
+
+.widget-label {
+  margin-top: 4px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--po-color-neutral-dark-60);
+}
+
+/* Destaque do total */
+.widget-card.destaque {
+  background: var(--po-color-primary-light-95);
+  border-left: 4px solid var(--po-color-primary);
+}
+
+.widget-card.destaque .widget-value {
+  color: var(--po-color-primary);
+}

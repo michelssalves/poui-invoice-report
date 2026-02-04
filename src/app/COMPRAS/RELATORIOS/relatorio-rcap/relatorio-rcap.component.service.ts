@@ -21,6 +21,7 @@ export class RelatorioRecapService {
             { property: 'vencimento', label: 'Dt Venc', visible: true, type: 'date' },
             { property: 'DtPreNota', label: 'Dt PreNota', visible: true, type: 'date' },
             { property: 'Dt3Way', label: 'Dt 3Way', visible: true, type: 'date' },
+            { property: 'natureza', label: 'Natureza', visible: true },
             { property: 'tipo', label: 'Tipo', visible: true },
             { property: 'estado', label: 'Estado', visible: false },
             { property: 'inss', label: 'INSS', visible: false, type: 'currency', format: 'BRL' },
