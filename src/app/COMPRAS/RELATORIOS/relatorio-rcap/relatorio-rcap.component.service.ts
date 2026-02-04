@@ -27,6 +27,8 @@ export class RelatorioRecapService {
             { property: 'pis', label: 'PIS', visible: false, type: 'currency', format: 'BRL' },
             { property: 'cofins', label: 'COFINS', visible: false, type: 'currency', format: 'BRL' },
             { property: 'csll', label: 'CSLL', visible: false, type: 'currency', format: 'BRL' },
+            { property: 'ipi', label: 'IPI', visible: false, type: 'currency', format: 'BRL' },
+            { property: 'frete', label: 'Frete', visible: false, type: 'currency', format: 'BRL' },
             { property: 'desconto', label: 'Desconto', visible: false, type: 'currency', format: 'BRL' },
             { property: 'despesa', label: 'Despesa', visible: false, type: 'currency', format: 'BRL' },
             { property: 'pedido', label: 'Pedido', visible: true },

@@ -100,8 +100,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
 
   papeletaOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
-    { label: 'Nota Fiscal', value: '2' },
-    { label: 'Ambos', value: '3' }
+    { label: 'Nota Fiscal', value: '2' }
 
   ];
 
@@ -256,7 +255,8 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
               (item.inss || 0) +
               (item.pis || 0) +
               (item.cofins || 0) +
-              (item.csll || 0),
+              (item.csll || 0) +
+              (item.ipi || 0),
             0
           )
         );
@@ -323,6 +323,8 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       { header: 'PIS', key: 'pis', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'COFINS', key: 'cofins', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'CSLL', key: 'csll', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'IPI', key: 'ipi', width: 15, style: { numFmt: 'R$ #,##0.00' } },
+      { header: 'Frete', key: 'frete', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Desconto', key: 'desconto', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Despesa', key: 'despesa', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Pedido', key: 'pedido', width: 15 },
