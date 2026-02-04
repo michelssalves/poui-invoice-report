@@ -1,11 +1,8 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-    {
-        path: '',
-        redirectTo: 'relatorio-rcap',
-        pathMatch: 'full',
-    },
+    { path: '', pathMatch: 'full', redirectTo: 'relatorio-rcap' },
+
     {
         path: 'relatorio-rcap',
         loadComponent: () =>
