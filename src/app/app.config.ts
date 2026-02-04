@@ -1,4 +1,4 @@
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { I18N_CONFIG, PoHttpRequestModule, PoI18nConfig, PoI18nService, PoModule } from '@po-ui/ng-components';
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -24,7 +24,7 @@ const i18nConfig: PoI18nConfig = {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+    provideRouter(routes, withHashLocation()),
     provideHttpClient(),
     importProvidersFrom([
       BrowserAnimationsModule,
