@@ -5,7 +5,7 @@
 
 User Function recapImpostos()
 
-    FwCallApp("poui-projects")
+    FwCallApp("poui-invoice-report")
 
 Return
 
