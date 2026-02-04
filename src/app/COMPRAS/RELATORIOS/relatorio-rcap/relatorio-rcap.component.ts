@@ -180,7 +180,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   getHeader(): HttpHeaders {
 
     return new HttpHeaders({
-      'Authorization': 'Basic ' + btoa('admin:tcp_tcp'),
+      'Authorization': 'Basic ' + btoa('admin:123456'),
       'Content-Type': 'application/json',
       'tenantid': '02,01',
       'x-erp-module': 'EST'
@@ -208,7 +208,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     };
 
     this.http.post<any>(
-      `${this.API_URL}/listar-relatorio-rcap`,
+      `assets/dados.json`,
       body,
       { headers: this.getHeader() }
     ).subscribe({
