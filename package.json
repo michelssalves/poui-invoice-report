@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "protheus": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1"
+    "protheus": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1",
+    "deploy-protheus": "ng build --configuration production --output-path docs --base-href /poui-projects/"
   },
   "private": true,
   "dependencies": {
