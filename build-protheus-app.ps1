@@ -1,6 +1,6 @@
 ﻿# Detecta o caminho base do projeto onde o script está sendo executado
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$appName = "poui-projects"
+$appName = "poui-invoice-report"
 $projeto = $scriptPath
 $distPath = "$projeto\dist\$appName"
 $browserPath = "$distPath\browser"
