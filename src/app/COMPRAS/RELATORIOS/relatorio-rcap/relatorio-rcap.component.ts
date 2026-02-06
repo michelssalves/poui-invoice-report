@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
   PoAccordionModule,
@@ -45,7 +45,7 @@ import { RelatorioRecapService } from './relatorio-rcap.component.service';
   providers: [RelatorioRecapService, PoDialogService],
   standalone: true
 })
-export class RelatorioRcapComponent implements AfterViewInit, OnInit {
+export class RelatorioRcapComponent implements OnInit {
   @ViewChild(PoModalComponent, { static: true }) poModal!: PoModalComponent;
   @ViewChild(PoTableComponent, { static: true }) poTable!: PoTableComponent;
   @ViewChild('form') form!: NgForm;
@@ -60,16 +60,17 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   readonly API_URL = 'http://vhwin1065:9023/rest/protheus/v1/poui';
 
   columns!: Array<PoTableColumn>;
-  columnsDefault!: Array<PoTableColumn>;
   items!: Array<any>;
-  paginaAtual = 1;
+  loading = false;
   totalLiquido = 0;
   totalBruto = 0;
   totalImpostos = 0;
-  moreregistros = 0;
-  loading = false;
-  totalRegistros = 0;
-  totalPaginas = 0;
+  totalNotas = 0;
+  totalHorasSLA = 0;
+  mediaHorasSLA = 0;
+  mediaDiasSLA = 0;
+  empresa: string = '02';
+  filial: string = '01';
   tipo: string = '3'
   papeleta: string = '2'
   liquidado: string = '3'
@@ -84,16 +85,28 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
   colunaItens: Array<PoChartSerie> = []
   tipoCol = 'column'; // Tipo de gráfico (coluna)
   tipoPizza = 'line'; // Tipo de gráfico (pizza)
-  totalNotas = 0;
-  totalHorasSLA = 0;
-  mediaHorasSLA = 0;
-  mediaDiasSLA = 0;
-
 
   chartOptions: PoChartOptions = {
     tooltip: true,
     legend: true,
+    dataLabel: {
+      enabled: true,
+      format: '{label}: {value}'
+    }
   };
+
+  empresaOpritons: PoSelectOption[] = [
+    { label: 'TCP', value: '02' },
+    { label: 'TCP LOG SA', value: '03' },
+    { label: 'TCP PARTICIP SA', value: '04' }
+
+  ];
+
+  filialOpritons: PoSelectOption[] = [
+    { label: 'TCP LOG SA', value: '01' },
+    { label: 'TCP LOG - ORTIGUEIRA', value: '04' }
+
+  ];
 
   tipoOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
@@ -127,16 +140,19 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
 
   }
 
-  ngAfterViewInit(): void {
-    this.columnsDefault = this.sampleAirfare.getColumns();
-  }
-
   onChangeTipo(value: any): void {
     this.tipo = value
   }
 
   onChangePapeleta(value: any): void {
     this.papeleta = value
+  }
+
+  onChangeEmpresa(value: any): void {
+    this.empresa = value
+  }
+  onChangeFilial(value: any): void {
+    this.filial = value
   }
 
   onChangeLiquidado(value: any): void {
@@ -154,31 +170,35 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     this.notaFiscal = value
   }
 
-  onChangeStarDate(value: any): void {
-    if (typeof value === 'string' && value.includes('-')) {
-      const [year, month, day] = value.split('-').map(Number)
-      this.startDate = new Date(year, month - 1, day)
-      this.endDate = new Date(year, month - 1, day)
-    } else if (typeof value === 'string' && value.includes('/')) {
-      const [day, month, year] = value.split('/').map(Number)
-      this.startDate = new Date(year, month - 1, day)
-      this.endDate = new Date(year, month - 1, day)
-    } else {
-      this.startDate = new Date(value)
-      this.endDate = new Date(value)
-    }
+  onStartChanged(value: any): void {
+    console.log('start changed raw:', value); // <- veja o que está vindo
+    this.startDate = this.toDateSafe(value);
   }
 
-  onChangeEndDate(value: any): void {
-    if (typeof value === 'string' && value.includes('-')) {
-      const [year, month, day] = value.split('-').map(Number);
-      this.endDate = new Date(year, month - 1, day);
-    } else if (typeof value === 'string' && value.includes('/')) {
-      const [day, month, year] = value.split('/').map(Number);
-      this.endDate = new Date(year, month - 1, day);
-    } else {
-      this.endDate = new Date(value);
+  onEndChanged(value: any): void {
+    console.log('end changed raw:', value);
+    this.endDate = this.toDateSafe(value);
+  }
+
+  private toDateSafe(value: any): Date {
+    if (value instanceof Date) return value;
+
+    if (typeof value === 'string') {
+      // ISO YYYY-MM-DD (ou com hora) -> pega só a parte da data e monta local
+      if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+        const [y, m, d] = value.slice(0, 10).split('-').map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      // dd/mm/yyyy
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+        const [d, m, y] = value.split('/').map(Number);
+        return new Date(y, m - 1, d);
+      }
     }
+
+    const dt = new Date(value);
+    return isNaN(dt.getTime()) ? new Date() : dt;
   }
 
   getHeader(): HttpHeaders {
@@ -262,7 +282,7 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
 
           this.colunaItens = Object.keys(mapaUsuarios).map(usuario => ({
             label: usuario,
-            data: [mapaUsuarios[usuario]]
+            data: [Number(mapaUsuarios[usuario]) || 0]
           }));
 
           this.pizzaItens = [
@@ -322,7 +342,6 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     });
   }
 
-
   ToAAAMMDD(date: string | Date): string {
     const realDate = typeof date === 'string' ? new Date(date) : date;
     if (!(realDate instanceof Date) || isNaN(realDate.getTime())) {
@@ -354,7 +373,8 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       { header: 'Natureza', key: 'natureza', width: 15 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
-      { header: 'Dt PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Venc Real', key: 'vencimento', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Venc PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Dt 3Way', key: 'Dt3Way', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Tipo', key: 'tipo', width: 10 },
       { header: 'Estado', key: 'estado', width: 10 },
@@ -476,8 +496,6 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
     });
   }
 
-
-
   private normalizarNomeArquivo(nome?: string): string {
     return (nome || 'Papeletas.zip').trim();
   }
@@ -536,6 +554,5 @@ export class RelatorioRcapComponent implements AfterViewInit, OnInit {
       }
     });
   }
-
 
 }

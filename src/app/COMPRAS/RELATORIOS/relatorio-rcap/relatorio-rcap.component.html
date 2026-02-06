@@ -11,7 +11,6 @@
                 <po-select class="po-md-2" p-label="Liquidado?" name="liquidado" [ngModel]="liquidado"
                     (ngModelChange)="onChangeLiquidado($event)" [p-options]="liquidadoOptions">
                 </po-select>
-
                 <po-input class="po-md-2" name="notaFiscal" [ngModel]="notaFiscal"
                     (ngModelChange)="onChangeNotaFiscal($event)" p-clean p-label="Nota Fiscal">
                 </po-input>
@@ -26,20 +25,20 @@
                     (ngModelChange)="onChangeImprimir($event)" [p-options]="imprimirOptions">
                 </po-select>
             </div>
-
             <div class="po-row po-mt-1 filters-actions">
-                <po-datepicker class="po-md-3" [ngModel]="startDate" (ngModelChange)="onChangeStarDate($event)"
-                    p-format="dd/mm/yyyy" p-label="Data Inicial">
+                <po-datepicker class="po-md-3" name="startDate" [(ngModel)]="startDate"
+                    (p-change)="onStartChanged($event)" p-format="dd/mm/yyyy" p-label="Data Inicial">
                 </po-datepicker>
 
-                <po-datepicker class="po-md-3" [ngModel]="endDate" (ngModelChange)="onChangeEndDate($event)"
+                <po-datepicker class="po-md-3" name="endDate" [(ngModel)]="endDate" (p-change)="onEndChanged($event)"
                     p-format="dd/mm/yyyy" p-label="Data Final">
                 </po-datepicker>
+
+
                 <div class="po-md-6 actions-right">
                     <po-button p-label="Filtrar" p-kind="secondary" (p-click)="filtrar()">
                     </po-button>
                     <po-button p-label="Excel" p-kind="primary" (p-click)="exportToExcel()"></po-button>
-
                 </div>
             </div>
         </po-accordion-item>
@@ -49,7 +48,8 @@
             <div class="po-row mb-4">
                 <div class="po-md-12 po-lg-12">
                     <po-container class="po-lg-6 " [p-height]="435">
-                        <po-chart class="po-font-text-bold po-text-center" [p-series]="colunaItens">
+                        <po-chart class="po-font-text-bold po-text-center" [p-series]="colunaItens"
+                            [p-options]="chartOptions">
                         </po-chart>
                     </po-container>
                     <po-container class="po-lg-3" [p-height]="435">
@@ -80,14 +80,11 @@
                             </po-widget>
                         </div>
                     </po-container>
-
-
                 </div>
             </div>
         </po-accordion-item>
     </po-accordion>
     <po-table class="rcap-table" p-container="border" [p-sort]="true" [p-striped]="true" [p-columns]="columns"
         [p-items]="items" [p-max-columns]="16" [p-virtual-scroll]="true">
-
     </po-table>
 </div>
