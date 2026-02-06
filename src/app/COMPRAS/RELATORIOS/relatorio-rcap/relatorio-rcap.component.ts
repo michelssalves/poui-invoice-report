@@ -342,17 +342,11 @@ export class RelatorioRcapComponent implements OnInit {
     });
   }
 
-  ToAAAMMDD(date: string | Date): string {
-    const realDate = typeof date === 'string' ? new Date(date) : date;
-    if (!(realDate instanceof Date) || isNaN(realDate.getTime())) {
-      console.warn('Data inválida recebida:', date);
-      return '';
-    }
-
-    const y = realDate.getFullYear();
-    const m = String(realDate.getMonth() + 1).padStart(2, '0');
-    const d = String(realDate.getDate()).padStart(2, '0');
-
+  ToAAAMMDD(date: Date): string {
+    if (!(date instanceof Date) || isNaN(date.getTime())) return '';
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
     return `${y}${m}${d}`;
   }
 
