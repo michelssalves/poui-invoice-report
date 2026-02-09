@@ -259,7 +259,9 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   setPageSize(size: number): void {
-    this.pageSize = size;
+    this.pageSize = Number(size) || 50;
+    this.page = 1;
+    this.updatePageItems();
   }
 
   carregarDados(): void {
@@ -307,10 +309,53 @@ export class RelatorioRcapComponent implements OnInit {
 
           // calcula horas SLA para TODOS (itemsAll) - 1 loop só
           for (let i = 0; i < this.itemsAll.length; i++) {
+
             const item = this.itemsAll[i];
-            const horas = this.calcularHorasUteisFast(item.Dt3Way, item.digitacao);
+
+            // fim sempre é digitação
+            const dtFim = this.parseDateOnly(item.digitacao);
+            if (!dtFim) {
+              item.horasSLA = 0;
+              item.dentroSLA = true;
+              item.slaStatus = 'Dentro';
+              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
+              continue;
+            }
+
+            // início: 3Way se tiver, senão digitação
+            const dtIni = this.isDataNula(item.Dt3Way)
+              ? this.parseDateOnly(item.digitacao)
+              : this.parseDateOnly(item.Dt3Way);
+
+            if (!dtIni) {
+              item.horasSLA = 0;
+              item.dentroSLA = true;
+              item.slaStatus = 'Dentro';
+              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
+              continue;
+            }
+
+            const hrIniNula = this.isHoraNula(item.Hr3Way) || this.isDataNula(item.Dt3Way);
+            const hrFimNula = this.isHoraNula(item.HrDigitacao);
+
+            let horas = 0;
+
+            // ✅ EXCEÇÃO ACORDADA: mesmo dia e sem horas -> 24h fixo
+            if (this.sameDay(dtIni, dtFim) && (hrIniNula || hrFimNula)) {
+              horas = 24;
+            } else {
+              // cálculo real com data+hora
+              const ini = this.buildDateTime(
+                this.isDataNula(item.Dt3Way) ? item.digitacao : item.Dt3Way,
+                this.isDataNula(item.Dt3Way) ? item.HrDigitacao : item.Hr3Way
+              );
+              const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
+
+              horas = (ini && fim) ? this.calcularHorasUteisDateTime(ini, fim) : 0;
+            }
 
             item.horasSLA = horas;
+            item.horasSLALabel = this.formatHorasSLA(horas);
             item.dentroSLA = horas <= this.slaHoras;
             item.slaStatus = item.dentroSLA ? 'Dentro' : 'Fora';
 
@@ -403,6 +448,19 @@ export class RelatorioRcapComponent implements OnInit {
       }
     });
   }
+
+  private isHoraNula(h?: string): boolean {
+    if (!h) return true;
+    const v = h.trim();
+    return v === '00:00:00' || v === '00:00' || v === '0';
+  }
+
+  private sameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth()
+      && a.getDate() === b.getDate();
+  }
+
 
   private atualizarFiliaisPorEmpresa(empresa: string): void {
     this.filialOptions = this.filiaisPorEmpresa[empresa] ?? [];
@@ -533,6 +591,119 @@ export class RelatorioRcapComponent implements OnInit {
     return horas > 0 ? horas : 24;
   }
 
+  private isDataNula(data?: string): boolean {
+    if (!data) return true;
+    const v = data.trim();
+    return v === '00/00/00' || v === '0000/00/00' || v === '0000-00-00';
+  }
+
+  private parseDateOnly(data?: string): Date | null {
+    if (!data || this.isDataNula(data)) return null;
+
+    const v = data.trim();
+
+    // yyyy/mm/dd
+    if (/^\d{4}\/\d{2}\/\d{2}$/.test(v)) {
+      const [y, m, d] = v.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      const [y, m, d] = v.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // dd/mm/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+      const [d, m, y] = v.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    const dt = new Date(v);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+  private parseTimeToSeconds(hhmmss?: string): number {
+    if (!hhmmss) return 0;
+    const v = hhmmss.trim();
+    if (!/^\d{2}:\d{2}:\d{2}$/.test(v)) return 0;
+
+    const [hh, mm, ss] = v.split(':').map(Number);
+    return (hh * 3600) + (mm * 60) + ss;
+  }
+
+  private buildDateTime(dateStr?: string, timeStr?: string): Date | null {
+    const d = this.parseDateOnly(dateStr);
+    if (!d) return null;
+
+    const sec = this.parseTimeToSeconds(timeStr);
+    const hh = Math.floor(sec / 3600);
+    const mm = Math.floor((sec % 3600) / 60);
+    const ss = sec % 60;
+
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate(), hh, mm, ss, 0);
+  }
+
+  private toISODate(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private isDiaUtil(d: Date): boolean {
+    const dow = d.getDay();
+    if (dow === 0 || dow === 6) return false;
+
+    const set = this.feriadosCache.get(d.getFullYear());
+    if (!set) return true;
+
+    return !set.has(this.toISODate(d));
+  }
+
+  private calcularHorasUteisDateTime(inicio: Date, fim: Date): number {
+    if (!inicio || !fim || inicio >= fim) return 0;
+
+    const msHour = 3600000;
+
+    let totalMs = 0;
+
+    // vamos iterar dia a dia (normalmente seu range é curto; se for enorme, dá pra otimizar)
+    let cur = new Date(inicio);
+
+    while (cur < fim) {
+      const dayStart = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 0, 0, 0, 0);
+      const dayEnd = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate(), 23, 59, 59, 999);
+
+      const segIni = inicio > dayStart ? inicio : dayStart;
+      const segFim = fim < dayEnd ? fim : dayEnd;
+
+      if (segIni < segFim && this.isDiaUtil(dayStart)) {
+        totalMs += (segFim.getTime() - segIni.getTime());
+      }
+
+      // próximo dia
+      cur = new Date(dayStart.getTime() + 86400000);
+    }
+
+    // horas com 2 casas
+    return Math.round((totalMs / msHour) * 100) / 100;
+  }
+
+  private formatHorasSLA(horas: number | null | undefined): string {
+    const h = Number(horas);
+    if (!isFinite(h) || h < 0) return '';
+
+    if (h === 0) return '0 h';
+
+    if (h < 1) {
+      const min = Math.max(1, Math.round(h * 60));
+      return `${min} min`;
+    }
+
+    return `${h.toFixed(2)} h`;
+  }
 
   private parseDateSafe(data?: string): Date | null {
     if (!data) return null;
@@ -570,9 +741,11 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Natureza', key: 'natureza', width: 15 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Hr Digt', key: 'HrDigitacao', width: 15, style: { numFmt: '00:00:00' } },
       { header: 'Venc Real', key: 'vencimento', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Venc PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Dt 3Way', key: 'Dt3Way', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Hr 3Way', key: 'Hr3Way', width: 15, style: { numFmt: '00:00:00' } },
       { header: 'Tipo', key: 'tipo', width: 10 },
       { header: 'Estado', key: 'estado', width: 10 },
       { header: 'Líquido', key: 'liquido', width: 15, style: { numFmt: 'R$ #,##0.00' } },

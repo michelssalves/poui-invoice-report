@@ -18,9 +18,11 @@ export class RelatorioRecapService {
             { property: 'cnpj', label: 'CNPJ', visible: false },
             { property: 'emissao', label: 'Dt Emis', visible: true, type: 'date' },
             { property: 'digitacao', label: 'Dt Digt', visible: true, type: 'date' },
+            { property: 'HrDigitacao', label: 'Hr Digt', visible: true, type: 'time' },
             { property: 'vencimento', label: 'Venc Real', visible: true, type: 'date' },
             { property: 'DtPreNota', label: 'Venc PreNota', visible: true, type: 'date' },
             { property: 'Dt3Way', label: 'Dt 3Way', visible: true, type: 'date' },
+            { property: 'Hr3Way', label: 'Hr 3Way', visible: true, type: 'time' },
             { property: 'natureza', label: 'Natureza', visible: true },
             { property: 'tipo', label: 'Tipo', visible: true },
             { property: 'estado', label: 'Estado', visible: false },
@@ -38,7 +40,7 @@ export class RelatorioRecapService {
             { property: 'bruto', label: 'R$ Bruto', visible: true, type: 'currency', format: 'BRL' },
             { property: 'diferenca', label: 'R$ Saldo', visible: true, type: 'currency', format: 'BRL' },
             { property: 'user', label: 'Usuário', visible: true },
-            { property: 'horasSLA', label: 'Horas SLA', type: 'number', width: '100px', visible: false },
+            { property: 'horasSLALabel', label: 'Horas SLA', type: 'number', width: '100px', visible: false },
             { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: false }
         ];
     }
