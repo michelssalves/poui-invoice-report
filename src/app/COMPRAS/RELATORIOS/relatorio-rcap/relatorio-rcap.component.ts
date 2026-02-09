@@ -62,7 +62,7 @@ export class RelatorioRcapComponent implements OnInit {
 
   columns!: Array<PoTableColumn>;
   items: Array<any> = [];
-  itemsAll: Array<any> = [];    // tudo que veio do filtro (serve Excel / imprimir)
+  itemsAll: Array<any> = [];
   page = 1;
   pageSize = 50;
   total = 0;
@@ -100,14 +100,12 @@ export class RelatorioRcapComponent implements OnInit {
 
   private endDateAlteradaManual = false;
 
-  // Cache por ano: { 2026 -> Set('2026-01-01', ...) }
   private feriadosCache = new Map<number, Set<string>>();
 
   chartOptions: PoChartOptions = {
     tooltip: true,
     legend: true,
     axis: {
-      // sua versão não tipa isso, mas pode funcionar em runtime; se não funcionar, remova.
       labels: false
     } as any,
     dataLabel: {
@@ -159,7 +157,6 @@ export class RelatorioRcapComponent implements OnInit {
     this.carregarDados();
   }
 
-  // --- handlers simples ---
   onChangeTipo(v: any) { this.tipo = v; }
   onChangePapeleta(v: any) { this.papeleta = v; }
   onChangeEmpresa(value: any): void {
@@ -178,7 +175,6 @@ export class RelatorioRcapComponent implements OnInit {
     const date = this.toDateSafe(value);
     this.startDate = date;
 
-    // só copia se usuário ainda não mexeu na data final
     if (!this.endDateAlteradaManual) {
       this.endDate = date;
     }
@@ -210,7 +206,6 @@ export class RelatorioRcapComponent implements OnInit {
   private parseDate(data: string): Date {
     if (!data) return new Date(NaN);
 
-    // YYYY/MM/DD (seus dados do Protheus)
     if (/^\d{4}\/\d{2}\/\d{2}$/.test(data)) {
       const [y, m, d] = data.split('/').map(Number);
       return new Date(y, m - 1, d);
@@ -248,7 +243,6 @@ export class RelatorioRcapComponent implements OnInit {
     const start = (this.page - 1) * this.pageSize;
     const end = start + this.pageSize;
 
-    // importante: cria um novo array pra disparar change detection
     this.items = this.itemsAll.slice(start, end);
   }
 
@@ -430,7 +424,6 @@ export class RelatorioRcapComponent implements OnInit {
     } as any;
   }
 
-
   private zerarTotais(): void {
     this.totalLiquido = 0;
     this.totalBruto = 0;
@@ -530,8 +523,16 @@ export class RelatorioRcapComponent implements OnInit {
     const diasUteisBase = this.diasUteisBaseSemFeriado(inicio, fim);
     const feriadosUteis = this.contarFeriadosUteisNoIntervalo(inicio, fim);
 
-    return Math.max(0, (diasUteisBase - feriadosUteis) * 24);
+    // Calcula horas úteis (24h por dia útil), descontando feriados
+    let horas = (diasUteisBase - feriadosUteis) * 24;
+
+    // Ajuste para não contar o primeiro dia inteiro
+    horas = Math.max(0, horas - 24);
+
+    // Se não houver horas, retorna 24 (mínimo)
+    return horas > 0 ? horas : 24;
   }
+
 
   private parseDateSafe(data?: string): Date | null {
     if (!data) return null;
@@ -551,7 +552,6 @@ export class RelatorioRcapComponent implements OnInit {
     const dt = new Date(data);
     return isNaN(dt.getTime()) ? null : dt;
   }
-
 
   // -------------------- Export Excel (igual ao seu, só ajustei tipos) --------------------
   async exportToExcel(): Promise<void> {
@@ -639,7 +639,6 @@ export class RelatorioRcapComponent implements OnInit {
   get totalPages(): number {
     return Math.max(1, Math.ceil((this.total || 0) / (this.pageSize || 1)));
   }
-
 
   // -------------------- ZIP download helpers (iguais) --------------------
   private normalizarNomeArquivo(nome?: string): string {
