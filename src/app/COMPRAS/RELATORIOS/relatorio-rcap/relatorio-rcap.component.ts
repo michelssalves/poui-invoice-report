@@ -1,24 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   PoAccordionModule,
   PoButtonModule,
   PoChartOptions,
   PoChartSerie,
-  PoDialogService,
-  PoDividerModule,
   PoFieldModule,
-  PoInfoModule,
   PoLoadingModule,
-  PoModalComponent,
-  PoModalModule,
   PoModule,
   PoNotificationService,
   PoSelectOption,
   PoTableColumn,
-  PoTableComponent,
   PoTableModule,
   PoToolbarModule
 } from '@po-ui/ng-components';
@@ -32,26 +26,19 @@ import { RelatorioRecapService } from './relatorio-rcap.component.service';
   styleUrl: './relatorio-rcap.component.css',
   imports: [
     CommonModule,
-    PoTableModule,
-    PoInfoModule,
-    PoDividerModule,
+    FormsModule,
+    PoModule,
+    PoAccordionModule,
     PoButtonModule,
-    PoModalModule,
     PoLoadingModule,
     PoFieldModule,
-    FormsModule,
-    PoToolbarModule,
-    PoModule,
-    PoAccordionModule
+    PoTableModule,
+    PoToolbarModule
   ],
-  providers: [RelatorioRecapService, PoDialogService],
+  providers: [RelatorioRecapService],
   standalone: true
 })
 export class RelatorioRcapComponent implements OnInit {
-  @ViewChild(PoModalComponent, { static: true }) poModal!: PoModalComponent;
-  @ViewChild(PoTableComponent, { static: true }) poTable!: PoTableComponent;
-  @ViewChild('form') form!: NgForm;
-
   constructor(
     private http: HttpClient,
     private sampleAirfare: RelatorioRecapService,
@@ -97,9 +84,14 @@ export class RelatorioRcapComponent implements OnInit {
   categoriasUsuarios: string[] = [];
 
   filialOptions: PoSelectOption[] = [];
+  pageSizeOptions: PoSelectOption[] = [
+    { label: '50', value: 50 },
+    { label: '100', value: 100 },
+    { label: '200', value: 200 },
+    { label: '500', value: 500 }
+  ];
 
   private endDateAlteradaManual = false;
-
   private feriadosCache = new Map<number, Set<string>>();
 
   chartOptions: PoChartOptions = {
@@ -157,19 +149,14 @@ export class RelatorioRcapComponent implements OnInit {
     this.carregarDados();
   }
 
-  onChangeTipo(v: any) { this.tipo = v; }
-  onChangePapeleta(v: any) { this.papeleta = v; }
   onChangeEmpresa(value: any): void {
     this.empresa = value;
     this.atualizarFiliaisPorEmpresa(this.empresa);
   }
+
   onChangeFilial(value: any): void {
     this.filial = value;
   }
-  onChangeLiquidado(v: any) { this.liquidado = v; }
-  onChangeImprimir(v: any) { this.imprimir = v; }
-  onChangeFornecedor(v: any) { this.fornecedor = v; }
-  onChangeNotaFiscal(v: any) { this.notaFiscal = v; }
 
   onStartChanged(value: any): void {
     const date = this.toDateSafe(value);
@@ -203,29 +190,6 @@ export class RelatorioRcapComponent implements OnInit {
     return isNaN(dt.getTime()) ? new Date() : dt;
   }
 
-  private parseDate(data: string): Date {
-    if (!data) return new Date(NaN);
-
-    if (/^\d{4}\/\d{2}\/\d{2}$/.test(data)) {
-      const [y, m, d] = data.split('/').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    // YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}/.test(data)) {
-      const [y, m, d] = data.slice(0, 10).split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    // dd/mm/yyyy
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
-      const [d, m, y] = data.split('/').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    return new Date(data);
-  }
-
   getHeader(): HttpHeaders {
     return new HttpHeaders({
       Authorization: 'Basic ' + btoa('admin:tcp_tcp'),
@@ -242,7 +206,6 @@ export class RelatorioRcapComponent implements OnInit {
   updatePageItems(): void {
     const start = (this.page - 1) * this.pageSize;
     const end = start + this.pageSize;
-
     this.items = this.itemsAll.slice(start, end);
   }
 
@@ -285,7 +248,6 @@ export class RelatorioRcapComponent implements OnInit {
       { headers: this.getHeader() }
     ).subscribe({
       next: async (response) => {
-
         this.itemsAll = response?.dados ?? [];
 
         if (!this.itemsAll.length) {
@@ -298,21 +260,21 @@ export class RelatorioRcapComponent implements OnInit {
         }
 
         try {
-          await this.garantirFeriados(
-            this.itemsAll
-              .flatMap(i => [
-                Number(i?.Dt3Way?.slice(0, 4)),
-                Number(i?.digitacao?.slice(0, 4))
-              ])
-              .filter(a => !!a && !isNaN(a))
-          );
+          // garante feriados com parse robusto (não depende de slice(0,4))
+          const anos = this.itemsAll
+            .flatMap(i => {
+              const a = this.parseDateOnly(i?.Dt3Way)?.getFullYear();
+              const b = this.parseDateOnly(i?.digitacao)?.getFullYear();
+              return [a, b];
+            })
+            .filter((y): y is number => typeof y === 'number' && !isNaN(y));
 
-          // calcula horas SLA para TODOS (itemsAll) - 1 loop só
+          await this.garantirFeriados(anos);
+
+          // SLA (Date + Time) com exceção acordada: mesmo dia e sem horas -> 24h
           for (let i = 0; i < this.itemsAll.length; i++) {
-
             const item = this.itemsAll[i];
 
-            // fim sempre é digitação
             const dtFim = this.parseDateOnly(item.digitacao);
             if (!dtFim) {
               item.horasSLA = 0;
@@ -322,7 +284,6 @@ export class RelatorioRcapComponent implements OnInit {
               continue;
             }
 
-            // início: 3Way se tiver, senão digitação
             const dtIni = this.isDataNula(item.Dt3Way)
               ? this.parseDateOnly(item.digitacao)
               : this.parseDateOnly(item.Dt3Way);
@@ -335,23 +296,32 @@ export class RelatorioRcapComponent implements OnInit {
               continue;
             }
 
-            const hrIniNula = this.isHoraNula(item.Hr3Way) || this.isDataNula(item.Dt3Way);
-            const hrFimNula = this.isHoraNula(item.HrDigitacao);
+            const data3WayNula = this.isDataNula(item.Dt3Way);
+            const hora3WayNula = this.isHoraNula(item.Hr3Way);
+            const horaDigitNula = this.isHoraNula(item.HrDigitacao);
+
+            const hrIniNula = data3WayNula || hora3WayNula;
+            const hrFimNula = horaDigitNula;
 
             let horas = 0;
 
-            // ✅ EXCEÇÃO ACORDADA: mesmo dia e sem horas -> 24h fixo
-            if (this.sameDay(dtIni, dtFim) && (hrIniNula || hrFimNula)) {
+            // ✅ REGRA HISTÓRICA / DADOS LEGADOS
+            // Se não existe hora confiável → SLA fixo 24h
+            if (hrIniNula && hrFimNula) {
               horas = 24;
             } else {
-              // cálculo real com data+hora
+              const usarDigitComoIni = data3WayNula || hora3WayNula;
+
               const ini = this.buildDateTime(
-                this.isDataNula(item.Dt3Way) ? item.digitacao : item.Dt3Way,
-                this.isDataNula(item.Dt3Way) ? item.HrDigitacao : item.Hr3Way
+                usarDigitComoIni ? item.digitacao : item.Dt3Way,
+                usarDigitComoIni ? item.HrDigitacao : item.Hr3Way
               );
+
               const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
 
-              horas = (ini && fim) ? this.calcularHorasUteisDateTime(ini, fim) : 0;
+              horas = (ini && fim)
+                ? this.calcularHorasUteisDateTime(ini, fim)
+                : 24; // fallback defensivo
             }
 
             item.horasSLA = horas;
@@ -361,28 +331,23 @@ export class RelatorioRcapComponent implements OnInit {
 
             if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
           }
-          // totalNotas precisa ser do ALL
+
+          // totais
           this.totalNotas = this.itemsAll.length;
-
-          // SLA (48h) — <= inclui 48 dentro
           this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
-
           this.percentDentroSLA = this.totalNotas
             ? Math.round((this.totalDentroSLA / this.totalNotas) * 10000) / 100
             : 0;
 
-          // totals / medias também no ALL
           this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
           this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
           this.mediaDiasSLA = this.totalNotas
             ? Math.round((this.totalHorasSLA / 24 / this.totalNotas) * 100) / 100
             : 0;
 
-          // pedido/contrato no ALL
           const totalPedido = this.itemsAll.filter(i => !i.contrato || i.contrato.trim() === '').length;
           const totalContrato = this.itemsAll.filter(i => i.contrato && i.contrato.trim() !== '').length;
 
-          // mapa usuarios no ALL
           const mapaUsuarios: Record<string, number> = {};
           for (const i of this.itemsAll) {
             const usuario = i.codUsr;
@@ -392,18 +357,17 @@ export class RelatorioRcapComponent implements OnInit {
 
           const usuarios = Object.keys(mapaUsuarios);
           this.categoriasUsuarios = usuarios;
-
           this.colunaItens = [{
             label: 'Notas',
             data: usuarios.map(u => Number(mapaUsuarios[u]) || 0)
           }];
 
-          if (usuarios.length > 30) this.setChartDataLabelEnabled(false);
-          else this.setChartDataLabelEnabled(true);
+          this.setChartDataLabelEnabled(usuarios.length <= 30);
 
+          // OBS: se sua versão do PO não suportar "color" em PoChartSerie, remova as propriedades color abaixo.
           this.pizzaItens = [
-            { label: 'Pedido', data: totalPedido, color: 'po-color-08' },
-            { label: 'Contrato', data: totalContrato, color: 'po-color-07' }
+            { label: 'Pedido', data: totalPedido, color: 'po-color-08' as any },
+            { label: 'Contrato', data: totalContrato, color: 'po-color-07' as any }
           ];
 
           const round2 = (v: number) => Math.round(v * 100) / 100;
@@ -418,7 +382,6 @@ export class RelatorioRcapComponent implements OnInit {
             (item.ipi || 0), 0)
           );
 
-          // só depois atualiza a página (pega do ALL)
           this.total = this.itemsAll.length;
           this.page = 1;
           this.updatePageItems();
@@ -437,45 +400,32 @@ export class RelatorioRcapComponent implements OnInit {
           }
 
           this.loading = false;
+          this.imprimir = 'N'
         } catch (e) {
           console.error('Erro no processamento', e);
           this.loading = false;
+          this.imprimir = 'N'
         }
       },
       error: (err) => {
         console.error(err);
         this.loading = false;
+        this.imprimir = 'N'
       }
     });
   }
 
-  private isHoraNula(h?: string): boolean {
-    if (!h) return true;
-    const v = h.trim();
-    return v === '00:00:00' || v === '00:00' || v === '0';
-  }
-
-  private sameDay(a: Date, b: Date): boolean {
-    return a.getFullYear() === b.getFullYear()
-      && a.getMonth() === b.getMonth()
-      && a.getDate() === b.getDate();
-  }
-
-
   private atualizarFiliaisPorEmpresa(empresa: string): void {
     this.filialOptions = this.filiaisPorEmpresa[empresa] ?? [];
-
-    // Se a filial atual não existe nessa empresa, seta a primeira disponível
     const existe = this.filialOptions.some(f => String(f.value) === String(this.filial));
     if (!existe) {
-      this.filial = this.filialOptions[0]?.value as string ?? '';
+      this.filial = (this.filialOptions[0]?.value as string) ?? '';
     }
   }
 
   private setChartDataLabelEnabled(enabled: boolean): void {
     const opt: any = this.chartOptions ?? {};
     const dl: any = opt['dataLabel'] ?? {};
-
     this.chartOptions = {
       ...opt,
       ['dataLabel']: { ...dl, enabled }
@@ -503,7 +453,7 @@ export class RelatorioRcapComponent implements OnInit {
     return `${y}${m}${d}`;
   }
 
-  // -------------------- SLA FAST (sem loop por dia) --------------------
+  // -------------------- Feriados --------------------
   private async garantirFeriados(anos: number[]): Promise<void> {
     const unicos = Array.from(new Set(anos.filter(a => a && !isNaN(a))));
     await Promise.all(unicos.map(ano => this.carregarFeriadosAno(ano)));
@@ -528,67 +478,17 @@ export class RelatorioRcapComponent implements OnInit {
     });
   }
 
-  private diasUteisBaseSemFeriado(inicio: Date, fim: Date): number {
-    const start = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-    const end = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
-    const msDay = 86400000;
-
-    const totalDias = Math.floor((end.getTime() - start.getTime()) / msDay) + 1;
-    const fullWeeks = Math.floor(totalDias / 7);
-
-    let diasUteis = totalDias - fullWeeks * 2;
-
-    const rest = totalDias % 7;
-    const startDay = start.getDay();
-    for (let i = 0; i < rest; i++) {
-      const dow = (startDay + i) % 7;
-      if (dow === 0 || dow === 6) diasUteis--;
-    }
-    return diasUteis;
+  // -------------------- SLA (DateTime) --------------------
+  private isHoraNula(h?: string): boolean {
+    if (!h) return true;
+    const v = h.trim();
+    return v === '00:00:00' || v === '00:00' || v === '0';
   }
 
-  private contarFeriadosUteisNoIntervalo(inicio: Date, fim: Date): number {
-    let count = 0;
-    const y1 = inicio.getFullYear();
-    const y2 = fim.getFullYear();
-
-    const start = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
-    const end = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
-
-    for (let y = y1; y <= y2; y++) {
-      const set = this.feriadosCache.get(y);
-      if (!set) continue;
-
-      for (const iso of set) {
-        const d = new Date(iso + 'T00:00:00'); // iso = yyyy-mm-dd
-        if (d < start || d > end) continue;
-        const dow = d.getDay();
-        if (dow !== 0 && dow !== 6) count++;
-      }
-    }
-
-    return count;
-  }
-
-  private calcularHorasUteisFast(dataInicio?: string, dataFim?: string): number {
-    if (!dataInicio || !dataFim) return 0;
-
-    const inicio = this.parseDateSafe(dataInicio);
-    const fim = this.parseDateSafe(dataFim);
-
-    if (!inicio || !fim || inicio > fim) return 0;
-
-    const diasUteisBase = this.diasUteisBaseSemFeriado(inicio, fim);
-    const feriadosUteis = this.contarFeriadosUteisNoIntervalo(inicio, fim);
-
-    // Calcula horas úteis (24h por dia útil), descontando feriados
-    let horas = (diasUteisBase - feriadosUteis) * 24;
-
-    // Ajuste para não contar o primeiro dia inteiro
-    horas = Math.max(0, horas - 24);
-
-    // Se não houver horas, retorna 24 (mínimo)
-    return horas > 0 ? horas : 24;
+  private sameDay(a: Date, b: Date): boolean {
+    return a.getFullYear() === b.getFullYear()
+      && a.getMonth() === b.getMonth()
+      && a.getDate() === b.getDate();
   }
 
   private isDataNula(data?: string): boolean {
@@ -599,22 +499,18 @@ export class RelatorioRcapComponent implements OnInit {
 
   private parseDateOnly(data?: string): Date | null {
     if (!data || this.isDataNula(data)) return null;
-
     const v = data.trim();
 
-    // yyyy/mm/dd
     if (/^\d{4}\/\d{2}\/\d{2}$/.test(v)) {
       const [y, m, d] = v.split('/').map(Number);
       return new Date(y, m - 1, d);
     }
 
-    // yyyy-mm-dd
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
       const [y, m, d] = v.split('-').map(Number);
       return new Date(y, m - 1, d);
     }
 
-    // dd/mm/yyyy
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
       const [d, m, y] = v.split('/').map(Number);
       return new Date(y, m - 1, d);
@@ -666,10 +562,8 @@ export class RelatorioRcapComponent implements OnInit {
     if (!inicio || !fim || inicio >= fim) return 0;
 
     const msHour = 3600000;
-
     let totalMs = 0;
 
-    // vamos iterar dia a dia (normalmente seu range é curto; se for enorme, dá pra otimizar)
     let cur = new Date(inicio);
 
     while (cur < fim) {
@@ -683,11 +577,9 @@ export class RelatorioRcapComponent implements OnInit {
         totalMs += (segFim.getTime() - segIni.getTime());
       }
 
-      // próximo dia
       cur = new Date(dayStart.getTime() + 86400000);
     }
 
-    // horas com 2 casas
     return Math.round((totalMs / msHour) * 100) / 100;
   }
 
@@ -705,26 +597,11 @@ export class RelatorioRcapComponent implements OnInit {
     return `${h.toFixed(2)} h`;
   }
 
-  private parseDateSafe(data?: string): Date | null {
-    if (!data) return null;
-
-    // yyyy/mm/dd
-    if (/^\d{4}\/\d{2}\/\d{2}$/.test(data)) {
-      const [y, m, d] = data.split('/').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    // yyyy-mm-dd
-    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
-      const [y, m, d] = data.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
-
-    const dt = new Date(data);
-    return isNaN(dt.getTime()) ? null : dt;
+  get totalPages(): number {
+    return Math.max(1, Math.ceil((this.total || 0) / (this.pageSize || 1)));
   }
 
-  // -------------------- Export Excel (igual ao seu, só ajustei tipos) --------------------
+  // -------------------- Excel --------------------
   async exportToExcel(): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Relatório RCAP');
@@ -763,7 +640,7 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'R$ Saldo', key: 'diferenca', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Usuário', key: 'user', width: 35 },
       { header: 'Horas SLA', key: 'horasSLA', width: 12 },
-      { header: `Dentro SLA (${this.slaHoras}h)`, key: 'slaStatus', width: 16 },
+      { header: `Dentro SLA (${this.slaHoras}h)`, key: 'slaStatus', width: 16 }
     ];
 
     worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -772,11 +649,11 @@ export class RelatorioRcapComponent implements OnInit {
 
     const rows = this.itemsAll.map(item => ({
       ...item,
-      emissao: new Date(item.emissao),
-      digitacao: new Date(item.digitacao),
-      vencimento: new Date(item.vencimento),
-      DtPreNota: new Date(item.DtPreNota),
-      Dt3Way: new Date(item.Dt3Way)
+      emissao: this.parseDateOnly(item.emissao) ?? null,
+      digitacao: this.parseDateOnly(item.digitacao) ?? null,
+      vencimento: this.parseDateOnly(item.vencimento) ?? null,
+      DtPreNota: this.parseDateOnly(item.DtPreNota) ?? null,
+      Dt3Way: this.parseDateOnly(item.Dt3Way) ?? null
     }));
 
     worksheet.addRows(rows);
@@ -802,18 +679,7 @@ export class RelatorioRcapComponent implements OnInit {
     saveAs(new Blob([buffer]), `RecapImpostos_${stamp}.xlsx`);
   }
 
-  pageSizeOptions: PoSelectOption[] = [
-    { label: '50', value: 50 },
-    { label: '100', value: 100 },
-    { label: '200', value: 200 },
-    { label: '500', value: 500 },
-  ];
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil((this.total || 0) / (this.pageSize || 1)));
-  }
-
-  // -------------------- ZIP download helpers (iguais) --------------------
+  // -------------------- ZIP download helpers --------------------
   private normalizarNomeArquivo(nome?: string): string {
     return (nome || 'Papeletas.zip').trim();
   }
@@ -822,7 +688,6 @@ export class RelatorioRcapComponent implements OnInit {
     const folder = resp?.folder;
     const fileName = this.normalizarNomeArquivo(resp?.zipName);
     if (!folder || !fileName) return null;
-
     return `${this.API_URL}/listar-relatorio-rcap/download/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
   }
 

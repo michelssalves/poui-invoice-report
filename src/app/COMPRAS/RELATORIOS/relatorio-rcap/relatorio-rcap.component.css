@@ -1,34 +1,34 @@
 /* ===== Accordion de Filtros ===== */
-:host ::ng-deep .filters-accordion .po-accordion {
+:host ::ng-deep po-accordion.filters-accordion {
   border-radius: 12px;
   overflow: hidden;
 }
 
 /* Header do accordion (onde aparece "Filtros") */
 :host ::ng-deep .filters-accordion .po-accordion-item-header {
-  background: #ffffff;
+  background: #f7f9fc;
   border: 1px solid #e6e8eb;
   border-radius: 12px;
 }
 
-/* Botão do header: altura, padding e alinhamento */
+/* Botão do header */
 :host ::ng-deep .filters-accordion .po-accordion-item-header-button {
   padding: 12px 14px;
   min-height: 48px;
 }
 
-/* Título "Filtros": mais forte e sem aquele espaço */
+/* Título */
 :host ::ng-deep .filters-accordion .po-accordion-item-header-title {
   font-weight: 600;
   font-size: 0.95rem;
 }
 
-/* Ícone da setinha: tamanho e alinhamento */
+/* Ícone */
 :host ::ng-deep .filters-accordion .po-accordion-item-header-icon {
   opacity: 0.85;
 }
 
-/* Conteúdo do accordion vira um “card” */
+/* Conteúdo */
 :host ::ng-deep .filters-accordion .po-accordion-item-content {
   border: 1px solid #e6e8eb;
   border-top: none;
@@ -41,28 +41,25 @@
 :host ::ng-deep .filters-actions .actions-right {
   display: flex;
   justify-content: flex-end;
-  align-items: flex-end; /* fica alinhado com os campos */
+  align-items: flex-end;
   gap: 10px;
-  padding-bottom: 2px; /* dá “base” igual aos inputs */
+  padding-bottom: 2px;
 }
 
-/* (Opcional) botões com mesma altura, fica bem alinhado */
 :host ::ng-deep .filters-actions .actions-right .po-button {
   height: 40px;
 }
-:host ::ng-deep .filters-accordion .po-accordion-item-header {
-  background: #f7f9fc;
-}
+
 :host ::ng-deep .filters-actions {
   border-top: 1px solid #e6e8eb;
   margin-top: 8px;
   padding-top: 8px;
 }
 
-/* CSS TABELA */
+/* ===== Tabela ===== */
 :host ::ng-deep .rcap-table .po-table-container {
-  height: calc(100vh - 280px); /* ajuste esse 280px conforme seu topo/filtros */
-  max-height: 1100px;          /* opcional: trava máximo */
+  height: calc(100vh - 280px);
+  max-height: 1100px;
 }
 
 :host ::ng-deep .rcap-table .po-table-header-sticky th {
@@ -70,9 +67,11 @@
   border-bottom: 1px solid #e6e8eb;
   font-weight: 600;
 }
+
 :host ::ng-deep .rcap-table .po-table-row:hover td {
   background: #f3f5f7;
 }
+
 :host ::ng-deep .rcap-table .po-table-actions {
   padding: 4px 0 8px;
 }
@@ -85,13 +84,12 @@
   opacity: 1;
 }
 
-
 /* melhora leitura de valores monetários */
 :host ::ng-deep .po-table-column-cell {
-  font-variant-numeric: tabular-nums; /* números alinhados */
+  font-variant-numeric: tabular-nums;
 }
 
-
+/* ===== Widgets ===== */
 .widgets-wrapper {
   display: flex;
   flex-direction: column;
@@ -100,10 +98,9 @@
 
 .widget-card {
   border-radius: 8px;
-  padding: 12px 10px; /* antes: 18px 12px */
+  padding: 12px 10px;
   transition: all .2s ease;
 }
-
 
 .widget-card:hover {
   transform: translateY(-2px);
@@ -124,7 +121,6 @@
   color: var(--po-color-neutral-dark-60);
 }
 
-/* Destaque do total */
 .widget-card.destaque {
   background: var(--po-color-primary-light-95);
   border-left: 4px solid var(--po-color-primary);
@@ -134,96 +130,85 @@
   color: var(--po-color-primary);
 }
 
-
-/* ===== Pager bar compacta (35px) ===== */
+/* ===== Pager bar ===== */
 .pager-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* <- importante */
+  justify-content: space-between;
 
   height: 35px;
   max-height: 35px;
 
-  padding: 0 16px; /* <- corrige padding */
+  padding: 0 16px;
   margin: 6px auto 10px auto;
 
   background: #f7f7f7;
   border: 1px solid #e5e5e5;
   border-radius: 6px;
 
-  width: calc(100% - 32px); /* <- afasta das bordas */
+  width: calc(100% - 32px);
   box-sizing: border-box;
-
   overflow: hidden;
 }
 
-/* Lado esquerdo */
 .pager-left {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* Texto da paginação */
 .pager-info {
   font-size: 12px;
   line-height: 1;
   white-space: nowrap;
 }
 
-/* Botões compactos */
-::ng-deep .pager-bar po-button .po-button {
+:host ::ng-deep .pager-bar po-button .po-button {
   height: 28px !important;
   min-height: 28px !important;
   padding: 0 10px !important;
   font-size: 12px !important;
 }
 
-/* ===== Select com label lateral ===== */
 .pager-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* container do select vira linha (label ao lado do campo) */
-::ng-deep .pager-bar .page-size .po-field-container {
+/* Select com label lateral */
+:host ::ng-deep .pager-bar .page-size .po-field-container {
   display: flex !important;
   align-items: center !important;
   gap: 8px;
   margin: 0 !important;
 }
 
-/* remove margin do título */
-::ng-deep .pager-bar .page-size .po-field-container-title {
+:host ::ng-deep .pager-bar .page-size .po-field-container-title {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* label ao lado */
-::ng-deep .pager-bar .page-size .po-label {
+:host ::ng-deep .pager-bar .page-size .po-label {
   font-size: 12px !important;
   line-height: 1 !important;
   white-space: nowrap;
   margin: 0 !important;
 }
 
-/* remove espaçamento vertical padrão do conteúdo */
-::ng-deep .pager-bar .page-size .po-field-container-content {
+:host ::ng-deep .pager-bar .page-size .po-field-container-content {
   padding: 0 !important;
   margin: 0 !important;
 }
 
-/* ajusta o select real (o <select>) */
-::ng-deep .pager-bar .page-size select.po-select {
+:host ::ng-deep .pager-bar .page-size select.po-select {
   height: 28px !important;
   min-height: 28px !important;
-  width: 90px !important;          /* <- controla aqui */
+  width: 90px !important;
   padding: 0 8px !important;
   font-size: 12px !important;
 }
 
-/* NÃO trava largura no componente (isso distorce o po-select) */
 .page-size {
   margin: 0 !important;
 }
@@ -244,10 +229,7 @@
     justify-content: space-between;
   }
 
-  ::ng-deep .pager-bar .page-size select.po-select {
+  :host ::ng-deep .pager-bar .page-size select.po-select {
     width: 110px !important;
   }
 }
-
-
-

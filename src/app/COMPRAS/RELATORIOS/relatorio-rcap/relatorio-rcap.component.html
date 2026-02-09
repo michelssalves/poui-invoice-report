@@ -55,7 +55,7 @@
             </div>
         </po-accordion-item>
     </po-accordion>
-    <po-accordion class="filters-accordion po-lg-12 po-mt-2">
+    <po-accordion class="filters-accordion po-lg-12 po-mt-2 po-mb-1">
         <po-accordion-item p-label="Indicadores">
             <div class="po-row mb-4">
                 <div class="po-md-12 po-lg-12">
@@ -87,7 +87,7 @@
                             </po-widget>
 
                             <po-widget class="widget-card destaque">
-                                <div class="widget-value">{{ totalHorasSLA }} h</div>
+                                <div class="widget-value">{{ totalHorasSLA | number:'1.2-2' }} h</div>
                                 <div class="widget-label">Horas SLA</div>
                             </po-widget>
                         </div>

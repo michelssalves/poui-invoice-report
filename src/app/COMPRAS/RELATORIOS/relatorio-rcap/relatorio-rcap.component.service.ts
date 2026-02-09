@@ -16,13 +16,15 @@ export class RelatorioRecapService {
             { property: 'loja', label: 'Loja', visible: false },
             { property: 'razao', label: 'Razão Social', visible: true },
             { property: 'cnpj', label: 'CNPJ', visible: false },
-            { property: 'emissao', label: 'Dt Emis', visible: true, type: 'date' },
-            { property: 'digitacao', label: 'Dt Digt', visible: true, type: 'date' },
-            { property: 'HrDigitacao', label: 'Hr Digt', visible: true, type: 'time' },
-            { property: 'vencimento', label: 'Venc Real', visible: true, type: 'date' },
-            { property: 'DtPreNota', label: 'Venc PreNota', visible: true, type: 'date' },
+            { property: 'emissao', label: 'Dt Emis', visible: false, type: 'date' },
+            { property: 'vencimento', label: 'Venc Real', visible: false, type: 'date' },
+            { property: 'DtPreNota', label: 'Venc PreNota', visible: false, type: 'date' },
             { property: 'Dt3Way', label: 'Dt 3Way', visible: true, type: 'date' },
+            { property: 'digitacao', label: 'Dt Digt', visible: true, type: 'date' },
             { property: 'Hr3Way', label: 'Hr 3Way', visible: true, type: 'time' },
+            { property: 'HrDigitacao', label: 'Hr Digt', visible: true, type: 'time' },
+            { property: 'horasSLALabel', label: 'SLA', type: 'number', width: '100px', visible: true },
+            { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: true },
             { property: 'natureza', label: 'Natureza', visible: true },
             { property: 'tipo', label: 'Tipo', visible: true },
             { property: 'estado', label: 'Estado', visible: false },
@@ -35,13 +37,11 @@ export class RelatorioRecapService {
             { property: 'desconto', label: 'Desconto', visible: false, type: 'currency', format: 'BRL' },
             { property: 'despesa', label: 'Despesa', visible: false, type: 'currency', format: 'BRL' },
             { property: 'pedido', label: 'Pedido', visible: true },
-            { property: 'TTPedido', label: 'R$ Pedido', visible: true, type: 'currency', format: 'BRL' },
-            { property: 'liquido', label: 'R$ Líquido', visible: true, type: 'currency', format: 'BRL' },
+            { property: 'TTPedido', label: 'R$ Pedido', visible: false, type: 'currency', format: 'BRL' },
+            { property: 'liquido', label: 'R$ Líquido', visible: false, type: 'currency', format: 'BRL' },
             { property: 'bruto', label: 'R$ Bruto', visible: true, type: 'currency', format: 'BRL' },
-            { property: 'diferenca', label: 'R$ Saldo', visible: true, type: 'currency', format: 'BRL' },
-            { property: 'user', label: 'Usuário', visible: true },
-            { property: 'horasSLALabel', label: 'Horas SLA', type: 'number', width: '100px', visible: false },
-            { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: false }
+            { property: 'diferenca', label: 'R$ Saldo', visible: false, type: 'currency', format: 'BRL' },
+            { property: 'user', label: 'Usuário', visible: true }
         ];
     }
 
