@@ -25,6 +25,7 @@ import {
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { RelatorioRecapService } from './relatorio-rcap.component.service';
+
 @Component({
   selector: 'app-relatorio-rcap',
   templateUrl: './relatorio-rcap.component.html',
@@ -40,7 +41,8 @@ import { RelatorioRecapService } from './relatorio-rcap.component.service';
     PoFieldModule,
     FormsModule,
     PoToolbarModule,
-    PoModule, PoAccordionModule
+    PoModule,
+    PoAccordionModule
   ],
   providers: [RelatorioRecapService, PoDialogService],
   standalone: true
@@ -53,15 +55,19 @@ export class RelatorioRcapComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private sampleAirfare: RelatorioRecapService,
-    private poNotification: PoNotificationService,
-
+    private poNotification: PoNotificationService
   ) { }
 
   readonly API_URL = 'http://vhwin1065:9023/rest/protheus/v1/poui';
 
   columns!: Array<PoTableColumn>;
-  items!: Array<any>;
+  items: Array<any> = [];
+  itemsAll: Array<any> = [];    // tudo que veio do filtro (serve Excel / imprimir)
+  page = 1;
+  pageSize = 50;
+  total = 0;
   loading = false;
+
   totalLiquido = 0;
   totalBruto = 0;
   totalImpostos = 0;
@@ -69,63 +75,77 @@ export class RelatorioRcapComponent implements OnInit {
   totalHorasSLA = 0;
   mediaHorasSLA = 0;
   mediaDiasSLA = 0;
+  slaHoras = 48;
+  totalDentroSLA = 0;
+  percentDentroSLA = 0;
+
   empresa: string = '02';
   filial: string = '01';
-  tipo: string = '3'
-  papeleta: string = '2'
-  liquidado: string = '3'
-  imprimir: string = 'N'
-  notaFiscal: string = ''
-  fornecedor: string = ''
+  tipo: string = '3';
+  papeleta: string = '2';
+  liquidado: string = '3';
+  imprimir: string = 'N';
+  notaFiscal: string = '';
+  fornecedor: string = '';
   path: string = 'C:\\temp';
+
   startDate: Date = new Date(new Date().setDate(new Date().getDate() - 1));
   endDate: Date = new Date(new Date().setDate(new Date().getDate() - 1));
-  folderGerada: string = '';
-  pizzaItens: Array<PoChartSerie> = []
-  colunaItens: Array<PoChartSerie> = []
-  tipoCol = 'column'; // Tipo de gráfico (coluna)
-  tipoPizza = 'line'; // Tipo de gráfico (pizza)
+
+  pizzaItens: Array<PoChartSerie> = [];
+  colunaItens: Array<PoChartSerie> = [];
+  categoriasUsuarios: string[] = [];
+
+  filialOptions: PoSelectOption[] = [];
+
+  private endDateAlteradaManual = false;
+
+  // Cache por ano: { 2026 -> Set('2026-01-01', ...) }
+  private feriadosCache = new Map<number, Set<string>>();
 
   chartOptions: PoChartOptions = {
     tooltip: true,
     legend: true,
+    axis: {
+      // sua versão não tipa isso, mas pode funcionar em runtime; se não funcionar, remova.
+      labels: false
+    } as any,
     dataLabel: {
       enabled: true,
       format: '{label}: {value}'
     }
   };
 
-  empresaOpritons: PoSelectOption[] = [
+  empresaOptions: PoSelectOption[] = [
     { label: 'TCP', value: '02' },
     { label: 'TCP LOG SA', value: '03' },
     { label: 'TCP PARTICIP SA', value: '04' }
-
   ];
 
-  filialOpritons: PoSelectOption[] = [
-    { label: 'TCP LOG SA', value: '01' },
-    { label: 'TCP LOG - ORTIGUEIRA', value: '04' }
-
-  ];
+  private filiaisPorEmpresa: Record<string, PoSelectOption[]> = {
+    '02': [{ label: 'TCP TERMINAL', value: '01' }],
+    '03': [
+      { label: 'TCP LOG SA', value: '01' },
+      { label: 'TCP LOG - ORTIGUEIRA', value: '04' }
+    ],
+    '04': [{ label: 'TCP PARTICIP SA', value: '01' }]
+  };
 
   tipoOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
     { label: 'Contrato', value: '2' },
     { label: 'Ambos', value: '3' }
-
   ];
 
   papeletaOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
     { label: 'Nota Fiscal', value: '2' }
-
   ];
 
   liquidadoOptions: PoSelectOption[] = [
     { label: 'Sim', value: '1' },
     { label: 'Não', value: '2' },
     { label: 'Ambos', value: '3' }
-
   ];
 
   imprimirOptions: PoSelectOption[] = [
@@ -134,63 +154,49 @@ export class RelatorioRcapComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-
+    this.atualizarFiliaisPorEmpresa(this.empresa);
     this.columns = this.sampleAirfare.getColumns();
     this.carregarDados();
-
   }
 
-  onChangeTipo(value: any): void {
-    this.tipo = value
-  }
-
-  onChangePapeleta(value: any): void {
-    this.papeleta = value
-  }
-
+  // --- handlers simples ---
+  onChangeTipo(v: any) { this.tipo = v; }
+  onChangePapeleta(v: any) { this.papeleta = v; }
   onChangeEmpresa(value: any): void {
-    this.empresa = value
+    this.empresa = value;
+    this.atualizarFiliaisPorEmpresa(this.empresa);
   }
   onChangeFilial(value: any): void {
-    this.filial = value
+    this.filial = value;
   }
-
-  onChangeLiquidado(value: any): void {
-    this.liquidado = value
-  }
-
-  onChangeImprimir(value: any): void {
-    this.imprimir = value
-  }
-
-  onChangeFornecedor(value: any): void {
-    this.fornecedor = value
-  }
-  onChangeNotaFiscal(value: any): void {
-    this.notaFiscal = value
-  }
+  onChangeLiquidado(v: any) { this.liquidado = v; }
+  onChangeImprimir(v: any) { this.imprimir = v; }
+  onChangeFornecedor(v: any) { this.fornecedor = v; }
+  onChangeNotaFiscal(v: any) { this.notaFiscal = v; }
 
   onStartChanged(value: any): void {
-    console.log('start changed raw:', value); // <- veja o que está vindo
-    this.startDate = this.toDateSafe(value);
+    const date = this.toDateSafe(value);
+    this.startDate = date;
+
+    // só copia se usuário ainda não mexeu na data final
+    if (!this.endDateAlteradaManual) {
+      this.endDate = date;
+    }
   }
 
   onEndChanged(value: any): void {
-    console.log('end changed raw:', value);
     this.endDate = this.toDateSafe(value);
+    this.endDateAlteradaManual = true;
   }
 
   private toDateSafe(value: any): Date {
     if (value instanceof Date) return value;
 
     if (typeof value === 'string') {
-      // ISO YYYY-MM-DD (ou com hora) -> pega só a parte da data e monta local
       if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
         const [y, m, d] = value.slice(0, 10).split('-').map(Number);
         return new Date(y, m - 1, d);
       }
-
-      // dd/mm/yyyy
       if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
         const [d, m, y] = value.split('/').map(Number);
         return new Date(y, m - 1, d);
@@ -201,19 +207,65 @@ export class RelatorioRcapComponent implements OnInit {
     return isNaN(dt.getTime()) ? new Date() : dt;
   }
 
-  getHeader(): HttpHeaders {
+  private parseDate(data: string): Date {
+    if (!data) return new Date(NaN);
 
+    // YYYY/MM/DD (seus dados do Protheus)
+    if (/^\d{4}\/\d{2}\/\d{2}$/.test(data)) {
+      const [y, m, d] = data.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}/.test(data)) {
+      const [y, m, d] = data.slice(0, 10).split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // dd/mm/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data)) {
+      const [d, m, y] = data.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    return new Date(data);
+  }
+
+  getHeader(): HttpHeaders {
     return new HttpHeaders({
-      'Authorization': 'Basic ' + btoa('admin:tcp_tcp'),
+      Authorization: 'Basic ' + btoa('admin:tcp_tcp'),
       'Content-Type': 'application/json',
-      'tenantid': '02,01',
+      tenantid: `${this.empresa},${this.filial}`,
       'x-erp-module': 'COM'
     });
-
   }
 
   filtrar(): void {
     this.carregarDados();
+  }
+
+  updatePageItems(): void {
+    const start = (this.page - 1) * this.pageSize;
+    const end = start + this.pageSize;
+
+    // importante: cria um novo array pra disparar change detection
+    this.items = this.itemsAll.slice(start, end);
+  }
+
+  nextPage(): void {
+    if (this.page * this.pageSize >= this.total) return;
+    this.page++;
+    this.updatePageItems();
+  }
+
+  prevPage(): void {
+    if (this.page <= 1) return;
+    this.page--;
+    this.updatePageItems();
+  }
+
+  setPageSize(size: number): void {
+    this.pageSize = size;
   }
 
   carregarDados(): void {
@@ -236,84 +288,101 @@ export class RelatorioRcapComponent implements OnInit {
       body,
       { headers: this.getHeader() }
     ).subscribe({
-      next: (response) => {
+      next: async (response) => {
 
-        // 1) primeiro popula items
-        this.items = response?.dados ?? [];
+        this.itemsAll = response?.dados ?? [];
 
-        if (this.items.length === 0) {
+        if (!this.itemsAll.length) {
+          this.total = 0;
+          this.page = 1;
+          this.items = [];
+          this.zerarTotais();
           this.loading = false;
           return;
         }
 
-        // 2) calcula ano a partir da digitacao (YYYY/MM/DD)
-        const ano = Number(this.items[0]?.digitacao?.slice(0, 4)) || new Date().getFullYear();
-
-        // 3) carrega feriados e só depois calcula horas úteis e o resto
-        this.carregarFeriadosBrasilApi(ano).then(() => {
-
-          // horas úteis por item
-          this.items.forEach(item => {
-            item.horas3Way = this.calcularHorasUteis(item.Dt3Way, item.digitacao);
-          });
-
-          this.totalHorasSLA = this.items.reduce(
-            (sum, item) => sum + (item.horas3Way || 0),
-            0
+        try {
+          await this.garantirFeriados(
+            this.itemsAll
+              .flatMap(i => [
+                Number(i?.Dt3Way?.slice(0, 4)),
+                Number(i?.digitacao?.slice(0, 4))
+              ])
+              .filter(a => !!a && !isNaN(a))
           );
 
-          this.mediaHorasSLA = this.items.length
-            ? Math.round(this.totalHorasSLA / this.items.length)
+          // calcula horas SLA para TODOS (itemsAll) - 1 loop só
+          for (let i = 0; i < this.itemsAll.length; i++) {
+            const item = this.itemsAll[i];
+            const horas = this.calcularHorasUteisFast(item.Dt3Way, item.digitacao);
+
+            item.horasSLA = horas;
+            item.dentroSLA = horas <= this.slaHoras;
+            item.slaStatus = item.dentroSLA ? 'Dentro' : 'Fora';
+
+            if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
+          }
+          // totalNotas precisa ser do ALL
+          this.totalNotas = this.itemsAll.length;
+
+          // SLA (48h) — <= inclui 48 dentro
+          this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
+
+          this.percentDentroSLA = this.totalNotas
+            ? Math.round((this.totalDentroSLA / this.totalNotas) * 10000) / 100
             : 0;
 
-          this.mediaDiasSLA = this.items.length
-            ? Math.round((this.totalHorasSLA / 24 / this.items.length) * 100) / 100
+          // totals / medias também no ALL
+          this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
+          this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
+          this.mediaDiasSLA = this.totalNotas
+            ? Math.round((this.totalHorasSLA / 24 / this.totalNotas) * 100) / 100
             : 0;
 
-          const totalPedido = this.items.filter(i => !i.contrato || i.contrato.trim() === '').length;
-          const totalContrato = this.items.filter(i => i.contrato && i.contrato.trim() !== '').length;
+          // pedido/contrato no ALL
+          const totalPedido = this.itemsAll.filter(i => !i.contrato || i.contrato.trim() === '').length;
+          const totalContrato = this.itemsAll.filter(i => i.contrato && i.contrato.trim() !== '').length;
 
+          // mapa usuarios no ALL
           const mapaUsuarios: Record<string, number> = {};
-          this.items.forEach(i => {
+          for (const i of this.itemsAll) {
             const usuario = i.codUsr;
-            if (!usuario) return;
+            if (!usuario) continue;
             mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
-          });
+          }
 
-          this.colunaItens = Object.keys(mapaUsuarios).map(usuario => ({
-            label: usuario,
-            data: [Number(mapaUsuarios[usuario]) || 0]
-          }));
+          const usuarios = Object.keys(mapaUsuarios);
+          this.categoriasUsuarios = usuarios;
+
+          this.colunaItens = [{
+            label: 'Notas',
+            data: usuarios.map(u => Number(mapaUsuarios[u]) || 0)
+          }];
+
+          if (usuarios.length > 30) this.setChartDataLabelEnabled(false);
+          else this.setChartDataLabelEnabled(true);
 
           this.pizzaItens = [
             { label: 'Pedido', data: totalPedido, color: 'po-color-08' },
             { label: 'Contrato', data: totalContrato, color: 'po-color-07' }
           ];
 
-          this.totalNotas = this.items.length;
-
-          const round2 = (value: number) => Math.round(value * 100) / 100;
-
-          this.totalLiquido = round2(
-            this.items.reduce((sum, item) => sum + (item.liquido || 0), 0)
+          const round2 = (v: number) => Math.round(v * 100) / 100;
+          this.totalLiquido = round2(this.itemsAll.reduce((sum, item) => sum + (item.liquido || 0), 0));
+          this.totalBruto = round2(this.itemsAll.reduce((sum, item) => sum + (item.bruto || 0), 0));
+          this.totalImpostos = round2(this.itemsAll.reduce((sum, item) =>
+            sum +
+            (item.inss || 0) +
+            (item.pis || 0) +
+            (item.cofins || 0) +
+            (item.csll || 0) +
+            (item.ipi || 0), 0)
           );
 
-          this.totalBruto = round2(
-            this.items.reduce((sum, item) => sum + (item.bruto || 0), 0)
-          );
-
-          this.totalImpostos = round2(
-            this.items.reduce(
-              (sum, item) =>
-                sum +
-                (item.inss || 0) +
-                (item.pis || 0) +
-                (item.cofins || 0) +
-                (item.csll || 0) +
-                (item.ipi || 0),
-              0
-            )
-          );
+          // só depois atualiza a página (pega do ALL)
+          this.total = this.itemsAll.length;
+          this.page = 1;
+          this.updatePageItems();
 
           // download ZIP se imprimir
           if (this.imprimir === 'S') {
@@ -329,17 +398,50 @@ export class RelatorioRcapComponent implements OnInit {
           }
 
           this.loading = false;
-        }).catch(err => {
-          console.error('Erro ao carregar feriados', err);
+        } catch (e) {
+          console.error('Erro no processamento', e);
           this.loading = false;
-        });
+        }
       },
-
       error: (err) => {
         console.error(err);
         this.loading = false;
       }
     });
+  }
+
+  private atualizarFiliaisPorEmpresa(empresa: string): void {
+    this.filialOptions = this.filiaisPorEmpresa[empresa] ?? [];
+
+    // Se a filial atual não existe nessa empresa, seta a primeira disponível
+    const existe = this.filialOptions.some(f => String(f.value) === String(this.filial));
+    if (!existe) {
+      this.filial = this.filialOptions[0]?.value as string ?? '';
+    }
+  }
+
+  private setChartDataLabelEnabled(enabled: boolean): void {
+    const opt: any = this.chartOptions ?? {};
+    const dl: any = opt['dataLabel'] ?? {};
+
+    this.chartOptions = {
+      ...opt,
+      ['dataLabel']: { ...dl, enabled }
+    } as any;
+  }
+
+
+  private zerarTotais(): void {
+    this.totalLiquido = 0;
+    this.totalBruto = 0;
+    this.totalImpostos = 0;
+    this.totalNotas = 0;
+    this.totalHorasSLA = 0;
+    this.mediaHorasSLA = 0;
+    this.mediaDiasSLA = 0;
+    this.pizzaItens = [];
+    this.colunaItens = [];
+    this.categoriasUsuarios = [];
   }
 
   ToAAAMMDD(date: Date): string {
@@ -350,11 +452,112 @@ export class RelatorioRcapComponent implements OnInit {
     return `${y}${m}${d}`;
   }
 
+  // -------------------- SLA FAST (sem loop por dia) --------------------
+  private async garantirFeriados(anos: number[]): Promise<void> {
+    const unicos = Array.from(new Set(anos.filter(a => a && !isNaN(a))));
+    await Promise.all(unicos.map(ano => this.carregarFeriadosAno(ano)));
+  }
+
+  private carregarFeriadosAno(ano: number): Promise<void> {
+    if (this.feriadosCache.has(ano)) return Promise.resolve();
+
+    return new Promise<void>((resolve) => {
+      this.http.get<Array<{ date: string }>>(
+        `https://brasilapi.com.br/api/feriados/v1/${ano}`
+      ).subscribe({
+        next: (feriados) => {
+          this.feriadosCache.set(ano, new Set((feriados ?? []).map(f => f.date))); // yyyy-mm-dd
+          resolve();
+        },
+        error: () => {
+          this.feriadosCache.set(ano, new Set());
+          resolve();
+        }
+      });
+    });
+  }
+
+  private diasUteisBaseSemFeriado(inicio: Date, fim: Date): number {
+    const start = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+    const end = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
+    const msDay = 86400000;
+
+    const totalDias = Math.floor((end.getTime() - start.getTime()) / msDay) + 1;
+    const fullWeeks = Math.floor(totalDias / 7);
+
+    let diasUteis = totalDias - fullWeeks * 2;
+
+    const rest = totalDias % 7;
+    const startDay = start.getDay();
+    for (let i = 0; i < rest; i++) {
+      const dow = (startDay + i) % 7;
+      if (dow === 0 || dow === 6) diasUteis--;
+    }
+    return diasUteis;
+  }
+
+  private contarFeriadosUteisNoIntervalo(inicio: Date, fim: Date): number {
+    let count = 0;
+    const y1 = inicio.getFullYear();
+    const y2 = fim.getFullYear();
+
+    const start = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+    const end = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
+
+    for (let y = y1; y <= y2; y++) {
+      const set = this.feriadosCache.get(y);
+      if (!set) continue;
+
+      for (const iso of set) {
+        const d = new Date(iso + 'T00:00:00'); // iso = yyyy-mm-dd
+        if (d < start || d > end) continue;
+        const dow = d.getDay();
+        if (dow !== 0 && dow !== 6) count++;
+      }
+    }
+
+    return count;
+  }
+
+  private calcularHorasUteisFast(dataInicio?: string, dataFim?: string): number {
+    if (!dataInicio || !dataFim) return 0;
+
+    const inicio = this.parseDateSafe(dataInicio);
+    const fim = this.parseDateSafe(dataFim);
+
+    if (!inicio || !fim || inicio > fim) return 0;
+
+    const diasUteisBase = this.diasUteisBaseSemFeriado(inicio, fim);
+    const feriadosUteis = this.contarFeriadosUteisNoIntervalo(inicio, fim);
+
+    return Math.max(0, (diasUteisBase - feriadosUteis) * 24);
+  }
+
+  private parseDateSafe(data?: string): Date | null {
+    if (!data) return null;
+
+    // yyyy/mm/dd
+    if (/^\d{4}\/\d{2}\/\d{2}$/.test(data)) {
+      const [y, m, d] = data.split('/').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    // yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+      const [y, m, d] = data.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    const dt = new Date(data);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+
+  // -------------------- Export Excel (igual ao seu, só ajustei tipos) --------------------
   async exportToExcel(): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Relatório RCAP');
 
-    // Definição das colunas
     worksheet.columns = [
       { header: 'Item', key: 'item', width: 10 },
       { header: 'Filial', key: 'filial', width: 10 },
@@ -385,20 +588,16 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Pedido', key: 'pedido', width: 15 },
       { header: 'R$ Pedido', key: 'TTPedido', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'R$ Saldo', key: 'diferenca', width: 15, style: { numFmt: 'R$ #,##0.00' } },
-      { header: 'Usuário', key: 'user', width: 35 }
+      { header: 'Usuário', key: 'user', width: 35 },
+      { header: 'Horas SLA', key: 'horasSLA', width: 12 },
+      { header: `Dentro SLA (${this.slaHoras}h)`, key: 'slaStatus', width: 16 },
     ];
 
-    // Cabeçalho estilizado
     worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    worksheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: '4e73df' }
-    };
+    worksheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '4e73df' } };
     worksheet.getRow(1).alignment = { horizontal: 'center' };
 
-    // Converter datas para objetos Date
-    const rows = this.items.map(item => ({
+    const rows = this.itemsAll.map(item => ({
       ...item,
       emissao: new Date(item.emissao),
       digitacao: new Date(item.digitacao),
@@ -409,7 +608,6 @@ export class RelatorioRcapComponent implements OnInit {
 
     worksheet.addRows(rows);
 
-    // 3. Aplicar bordas, alinhamento e cores condicionais 
     worksheet.eachRow((row: ExcelJS.Row, rowNumber: number) => {
       row.eachCell((cell: ExcelJS.Cell) => {
         cell.border = {
@@ -422,101 +620,46 @@ export class RelatorioRcapComponent implements OnInit {
           cell.alignment = { vertical: 'middle', horizontal: 'left' };
         }
       });
-
     });
 
     worksheet.views = [{ state: 'frozen', ySplit: 1 }];
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const now = new Date();
-    const stamp = now.toISOString().replace(/[:.]/g, '-');
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     saveAs(new Blob([buffer]), `RecapImpostos_${stamp}.xlsx`);
   }
 
-  // exemplo de "vetor" para consulta rápida
-  private feriadosSet = new Set<string>();
-  private parseDate(data: string): Date {
-    const [ano, mes, dia] = data.split('/').map(Number);
-    return new Date(ano, mes - 1, dia);
+  pageSizeOptions: PoSelectOption[] = [
+    { label: '50', value: 50 },
+    { label: '100', value: 100 },
+    { label: '200', value: 200 },
+    { label: '500', value: 500 },
+  ];
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil((this.total || 0) / (this.pageSize || 1)));
   }
 
-  private isDiaUtil(date: Date): boolean {
-    const day = date.getDay();
-    if (day === 0 || day === 6) return false;
 
-    const iso = date.toISOString().slice(0, 10);
-    if (this.feriadosSet.has(iso)) return false;
-
-    return true;
-  }
-
-  private calcularHorasUteis(dataInicio: string, dataFim: string): number {
-    if (!dataInicio || !dataFim) return 0;
-
-    const inicio = this.parseDate(dataInicio);
-    const fim = this.parseDate(dataFim);
-    if (inicio > fim) return 0;
-
-    let horas = 0;
-    const d = new Date(inicio);
-
-    while (d <= fim) {
-      if (this.isDiaUtil(d)) horas += 24;
-      d.setDate(d.getDate() + 1);
-    }
-
-    return horas;
-  }
-
-  private carregarFeriadosBrasilApi(ano: number): Promise<void> {
-    return new Promise<void>((resolve) => {
-      this.http
-        .get<Array<{ date: string }>>(
-          `https://brasilapi.com.br/api/feriados/v1/${ano}`
-        )
-        .subscribe({
-          next: (feriados) => {
-            this.feriadosSet = new Set((feriados ?? []).map(f => f.date));
-
-            console.log('Feriados carregados:', Array.from(this.feriadosSet));
-            resolve();
-          },
-          error: () => {
-            // fallback: segue sem feriados
-            this.feriadosSet.clear();
-            resolve();
-          }
-        });
-    });
-  }
-
+  // -------------------- ZIP download helpers (iguais) --------------------
   private normalizarNomeArquivo(nome?: string): string {
     return (nome || 'Papeletas.zip').trim();
   }
 
   private montarUrlDownload(resp: any): string | null {
-
     const folder = resp?.folder;
     const fileName = this.normalizarNomeArquivo(resp?.zipName);
-
-    if (!folder || !fileName) {
-      return null;
-    }
+    if (!folder || !fileName) return null;
 
     return `${this.API_URL}/listar-relatorio-rcap/download/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
   }
 
   private deletarArquivos(folder: string, fileName: string): void {
-    if (!folder || !fileName) {
-      return;
-    }
+    if (!folder || !fileName) return;
 
     const url = `${this.API_URL}/listar-relatorio-rcap/excluir/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
-
     this.http.get(url, { headers: this.getHeader() }).subscribe({
-      next: () => {
-        this.poNotification.success('Arquivos excluídos com sucesso.');
-      },
+      next: () => this.poNotification.success('Arquivos excluídos com sucesso.'),
       error: (err) => {
         console.error('Erro ao excluir arquivos:', err);
         this.poNotification.error('Falha ao excluir arquivos.');
@@ -525,10 +668,7 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   private baixarArquivoPorUrl(url: string, fileName: string, folder: string): void {
-    this.http.get(url, {
-      headers: this.getHeader(),
-      responseType: 'blob'
-    }).subscribe({
+    this.http.get(url, { headers: this.getHeader(), responseType: 'blob' }).subscribe({
       next: (blob) => {
         const a = document.createElement('a');
         const objectUrl = URL.createObjectURL(blob);
@@ -543,10 +683,7 @@ export class RelatorioRcapComponent implements OnInit {
           this.deletarArquivos(folder, fileName);
         }, 1000);
       },
-      error: (err) => {
-        console.error('Erro ao baixar ZIP:', err);
-      }
+      error: (err) => console.error('Erro ao baixar ZIP:', err)
     });
   }
-
 }

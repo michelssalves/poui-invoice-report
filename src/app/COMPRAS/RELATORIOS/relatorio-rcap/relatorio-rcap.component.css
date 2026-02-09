@@ -133,3 +133,121 @@
 .widget-card.destaque .widget-value {
   color: var(--po-color-primary);
 }
+
+
+/* ===== Pager bar compacta (35px) ===== */
+.pager-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* <- importante */
+
+  height: 35px;
+  max-height: 35px;
+
+  padding: 0 16px; /* <- corrige padding */
+  margin: 6px auto 10px auto;
+
+  background: #f7f7f7;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+
+  width: calc(100% - 32px); /* <- afasta das bordas */
+  box-sizing: border-box;
+
+  overflow: hidden;
+}
+
+/* Lado esquerdo */
+.pager-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Texto da paginação */
+.pager-info {
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Botões compactos */
+::ng-deep .pager-bar po-button .po-button {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+/* ===== Select com label lateral ===== */
+.pager-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* container do select vira linha (label ao lado do campo) */
+::ng-deep .pager-bar .page-size .po-field-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px;
+  margin: 0 !important;
+}
+
+/* remove margin do título */
+::ng-deep .pager-bar .page-size .po-field-container-title {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* label ao lado */
+::ng-deep .pager-bar .page-size .po-label {
+  font-size: 12px !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  margin: 0 !important;
+}
+
+/* remove espaçamento vertical padrão do conteúdo */
+::ng-deep .pager-bar .page-size .po-field-container-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ajusta o select real (o <select>) */
+::ng-deep .pager-bar .page-size select.po-select {
+  height: 28px !important;
+  min-height: 28px !important;
+  width: 90px !important;          /* <- controla aqui */
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+
+/* NÃO trava largura no componente (isso distorce o po-select) */
+.page-size {
+  margin: 0 !important;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 900px) {
+  .pager-bar {
+    height: auto;
+    max-height: none;
+    padding: 8px 12px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pager-left,
+  .pager-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  ::ng-deep .pager-bar .page-size select.po-select {
+    width: 110px !important;
+  }
+}
+
+
+

@@ -37,7 +37,9 @@ export class RelatorioRecapService {
             { property: 'liquido', label: 'R$ Líquido', visible: true, type: 'currency', format: 'BRL' },
             { property: 'bruto', label: 'R$ Bruto', visible: true, type: 'currency', format: 'BRL' },
             { property: 'diferenca', label: 'R$ Saldo', visible: true, type: 'currency', format: 'BRL' },
-            { property: 'user', label: 'Usuário', visible: true }
+            { property: 'user', label: 'Usuário', visible: true },
+            { property: 'horasSLA', label: 'Horas SLA', type: 'number', width: '100px', visible: false },
+            { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: false }
         ];
     }
 
