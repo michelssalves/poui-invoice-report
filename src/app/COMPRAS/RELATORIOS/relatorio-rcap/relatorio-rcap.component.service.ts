@@ -23,7 +23,7 @@ export class RelatorioRecapService {
             { property: 'digitacao', label: 'Dt Digt', visible: true, type: 'date' },
             { property: 'Hr3Way', label: 'Hr 3Way', visible: true, type: 'time' },
             { property: 'HrDigitacao', label: 'Hr Digt', visible: true, type: 'time' },
-            { property: 'horasSLALabel', label: 'SLA', type: 'number', width: '100px', visible: true },
+            { property: 'horasSLALabel', label: 'SLA', type: 'number', visible: true },
             { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: true },
             { property: 'natureza', label: 'Natureza', visible: true },
             { property: 'tipo', label: 'Tipo', visible: true },
