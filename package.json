@@ -8,9 +8,10 @@
     "watch": "ng build --watch --configuration development",
     "dev": "ng serve -c development",
     "prod": "ng serve -c production",
-    "protheus": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1",
     "protheus:dev": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env dev",
-    "protheus:prod": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env prod"
+    "protheus:prod": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env prod",
+    "deploy:dev": "ng deploy -c development",
+    "deploy:prod": "ng deploy -c production"
   },
   "private": true,
   "dependencies": {

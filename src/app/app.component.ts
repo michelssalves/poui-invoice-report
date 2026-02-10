@@ -72,7 +72,6 @@ export class AppComponent {
   printMenuAction(menu: PoMenuItem) {
     AppComponentService
     this.menuItemSelected = menu.label;
-    console.log('asa' + this.menuItemSelected)
   }
 
   private atualizaTituloDinamico() {
@@ -87,8 +86,6 @@ export class AppComponent {
 
       const breadcrumb = route?.snapshot.data?.['breadcrumb'] || '';
 
-      console.log('Breadcrumb atualizado:', breadcrumb);
-
       this.breadcrumbItems = [
         { label: this.menuItemSelected },
         { label: breadcrumb }
@@ -96,31 +93,8 @@ export class AppComponent {
     });
   }
 
-  //Ao clicar no Cadastro
-  private dashboardClick() {
-    this.router.navigate(['/', 'dashboard']);
-  }
-  private contasAPagarClick() {
-    this.router.navigate(['/', 'conta-a-pagar']);
-  }
-
-
-  //Ao clicar no Cadastro
-  private testeClick() {
-    this.router.navigate(['/', 'teste']);
-  }
-  //Ao clicar no Cadastro
-  private errorLogsClick() {
-    this.router.navigate(['/', 'erros-log']);
-  }
-
   private relatorioRcapClick() {
     this.router.navigate(['/', 'relatorio-rcap']);
-  }
-
-
-  private onClick() {
-    alert('Clicked in menu item');
   }
 
   private closeApp() {

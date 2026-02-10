@@ -226,9 +226,289 @@ export class RelatorioRcapComponent implements OnInit {
     this.updatePageItems();
   }
 
+  private async processarResposta(response: any): Promise<void> {
+    this.itemsAll = response?.dados ?? [];
+
+    if (!this.itemsAll.length) {
+      this.total = 0;
+      this.page = 1;
+      this.items = [];
+      this.zerarTotais();
+      this.loading = false;
+      return;
+    }
+
+    try {
+      // garante feriados com parse robusto (não depende de slice(0,4))
+      const anos = this.itemsAll
+        .flatMap(i => {
+          const a = this.parseDateOnly(i?.Dt3Way)?.getFullYear();
+          const b = this.parseDateOnly(i?.digitacao)?.getFullYear();
+          return [a, b];
+        })
+        .filter((y): y is number => typeof y === 'number' && !isNaN(y));
+
+      await this.garantirFeriados(anos);
+
+      // SLA (Date + Time) com exceção acordada: mesmo dia e sem horas -> 24h
+      for (let i = 0; i < this.itemsAll.length; i++) {
+        const item = this.itemsAll[i];
+
+        const dtFim = this.parseDateOnly(item.digitacao);
+        if (!dtFim) {
+          item.horasSLA = 0;
+          item.dentroSLA = true;
+          item.slaStatus = 'Dentro';
+          item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
+          continue;
+        }
+
+        const dtIni = this.isDataNula(item.Dt3Way)
+          ? this.parseDateOnly(item.digitacao)
+          : this.parseDateOnly(item.Dt3Way);
+
+        if (!dtIni) {
+          item.horasSLA = 0;
+          item.dentroSLA = true;
+          item.slaStatus = 'Dentro';
+          item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
+          continue;
+        }
+
+        const data3WayNula = this.isDataNula(item.Dt3Way);
+        const hora3WayNula = this.isHoraNula(item.Hr3Way);
+        const horaDigitNula = this.isHoraNula(item.HrDigitacao);
+
+        const hrIniNula = data3WayNula || hora3WayNula;
+        const hrFimNula = horaDigitNula;
+
+        let horas = 0;
+
+        // ✅ REGRA HISTÓRICA / DADOS LEGADOS
+        // Se não existe hora confiável → SLA fixo 24h
+        if (hrIniNula && hrFimNula) {
+          horas = 24;
+        } else {
+          const usarDigitComoIni = data3WayNula || hora3WayNula;
+
+          const ini = this.buildDateTime(
+            usarDigitComoIni ? item.digitacao : item.Dt3Way,
+            usarDigitComoIni ? item.HrDigitacao : item.Hr3Way
+          );
+
+          const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
+
+          horas = (ini && fim)
+            ? this.calcularHorasUteisDateTime(ini, fim)
+            : 24; // fallback defensivo
+        }
+
+        item.horasSLA = horas;
+        item.horasSLALabel = this.formatHorasSLA(horas);
+        item.dentroSLA = horas <= this.slaHoras;
+        item.slaStatus = item.dentroSLA ? 'Dentro' : 'Fora';
+
+        if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
+      }
+
+      // totais
+      this.totalNotas = this.itemsAll.length;
+      this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
+      this.percentDentroSLA = this.totalNotas
+        ? Math.round((this.totalDentroSLA / this.totalNotas) * 10000) / 100
+        : 0;
+
+      this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
+      this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
+      this.mediaDiasSLA = this.totalNotas
+        ? Math.round((this.totalHorasSLA / 24 / this.totalNotas) * 100) / 100
+        : 0;
+
+      const totalPedido = this.itemsAll.filter(i => !i.contrato || i.contrato.trim() === '').length;
+      const totalContrato = this.itemsAll.filter(i => i.contrato && i.contrato.trim() !== '').length;
+
+      const mapaUsuarios: Record<string, number> = {};
+      for (const i of this.itemsAll) {
+        const usuario = i.codUsr;
+        if (!usuario) continue;
+        mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
+      }
+
+      const usuarios = Object.keys(mapaUsuarios);
+      this.categoriasUsuarios = usuarios;
+      this.colunaItens = [{
+        label: 'Notas',
+        data: usuarios.map(u => Number(mapaUsuarios[u]) || 0)
+      }];
+
+      this.setChartDataLabelEnabled(usuarios.length <= 30);
+
+      // OBS: se sua versão do PO não suportar "color" em PoChartSerie, remova as propriedades color abaixo.
+      this.pizzaItens = [
+        { label: 'Pedido', data: totalPedido, color: 'po-color-08' as any },
+        { label: 'Contrato', data: totalContrato, color: 'po-color-07' as any }
+      ];
+
+      const round2 = (v: number) => Math.round(v * 100) / 100;
+      this.totalLiquido = round2(this.itemsAll.reduce((sum, item) => sum + (item.liquido || 0), 0));
+      this.totalBruto = round2(this.itemsAll.reduce((sum, item) => sum + (item.bruto || 0), 0));
+      this.totalImpostos = round2(this.itemsAll.reduce((sum, item) =>
+        sum +
+        (item.inss || 0) +
+        (item.pis || 0) +
+        (item.cofins || 0) +
+        (item.csll || 0) +
+        (item.ipi || 0), 0)
+      );
+
+      this.total = this.itemsAll.length;
+      this.page = 1;
+      this.updatePageItems();
+
+      // download ZIP se imprimir
+      if (environment.useMocks) {
+        // não baixa arquivo em dev
+      } else if (this.imprimir === 'S') {
+        const fileName = this.normalizarNomeArquivo(response?.zipName);
+        const downloadUrl = this.montarUrlDownload(response);
+        const folder = response?.folder;
+
+        if (!downloadUrl) {
+          this.poNotification.warning('Não foi possível montar a URL do ZIP.');
+        } else {
+          this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
+        }
+      }
+
+      this.loading = false;
+      this.imprimir = 'N'
+
+    } catch (e) {
+      console.error('Erro no processamento', e);
+      this.loading = false;
+      this.imprimir = 'N';
+    }
+  }
+  private getMockResponse(): any {
+    const users = [
+      { codUsr: 'michel', user: 'Michel Alves' },
+      { codUsr: 'ana', user: 'Ana Souza' },
+      { codUsr: 'carlos', user: 'Carlos Lima' },
+      { codUsr: 'bianca', user: 'Bianca Rocha' },
+      { codUsr: 'joao', user: 'João Santos' }
+    ];
+
+    const pad = (n: number, size = 6) => String(n).padStart(size, '0');
+
+    // Gera uma data YYYY/MM/DD a partir de um "offset" em dias
+    const dateYMD = (base: Date, addDays: number) => {
+      const d = new Date(base);
+      d.setDate(d.getDate() + addDays);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}/${m}/${day}`;
+    };
+
+    // Hora HH:MM:SS
+    const timeHMS = (h: number, m: number) =>
+      `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
+
+    const base = new Date(2026, 1, 9); // 09/02/2026 (mês 1 = fevereiro)
+
+    const dados = Array.from({ length: 50 }, (_, idx) => {
+      const i = idx + 1;
+
+      const u = users[idx % 5]; // ✅ só 5 users
+      const hasContrato = idx % 2 === 0; // ✅ alterna contrato/sem contrato
+
+      // datas
+      const emissao = dateYMD(base, -(idx % 10));      // varia últimos 10 dias
+      const digitacao = dateYMD(base, 0);              // fixa no dia base (igual seu filtro)
+      const vencimento = dateYMD(base, 2 + (idx % 7)); // vence em 2..8 dias
+      const dtPreNota = dateYMD(base, 1 + (idx % 4));  // 1..4 dias
+
+      // alguns legados (Dt3Way/Hr3Way zerados) pra testar regra SLA 24h
+      const legado = idx % 9 === 0; // a cada 9 registros
+      const Dt3Way = legado ? '0000-00-00' : dateYMD(base, -(idx % 3));
+      const Hr3Way = legado ? '00:00:00' : timeHMS(9 + (idx % 6), (idx * 7) % 60);
+
+      // hora digitacao sempre presente (mas você pode zerar alguns se quiser)
+      const HrDigitacao = timeHMS(10 + (idx % 7), (idx * 11) % 60);
+
+      // valores
+      const liquido = Math.round((500 + idx * 37.55) * 100) / 100;
+      const bruto = Math.round((liquido * 1.02) * 100) / 100;
+
+      const inss = idx % 5 === 0 ? 0 : Math.round(liquido * 0.01 * 100) / 100;
+      const pis = Math.round(liquido * 0.0065 * 100) / 100;
+      const cofins = Math.round(liquido * 0.03 * 100) / 100;
+      const csll = Math.round(liquido * 0.01 * 100) / 100;
+
+      const ipi = idx % 4 === 0 ? Math.round(liquido * 0.02 * 100) / 100 : 0;
+      const frete = idx % 3 === 0 ? Math.round(25.5 * 100) / 100 : 0;
+      const desconto = idx % 6 === 0 ? Math.round(10 * 100) / 100 : 0;
+      const despesa = idx % 7 === 0 ? Math.round(3.25 * 100) / 100 : 0;
+
+      const TTPedido = Math.round((bruto * (hasContrato ? 1.15 : 1.05)) * 100) / 100;
+      const diferenca = Math.round((TTPedido - bruto) * 100) / 100;
+
+      return {
+        item: i,
+        filial: '01',
+        nota: pad(370 + i, 9),       // "000000371" etc
+        serie: 'E22',
+        fornecedor: pad(4166 + (idx % 20), 6),
+        loja: String((idx % 3) + 1).padStart(2, '0'),
+        razao: `FORNECEDOR MOCK ${String(idx % 20 + 1).padStart(2, '0')} LTDA`,
+        cnpj: '10802919000152',
+        emissao,
+        digitacao,
+        HrDigitacao,
+        vencimento,
+        natureza: hasContrato ? 'COMP' : 'SERV',
+        DtPreNota: dtPreNota,
+        Dt3Way,
+        Hr3Way,
+        tipo: idx % 2 === 0 ? 'NFSE' : 'NFS',
+        estado: idx % 2 === 0 ? 'PR' : 'SP',
+        inss,
+        pis,
+        cofins,
+        csll,
+        ipi,
+        frete,
+        desconto,
+        despesa,
+        liquido,
+        bruto,
+        TTPedido,
+        diferenca,
+        pedido: String(215200 + i),
+        codUsr: u.codUsr,     // ✅ 5 usuários
+        user: u.user,
+        contrato: hasContrato ? `CTR-${String(100 + (idx % 15))}` : '' // ✅ com e sem
+      };
+    });
+
+    return {
+      ok: true,
+      folder: 'RCAP_DEV_000001',
+      zipName: 'Papeletas_20260209.zip',
+      dados
+    };
+  }
+
+
   carregarDados(): void {
 
     this.loading = true;
+
+    if (environment.useMocks) {
+      const responseMock = this.getMockResponse();
+      this.processarResposta(responseMock);
+      return;
+    }
 
     const url = `${this.API_URL}/listar-relatorio-rcap`;
 
@@ -385,7 +665,9 @@ export class RelatorioRcapComponent implements OnInit {
           this.updatePageItems();
 
           // download ZIP se imprimir
-          if (this.imprimir === 'S') {
+          if (environment.useMocks) {
+            // não baixa arquivo em dev
+          } else if (this.imprimir === 'S') {
             const fileName = this.normalizarNomeArquivo(response?.zipName);
             const downloadUrl = this.montarUrlDownload(response);
             const folder = response?.folder;

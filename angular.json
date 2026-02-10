@@ -108,14 +108,23 @@
         },
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
-          "options": {
-            "baseHref": "/poui-invoice-report/"
-          }
+          "configurations": {
+            "development": {
+              "buildTarget": "poui-invoice-report:build:development",
+              "baseHref": "/poui-invoice-report/"
+            },
+            "production": {
+              "buildTarget": "poui-invoice-report:build:production",
+              "baseHref": "/poui-invoice-report/"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }
-  },
-  "cli": {
-    "analytics": false
   }
+},
+"cli": {
+  "analytics": false
+}
 }
