@@ -18,6 +18,7 @@ import {
 } from '@po-ui/ng-components';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { environment } from '../../../../environments/environment';
 import { RelatorioRecapService } from './relatorio-rcap.component.service';
 
 @Component({
@@ -45,7 +46,7 @@ export class RelatorioRcapComponent implements OnInit {
     private poNotification: PoNotificationService
   ) { }
 
-  readonly API_URL = 'http://vhwin1065:9023/rest/protheus/v1/poui';
+  readonly API_URL = environment.apiUrl;
 
   columns!: Array<PoTableColumn>;
   items: Array<any> = [];
@@ -144,6 +145,12 @@ export class RelatorioRcapComponent implements OnInit {
     { label: 'Não', value: 'N' }
   ];
 
+  private getTenantHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      tenantid: `${this.empresa},${this.filial}`
+    });
+  }
+
   ngOnInit(): void {
     this.atualizarFiliaisPorEmpresa(this.empresa);
     this.columns = this.sampleAirfare.getColumns();
@@ -191,15 +198,6 @@ export class RelatorioRcapComponent implements OnInit {
     return isNaN(dt.getTime()) ? new Date() : dt;
   }
 
-  getHeader(): HttpHeaders {
-    return new HttpHeaders({
-      Authorization: 'Basic ' + btoa('admin:tcp_tcp'),
-      'Content-Type': 'application/json',
-      tenantid: `${this.empresa},${this.filial}`,
-      'x-erp-module': 'COM'
-    });
-  }
-
   filtrar(): void {
     this.carregarDados();
   }
@@ -229,7 +227,10 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   carregarDados(): void {
+
     this.loading = true;
+
+    const url = `${this.API_URL}/listar-relatorio-rcap`;
 
     const body = {
       dataInicial: this.ToAAAMMDD(this.startDate),
@@ -243,11 +244,7 @@ export class RelatorioRcapComponent implements OnInit {
       path: this.path
     };
 
-    this.http.post<any>(
-      `${this.API_URL}/listar-relatorio-rcap`,
-      body,
-      { headers: this.getHeader() }
-    ).subscribe({
+    this.http.post<any>(url, body, { headers: this.getTenantHeaders() }).subscribe({
       next: async (response) => {
         this.itemsAll = response?.dados ?? [];
 
@@ -693,10 +690,12 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   private deletarArquivos(folder: string, fileName: string): void {
+
     if (!folder || !fileName) return;
 
     const url = `${this.API_URL}/listar-relatorio-rcap/excluir/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
-    this.http.get(url, { headers: this.getHeader() }).subscribe({
+
+    this.http.get(url, { headers: this.getTenantHeaders() }).subscribe({
       next: () => this.poNotification.success('Arquivos excluídos com sucesso.'),
       error: (err) => {
         console.error('Erro ao excluir arquivos:', err);
@@ -706,7 +705,7 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   private baixarArquivoPorUrl(url: string, fileName: string, folder: string): void {
-    this.http.get(url, { headers: this.getHeader(), responseType: 'blob' }).subscribe({
+    this.http.get(url, { headers: this.getTenantHeaders(), responseType: 'blob' }).subscribe({
       next: (blob) => {
         const a = document.createElement('a');
         const objectUrl = URL.createObjectURL(blob);

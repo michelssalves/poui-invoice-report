@@ -1,10 +1,11 @@
 import { provideRouter, withHashLocation } from '@angular/router';
 import { I18N_CONFIG, PoHttpRequestModule, PoI18nConfig, PoI18nService, PoModule } from '@po-ui/ng-components';
 
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 const i18nConfig: PoI18nConfig = {
   default: {
@@ -36,5 +37,11 @@ export const appConfig: ApplicationConfig = {
     { provide: I18N_CONFIG, useValue: i18nConfig },
     PoI18nService, // ✅ registra explicitamente o serviço
     { provide: "Window", useValue: window },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+
   ],
 };

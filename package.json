@@ -6,9 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "dev": "ng serve -c development",
+    "prod": "ng serve -c production",
     "protheus": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1",
-    "deploy-protheus": "ng build --configuration production --output-path docs --base-href /poui-invoice-report/ && powershell -Command \"Copy-Item -Recurse -Force docs\\browser\\* docs\\; Remove-Item -Recurse -Force docs\\browser\""
+    "protheus:dev": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env dev",
+    "protheus:prod": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env prod"
   },
   "private": true,
   "dependencies": {

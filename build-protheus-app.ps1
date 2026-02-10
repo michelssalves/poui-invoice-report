@@ -1,49 +1,60 @@
-﻿# Detecta o caminho base do projeto onde o script está sendo executado
+﻿param(
+  [ValidateSet("dev","prod")]
+  [string]$Env = "dev"
+)
+
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $appName = "poui-invoice-report"
-$projeto = $scriptPath
-$distPath = "$projeto\dist\$appName"
-$browserPath = "$distPath\browser"
-$resourcePath = "$projeto\Protheus\Resource"
-$folderToZip = "$resourcePath\$appName"
-$zipPath = "$resourcePath\$appName.zip"
-$appPath = "$resourcePath\$appName.app"
 
-# Vai para a raiz do projeto
+# Mapeia env -> configuração Angular
+if ($Env -eq "prod") {
+  $ngConfig = "production"
+  $suffix = "prod"
+} else {
+  $ngConfig = "development"
+  $suffix = "dev"
+}
+
+$projeto = $scriptPath
+$distPath = Join-Path $projeto "dist\$appName"
+$browserPath = Join-Path $distPath "browser"
+
+$resourcePath = Join-Path $projeto "Protheus\Resource"
+
+# ✅ pasta muda conforme ambiente
+$folderToZip = Join-Path $resourcePath "$appName-$suffix"
+
+# ✅ arquivo FINAL sem sufixo
+$zipPath = Join-Path $resourcePath "$appName.zip"
+$appPath = Join-Path $resourcePath "$appName.app"
+
 cd $projeto
 
-Write-Host "⿡  Executando build..." -ForegroundColor Cyan
-ng build
+Write-Host "⿡ Executando build ($Env => $ngConfig)..." -ForegroundColor Cyan
+ng build -c $ngConfig
 
-# Verifica se o build ocorreu
 if (!(Test-Path $browserPath)) {
-    Write-Host "❌ Build falhou ou pasta 'browser' não foi encontrada." -ForegroundColor Red
-    exit
+  Write-Host "❌ Build falhou ou pasta 'browser' não foi encontrada: $browserPath" -ForegroundColor Red
+  exit 1
 }
 
-# Remove pasta de destino se já existir
-if (Test-Path $folderToZip) {
-    Remove-Item $folderToZip -Recurse -Force
-}
-
-# Cria pasta destino
+if (Test-Path $folderToZip) { Remove-Item $folderToZip -Recurse -Force }
 New-Item -ItemType Directory -Path $folderToZip | Out-Null
 
-Write-Host "⿢  Copiando arquivos do browser para $folderToZip..." -ForegroundColor Cyan
+Write-Host "⿢ Copiando arquivos do browser para $folderToZip..." -ForegroundColor Cyan
 Copy-Item "$browserPath\*" -Destination $folderToZip -Recurse -Force
 
-Write-Host "⿣  Removendo pasta browser..." -ForegroundColor Cyan
+Write-Host "⿣ Removendo pasta browser..." -ForegroundColor Cyan
 Remove-Item $browserPath -Recurse -Force
 
-# Remove arquivos compactados antigos
-if (Test-Path $zipPath) { Remove-Item $zipPath }
-if (Test-Path $appPath) { Remove-Item $appPath }
+# remove antigos
+if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+if (Test-Path $appPath) { Remove-Item $appPath -Force }
 
-Write-Host "⿤  Compactando para ZIP..." -ForegroundColor Cyan
-Compress-Archive -Path "$folderToZip" -DestinationPath $zipPath
+Write-Host "⿤ Compactando para ZIP..." -ForegroundColor Cyan
+Compress-Archive -Path $folderToZip -DestinationPath $zipPath -Force
 
-# Renomeia para .app
-Rename-Item -Path $zipPath -NewName "$appName.app"
+Rename-Item -Path $zipPath -NewName (Split-Path $appPath -Leaf) -Force
 
-Write-Host "`n✅ Processo finalizado com sucesso!"
-Write-Host "📦 App gerado em: $appPath" -ForegroundColor Green
+Write-Host "`n✅ Finalizado ($Env)."
+Write-Host "📦 App gerado em: $appPath" -ForegroundColor Green
