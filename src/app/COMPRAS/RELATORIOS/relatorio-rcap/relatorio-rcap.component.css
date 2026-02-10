@@ -213,6 +213,14 @@
   margin: 0 !important;
 }
 
+.actions-right{
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* ===== Responsivo ===== */
 @media (max-width: 900px) {
   .pager-bar {
@@ -231,5 +239,14 @@
 
   :host ::ng-deep .pager-bar .page-size select.po-select {
     width: 110px !important;
+  }
+}
+
+@media (max-width: 768px){
+  .actions-right{
+    justify-content: stretch;
+  }
+  .actions-right po-button{
+    flex: 1 1 160px;
   }
 }

@@ -22,7 +22,7 @@ $browserPath = Join-Path $distPath "browser"
 $resourcePath = Join-Path $projeto "Protheus\Resource"
 
 # ✅ pasta muda conforme ambiente
-$folderToZip = Join-Path $resourcePath "$appName-$suffix"
+$folderToZip = Join-Path $resourcePath "$appName"
 
 # ✅ arquivo FINAL sem sufixo
 $zipPath = Join-Path $resourcePath "$appName.zip"

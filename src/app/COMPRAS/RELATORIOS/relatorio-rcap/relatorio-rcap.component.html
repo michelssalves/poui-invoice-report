@@ -5,54 +5,59 @@
     <po-accordion class="filters-accordion po-lg-12 po-mt-2">
         <po-accordion-item p-label="Filtros">
             <div class="po-row">
-                <po-select class="po-md-2" p-label="Empresa" name="empresa" [ngModel]="empresa"
+
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Empresa" name="empresa" [ngModel]="empresa"
                     (p-change)="onChangeEmpresa($event)" [p-options]="empresaOptions">
                 </po-select>
 
-                <po-select class="po-md-2" p-label="Filial" name="filial" [ngModel]="filial"
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Filial" name="filial" [ngModel]="filial"
                     [p-disabled]="filialOptions.length <= 1" (p-change)="onChangeFilial($event)"
                     [p-options]="filialOptions">
                 </po-select>
 
-
-                <po-select class="po-md-1" p-label="Tipo" name="tipo" [ngModel]="tipo" (p-change)="tipo = $event"
-                    [p-options]="tipoOptions">
+                <po-select class="po-sm-12 po-md-3 po-lg-1" p-label="Tipo" name="tipo" [ngModel]="tipo"
+                    (p-change)="tipo = $event" [p-options]="tipoOptions">
                 </po-select>
 
-                <po-select class="po-md-1" p-label="Liquidado?" name="liquidado" [ngModel]="liquidado"
+                <po-select class="po-sm-12 po-md-3 po-lg-1" p-label="Liquidado?" name="liquidado" [ngModel]="liquidado"
                     (p-change)="liquidado = $event" [p-options]="liquidadoOptions">
                 </po-select>
 
-                <po-input class="po-md-2" name="notaFiscal" [(ngModel)]="notaFiscal" (p-change)="notaFiscal = $event"
-                    p-clean p-label="Nota Fiscal">
+                <po-input class="po-sm-12 po-md-6 po-lg-2" name="notaFiscal" [(ngModel)]="notaFiscal" p-clean
+                    p-label="Nota Fiscal">
                 </po-input>
 
-                <po-input class="po-md-2" name="fornecedor" [(ngModel)]="fornecedor" (p-change)="fornecedor = $event"
-                    p-clean p-label="Fornecedor">
+                <po-input class="po-sm-12 po-md-6 po-lg-2" name="fornecedor" [(ngModel)]="fornecedor" p-clean
+                    p-label="Fornecedor">
                 </po-input>
-                <po-select class="po-md-2" p-label="Papeleta" name="papeleta" [ngModel]="papeleta"
+
+                <po-select class="po-sm-12 po-md-6 po-lg-2" p-label="Papeleta" name="papeleta" [ngModel]="papeleta"
                     (p-change)="papeleta = $event" [p-options]="papeletaOptions">
                 </po-select>
 
-                <po-select class="po-md-1" p-label="Imprimir?" name="imprimir" [ngModel]="imprimir"
+                <po-select class="po-sm-12 po-md-6 po-lg-1" p-label="Imprimir?" name="imprimir" [ngModel]="imprimir"
                     (p-change)="imprimir = $event" [p-options]="imprimirOptions">
                 </po-select>
+
             </div>
+
             <div class="po-row po-mt-1 filters-actions">
-                <po-datepicker class="po-md-3" name="startDate" [ngModel]="startDate"
+
+                <po-datepicker class="po-sm-12 po-md-6 po-lg-3" name="startDate" [ngModel]="startDate"
                     (p-change)="onStartChanged($event)" p-format="dd/mm/yyyy" p-label="Data Inicial">
                 </po-datepicker>
 
-                <po-datepicker class="po-md-3" name="endDate" [ngModel]="endDate" (p-change)="onEndChanged($event)"
-                    p-format="dd/mm/yyyy" p-label="Data Final">
+                <po-datepicker class="po-sm-12 po-md-6 po-lg-3" name="endDate" [ngModel]="endDate"
+                    (p-change)="onEndChanged($event)" p-format="dd/mm/yyyy" p-label="Data Final">
                 </po-datepicker>
 
-                <div class="po-md-6 actions-right">
-                    <po-button p-label="Filtrar" p-kind="secondary" (p-click)="filtrar()">
-                    </po-button>
+                <div class="po-sm-12 po-md-12 po-lg-6 actions-right">
+                    <po-button p-label="Filtrar" p-kind="secondary" (p-click)="filtrar()"></po-button>
                     <po-button p-label="Excel" p-kind="primary" (p-click)="exportToExcel()"></po-button>
                 </div>
+
             </div>
+
         </po-accordion-item>
     </po-accordion>
     <po-accordion class="filters-accordion po-lg-12 po-mt-2 po-mb-1">
