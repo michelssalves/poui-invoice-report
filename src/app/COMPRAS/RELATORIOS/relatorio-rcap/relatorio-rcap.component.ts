@@ -129,7 +129,8 @@ export class RelatorioRcapComponent implements OnInit {
 
   papeletaOptions: PoSelectOption[] = [
     { label: 'Pedido', value: '1' },
-    { label: 'Nota Fiscal', value: '2' }
+    { label: 'Nota Fiscal', value: '2' },
+    { label: 'Ambos', value: '3' }
   ];
 
   liquidadoOptions: PoSelectOption[] = [
