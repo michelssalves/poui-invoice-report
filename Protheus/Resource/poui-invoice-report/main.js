@@ -1,6 +1,6 @@
 import {
-  environment
-} from "./chunk-RJXFIB2B.js";
+  resolveRuntimeEnvironment
+} from "./chunk-GA3HLPZQ.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -4367,22 +4367,23 @@ var routes = [
   { path: "", pathMatch: "full", redirectTo: "relatorio-rcap" },
   {
     path: "relatorio-rcap",
-    loadComponent: () => import("./chunk-C5I5SUNT.js").then((m) => m.RelatorioRcapComponent)
+    loadComponent: () => import("./chunk-GLEF3FZ7.js").then((m) => m.RelatorioRcapComponent)
   }
 ];
 
 // src/app/core/interceptors/auth.interceptor.ts
 var AuthInterceptor = class _AuthInterceptor {
   intercept(req, next) {
-    if (!req.url.startsWith(environment.apiUrl)) {
+    const runtimeEnvironment = resolveRuntimeEnvironment();
+    if (!req.url.startsWith(runtimeEnvironment.apiUrl)) {
       return next.handle(req);
     }
-    const basicAuth = btoa(`${environment.auth.user}:${environment.auth.password}`);
+    const basicAuth = btoa(`${runtimeEnvironment.auth.user}:${runtimeEnvironment.auth.password}`);
     const authReq = req.clone({
       setHeaders: {
         Authorization: `Basic ${basicAuth}`,
         "Content-Type": "application/json",
-        "x-erp-module": environment.erpModule
+        "x-erp-module": runtimeEnvironment.erpModule
       }
     });
     return next.handle(authReq);
@@ -16010,11 +16011,11 @@ var PoPageLoginBaseComponent = class _PoPageLoginBaseComponent {
    *
    * > Essa propriedade limita o texto em 40 caracteres.
    */
-  set environment(environment3) {
-    if (environment3 && environment3.length > poPageLoginContentMaxLength) {
-      this._environment = environment3.substring(0, poPageLoginContentMaxLength);
+  set environment(environment2) {
+    if (environment2 && environment2.length > poPageLoginContentMaxLength) {
+      this._environment = environment2.substring(0, poPageLoginContentMaxLength);
     } else {
-      this._environment = environment3;
+      this._environment = environment2;
     }
   }
   get environment() {
@@ -17790,7 +17791,7 @@ function ProSessionSettingsComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275property("p-disabled", !(ctx_r1.settingForm.get("company_code").value && ctx_r1.settingForm.get("branch_code").value && ctx_r1.settingForm.get("environment_code").value))("p-label", ctx_r1.isLoading ? ctx_r1.literals == null ? null : ctx_r1.literals.str0006 : ctx_r1.literals == null ? null : ctx_r1.literals.str0007)("p-loading", ctx_r1.isLoading);
   }
 }
-var environment2 = {
+var environment = {
   production: false,
   useHTTP: false
   // Alterar apenas para DESENVOLVIMENTO!
@@ -18719,7 +18720,7 @@ var ProBranchService = class _ProBranchService {
 var ProBranchLookupService = class _ProBranchLookupService {
   constructor(proBranchService) {
     this.proBranchService = proBranchService;
-    this.useHTTP = environment2.useHTTP;
+    this.useHTTP = environment.useHTTP;
     this.changeServiceChannel();
   }
   getFilteredItems(params) {
@@ -18924,7 +18925,7 @@ var ProBranchLookupModule = class _ProBranchLookupModule {
 var ProCompanyLookupService = class _ProCompanyLookupService {
   constructor(proCompanyService) {
     this.proCompanyService = proCompanyService;
-    this.useHTTP = environment2.useHTTP;
+    this.useHTTP = environment.useHTTP;
     this.changeServiceChannel();
   }
   getFilteredItems(params) {
@@ -19608,7 +19609,7 @@ var ProSystemModuleService = class _ProSystemModuleService {
 var ProSystemModuleLookupService = class _ProSystemModuleLookupService {
   constructor(proSystemModuleService) {
     this.proSystemModuleService = proSystemModuleService;
-    this.useHTTP = environment2.useHTTP;
+    this.useHTTP = environment.useHTTP;
     this.changeServiceChannel();
   }
   getFilteredItems(params) {
@@ -20220,7 +20221,7 @@ var ProAuthService = class _ProAuthService {
     this.advplService = advplService;
     this.sessionInfoService = sessionInfoService;
     this.proMfaService = proMfaService;
-    this.proUserInfoService.setChannelAsHTTP(environment2.useHTTP);
+    this.proUserInfoService.setChannelAsHTTP(environment.useHTTP);
   }
   requestLoginDefaults() {
     if (!valueIsNull(this.advplService.getWebChannel())) {
@@ -22039,9 +22040,9 @@ var ProAppConfigInteceptor = class _ProAppConfigInteceptor {
     const locationPathNameEnvironment = this.sessionInfoService.getLocationPathNameEnvironment();
     const appNameArray = appName.split("_env_");
     if (appNameArray?.length > 1) {
-      const environment3 = appNameArray[appNameArray.length - 1];
-      if (environment3 && locationPathNameEnvironment === environment3) {
-        const root = `${environment3}/${appName}`;
+      const environment2 = appNameArray[appNameArray.length - 1];
+      if (environment2 && locationPathNameEnvironment === environment2) {
+        const root = `${environment2}/${appName}`;
         urlWithEnvironment = `${location2.protocol}//${location2.host}/app-root/${root}/${requestUrl}`;
       }
     }
@@ -22757,7 +22758,7 @@ var ProSessionSettingsUserInfoResolver = class _ProSessionSettingsUserInfoResolv
   constructor(proUserInfoService, proAuthService) {
     this.proUserInfoService = proUserInfoService;
     this.proAuthService = proAuthService;
-    this.proUserInfoService.setChannelAsHTTP(environment2.useHTTP);
+    this.proUserInfoService.setChannelAsHTTP(environment.useHTTP);
   }
   resolve(_route, _state) {
     const userId = this.proAuthService.userId;
@@ -23814,7 +23815,7 @@ var ProPageBackgroundComponent = class _ProPageBackgroundComponent {
    * @description Atualiza os idiomas disponíveis
    */
   updateLangs() {
-    this.proLanguageService.setChannelAsHTTP(environment2.useHTTP);
+    this.proLanguageService.setChannelAsHTTP(environment.useHTTP);
     this.proLanguageService.getListOfLanguages().subscribe({
       next: (langs) => {
         this.selectLanguageOptions = langs.map((language) => {
@@ -24114,7 +24115,7 @@ var ProSessionSettingsComponent = class _ProSessionSettingsComponent {
     this.proDateService = proDateService;
     this.proAuthService = proAuthService;
     this.proJsToAdvplService = proJsToAdvplService;
-    this.useHTTP = environment2.useHTTP;
+    this.useHTTP = environment.useHTTP;
     this.darkSwitchValue = false;
     this.isDarkAllowed = false;
     this.isLoadingDark = true;
@@ -24474,7 +24475,7 @@ var ProSessionSettingsComponent = class _ProSessionSettingsComponent {
    * @returns void
    */
   updateBrand() {
-    this.proBrandService.setChannelAsHTTP(environment2.useHTTP);
+    this.proBrandService.setChannelAsHTTP(environment.useHTTP);
     this.proBrandService.getERPBrand().subscribe({
       next: (brand) => {
         this.brand = brand;
@@ -25135,7 +25136,7 @@ var ProLoginComponent = class _ProLoginComponent {
    * @description Atualiza os idiomas disponíveis
    */
   updateLangs() {
-    this.proLanguageService.setChannelAsHTTP(environment2.useHTTP);
+    this.proLanguageService.setChannelAsHTTP(environment.useHTTP);
     this.proLanguageService.getListOfLanguages().subscribe({
       next: (langs) => {
         this.languages = langs;
@@ -25174,7 +25175,7 @@ var ProLoginComponent = class _ProLoginComponent {
    * @returns void
    */
   updateBrand() {
-    this.proBrandService.setChannelAsHTTP(environment2.useHTTP);
+    this.proBrandService.setChannelAsHTTP(environment.useHTTP);
     this.proBrandService.getERPBrand().subscribe({
       next: (brand) => {
         this.brand = brand;

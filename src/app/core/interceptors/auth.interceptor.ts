@@ -6,7 +6,7 @@
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { resolveRuntimeEnvironment } from '../../../environments/runtime-environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -15,20 +15,21 @@ export class AuthInterceptor implements HttpInterceptor {
         req: HttpRequest<any>,
         next: HttpHandler
     ): Observable<HttpEvent<any>> {
+        const runtimeEnvironment = resolveRuntimeEnvironment();
 
-        if (!req.url.startsWith(environment.apiUrl)) {
+        if (!req.url.startsWith(runtimeEnvironment.apiUrl)) {
             return next.handle(req);
         }
 
         const basicAuth = btoa(
-            `${environment.auth.user}:${environment.auth.password}`
+            `${runtimeEnvironment.auth.user}:${runtimeEnvironment.auth.password}`
         );
 
         const authReq = req.clone({
             setHeaders: {
                 Authorization: `Basic ${basicAuth}`,
                 'Content-Type': 'application/json',
-                'x-erp-module': environment.erpModule
+                'x-erp-module': runtimeEnvironment.erpModule
             }
         });
 

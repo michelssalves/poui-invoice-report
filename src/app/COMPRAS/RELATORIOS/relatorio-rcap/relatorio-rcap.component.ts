@@ -18,7 +18,7 @@ import {
 } from '@po-ui/ng-components';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { environment } from '../../../../environments/environment';
+import { resolveRuntimeEnvironment } from '../../../../environments/runtime-environment';
 import { RelatorioRecapService } from './relatorio-rcap.component.service';
 
 @Component({
@@ -46,7 +46,8 @@ export class RelatorioRcapComponent implements OnInit {
     private poNotification: PoNotificationService
   ) { }
 
-  readonly API_URL = environment.apiUrl;
+  private readonly runtimeEnvironment = resolveRuntimeEnvironment();
+  readonly API_URL = this.runtimeEnvironment.apiUrl;
 
   columns!: Array<PoTableColumn>;
   items: Array<any> = [];
@@ -160,6 +161,16 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const queryEnv = typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('env')
+      : null;
+
+    console.log('[RCAP] Ambiente em runtime', {
+      envQuery: queryEnv || '(padrao do build)',
+      apiUrl: this.runtimeEnvironment.apiUrl,
+      production: this.runtimeEnvironment.production
+    });
+
     this.atualizarFiliaisPorEmpresa(this.empresa);
     this.columns = this.sampleAirfare.getColumns();
     this.carregarDados();
@@ -414,7 +425,7 @@ export class RelatorioRcapComponent implements OnInit {
       this.updatePageItems();
 
       // download ZIP se imprimir
-      if (environment.useMocks) {
+      if (this.runtimeEnvironment.useMocks) {
         // não baixa arquivo em dev
       } else if (this.imprimir === 'S') {
         const fileName = this.normalizarNomeArquivo(response?.zipName);
@@ -554,7 +565,7 @@ export class RelatorioRcapComponent implements OnInit {
     const requestId = ++this.requestIdAtual;
     this.loading = true;
 
-    if (environment.useMocks) {
+    if (this.runtimeEnvironment.useMocks) {
       await this.processarResposta(this.getMockResponse(), requestId);
       return;
     }
