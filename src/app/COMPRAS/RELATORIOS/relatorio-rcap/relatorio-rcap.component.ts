@@ -94,6 +94,7 @@ export class RelatorioRcapComponent implements OnInit {
 
   private endDateAlteradaManual = false;
   private feriadosCache = new Map<number, Set<string>>();
+  private feriadosJsonCache: Record<string, Array<{ date: string; name: string; type: string }>> | null = null;
 
   chartOptions: PoChartOptions = {
     tooltip: true,
@@ -499,14 +500,11 @@ export class RelatorioRcapComponent implements OnInit {
     };
   }
 
-
-  carregarDados(): void {
-
+  async carregarDados(): Promise<void> {
     this.loading = true;
 
     if (environment.useMocks) {
-      const responseMock = this.getMockResponse();
-      this.processarResposta(responseMock);
+      await this.processarResposta(this.getMockResponse());
       return;
     }
 
@@ -525,172 +523,11 @@ export class RelatorioRcapComponent implements OnInit {
     };
 
     this.http.post<any>(url, body, { headers: this.getTenantHeaders() }).subscribe({
-      next: async (response) => {
-        this.itemsAll = response?.dados ?? [];
-
-        if (!this.itemsAll.length) {
-          this.total = 0;
-          this.page = 1;
-          this.items = [];
-          this.zerarTotais();
-          this.loading = false;
-          return;
-        }
-
-        try {
-          // garante feriados com parse robusto (não depende de slice(0,4))
-          const anos = this.itemsAll
-            .flatMap(i => {
-              const a = this.parseDateOnly(i?.Dt3Way)?.getFullYear();
-              const b = this.parseDateOnly(i?.digitacao)?.getFullYear();
-              return [a, b];
-            })
-            .filter((y): y is number => typeof y === 'number' && !isNaN(y));
-
-          await this.garantirFeriados(anos);
-
-          // SLA (Date + Time) com exceção acordada: mesmo dia e sem horas -> 24h
-          for (let i = 0; i < this.itemsAll.length; i++) {
-            const item = this.itemsAll[i];
-
-            const dtFim = this.parseDateOnly(item.digitacao);
-            if (!dtFim) {
-              item.horasSLA = 0;
-              item.dentroSLA = true;
-              item.slaStatus = 'Dentro';
-              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
-              continue;
-            }
-
-            const dtIni = this.isDataNula(item.Dt3Way)
-              ? this.parseDateOnly(item.digitacao)
-              : this.parseDateOnly(item.Dt3Way);
-
-            if (!dtIni) {
-              item.horasSLA = 0;
-              item.dentroSLA = true;
-              item.slaStatus = 'Dentro';
-              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
-              continue;
-            }
-
-            const data3WayNula = this.isDataNula(item.Dt3Way);
-            const hora3WayNula = this.isHoraNula(item.Hr3Way);
-            const horaDigitNula = this.isHoraNula(item.HrDigitacao);
-
-            const hrIniNula = data3WayNula || hora3WayNula;
-            const hrFimNula = horaDigitNula;
-
-            let horas = 0;
-
-            // ✅ REGRA HISTÓRICA / DADOS LEGADOS
-            // Se não existe hora confiável → SLA fixo 24h
-            if (hrIniNula && hrFimNula) {
-              horas = 24;
-            } else {
-              const usarDigitComoIni = data3WayNula || hora3WayNula;
-
-              const ini = this.buildDateTime(
-                usarDigitComoIni ? item.digitacao : item.Dt3Way,
-                usarDigitComoIni ? item.HrDigitacao : item.Hr3Way
-              );
-
-              const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
-
-              horas = (ini && fim)
-                ? this.calcularHorasUteisDateTime(ini, fim)
-                : 24; // fallback defensivo
-            }
-
-            item.horasSLA = horas;
-            item.horasSLALabel = this.formatHorasSLA(horas);
-            item.dentroSLA = horas <= this.slaHoras;
-            item.slaStatus = item.dentroSLA ? 'Dentro' : 'Fora';
-
-            if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
-          }
-
-          // totais
-          this.totalNotas = this.itemsAll.length;
-          this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
-          this.percentDentroSLA = this.totalNotas
-            ? Math.round((this.totalDentroSLA / this.totalNotas) * 10000) / 100
-            : 0;
-
-          this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
-          this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
-          this.mediaDiasSLA = this.totalNotas
-            ? Math.round((this.totalHorasSLA / 24 / this.totalNotas) * 100) / 100
-            : 0;
-
-          const totalPedido = this.itemsAll.filter(i => !i.contrato || i.contrato.trim() === '').length;
-          const totalContrato = this.itemsAll.filter(i => i.contrato && i.contrato.trim() !== '').length;
-
-          const mapaUsuarios: Record<string, number> = {};
-          for (const i of this.itemsAll) {
-            const usuario = i.codUsr;
-            if (!usuario) continue;
-            mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
-          }
-
-          const usuarios = Object.keys(mapaUsuarios);
-          this.categoriasUsuarios = usuarios;
-          this.colunaItens = [{
-            label: 'Notas',
-            data: usuarios.map(u => Number(mapaUsuarios[u]) || 0)
-          }];
-
-          this.setChartDataLabelEnabled(usuarios.length <= 30);
-
-          // OBS: se sua versão do PO não suportar "color" em PoChartSerie, remova as propriedades color abaixo.
-          this.pizzaItens = [
-            { label: 'Pedido', data: totalPedido, color: 'po-color-08' as any },
-            { label: 'Contrato', data: totalContrato, color: 'po-color-07' as any }
-          ];
-
-          const round2 = (v: number) => Math.round(v * 100) / 100;
-          this.totalLiquido = round2(this.itemsAll.reduce((sum, item) => sum + (item.liquido || 0), 0));
-          this.totalBruto = round2(this.itemsAll.reduce((sum, item) => sum + (item.bruto || 0), 0));
-          this.totalImpostos = round2(this.itemsAll.reduce((sum, item) =>
-            sum +
-            (item.inss || 0) +
-            (item.pis || 0) +
-            (item.cofins || 0) +
-            (item.csll || 0) +
-            (item.ipi || 0), 0)
-          );
-
-          this.total = this.itemsAll.length;
-          this.page = 1;
-          this.updatePageItems();
-
-          // download ZIP se imprimir
-          if (environment.useMocks) {
-            // não baixa arquivo em dev
-          } else if (this.imprimir === 'S') {
-            const fileName = this.normalizarNomeArquivo(response?.zipName);
-            const downloadUrl = this.montarUrlDownload(response);
-            const folder = response?.folder;
-
-            if (!downloadUrl) {
-              this.poNotification.warning('Não foi possível montar a URL do ZIP.');
-            } else {
-              this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
-            }
-          }
-
-          this.loading = false;
-          this.imprimir = 'N'
-        } catch (e) {
-          console.error('Erro no processamento', e);
-          this.loading = false;
-          this.imprimir = 'N'
-        }
-      },
+      next: (response) => void this.processarResposta(response),
       error: (err) => {
         console.error(err);
         this.loading = false;
-        this.imprimir = 'N'
+        this.imprimir = 'N';
       }
     });
   }
@@ -739,23 +576,26 @@ export class RelatorioRcapComponent implements OnInit {
     await Promise.all(unicos.map(ano => this.carregarFeriadosAno(ano)));
   }
 
-  private carregarFeriadosAno(ano: number): Promise<void> {
-    if (this.feriadosCache.has(ano)) return Promise.resolve();
+  private async carregarFeriadosAno(ano: number): Promise<void> {
+    if (this.feriadosCache.has(ano)) return;
 
-    return new Promise<void>((resolve) => {
-      this.http.get<Array<{ date: string }>>(
-        `https://brasilapi.com.br/api/feriados/v1/${ano}`
-      ).subscribe({
-        next: (feriados) => {
-          this.feriadosCache.set(ano, new Set((feriados ?? []).map(f => f.date))); // yyyy-mm-dd
-          resolve();
-        },
-        error: () => {
-          this.feriadosCache.set(ano, new Set());
-          resolve();
-        }
+    // carrega o JSON 1x
+    if (!this.feriadosJsonCache) {
+      this.feriadosJsonCache = await new Promise((resolve) => {
+        this.http.get<Record<string, Array<{ date: string; name: string; type: string }>>>(
+          'assets/feriados-br.json'
+        ).subscribe({
+          next: resolve,
+          error: () => resolve({})
+        });
       });
-    });
+    }
+
+    const lista = this.feriadosJsonCache?.[String(ano)] ?? [];
+
+    console.log(`Feriados carregados para ${ano}:`, lista);
+
+    this.feriadosCache.set(ano, new Set(lista.map(f => f.date)));
   }
 
   // -------------------- SLA (DateTime) --------------------

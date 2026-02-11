@@ -11,7 +11,9 @@
     "protheus:dev": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env dev",
     "protheus:prod": "powershell -ExecutionPolicy Bypass -File ./build-protheus-app.ps1 -Env prod",
     "deploy:dev": "ng deploy -c development",
-    "deploy:prod": "ng deploy -c production"
+    "deploy:prod": "ng deploy -c production",
+    "down": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-qa-rest.ps1",
+    "up": "powershell -ExecutionPolicy Bypass -File ./scripts/start-qa-rest.ps1"
   },
   "private": true,
   "dependencies": {
