@@ -134535,7 +134535,7 @@ var PoChartComponent = class _PoChartComponent extends PoChartBaseComponent {
       this.vcr.clear();
       const {
         PoChartModalTableComponent
-      } = yield import("./chunk-NV225W6A.js");
+      } = yield import("./chunk-BA2HZKZA.js");
       const componentRef = this.vcr.createComponent(PoChartModalTableComponent);
       componentRef.setInput("title", this.title);
       componentRef.setInput("itemsTable", this.itemsTable);
@@ -190601,7 +190601,6 @@ export {
   NgSwitchCase,
   NgTemplateOutlet,
   DatePipe,
-  DecimalPipe,
   CommonModule,
   HttpHeaders,
   HttpParams,
@@ -190881,4 +190880,4 @@ zrender/lib/zrender.js:
   * https://github.com/ecomfe/zrender/blob/master/LICENSE.txt
   *)
 */
-//# sourceMappingURL=chunk-Z2GH3N54.js.map
+//# sourceMappingURL=chunk-BH3N7IE2.js.map

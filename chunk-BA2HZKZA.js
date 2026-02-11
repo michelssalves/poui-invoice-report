@@ -16,7 +16,7 @@ import {
   ɵɵproperty,
   ɵɵqueryRefresh,
   ɵɵviewQuery
-} from "./chunk-Z2GH3N54.js";
+} from "./chunk-BH3N7IE2.js";
 
 // node_modules/@po-ui/ng-components/fesm2022/po-ui-ng-components-po-chart-modal-table.component-CaO2fPeS.mjs
 var _c0 = ["modalComponent"];
@@ -103,4 +103,4 @@ var PoChartModalTableComponent = class _PoChartModalTableComponent {
 export {
   PoChartModalTableComponent
 };
-//# sourceMappingURL=chunk-NV225W6A.js.map
+//# sourceMappingURL=chunk-BA2HZKZA.js.map

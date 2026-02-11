@@ -1,6 +1,6 @@
 import {
   environment
-} from "./chunk-T57ICMF6.js";
+} from "./chunk-RJXFIB2B.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -228,7 +228,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery
-} from "./chunk-Z2GH3N54.js";
+} from "./chunk-BH3N7IE2.js";
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var LINE_START = "\n - ";
@@ -4367,7 +4367,7 @@ var routes = [
   { path: "", pathMatch: "full", redirectTo: "relatorio-rcap" },
   {
     path: "relatorio-rcap",
-    loadComponent: () => import("./chunk-7OSVJOOV.js").then((m) => m.RelatorioRcapComponent)
+    loadComponent: () => import("./chunk-VUZGSECL.js").then((m) => m.RelatorioRcapComponent)
   }
 ];
 
