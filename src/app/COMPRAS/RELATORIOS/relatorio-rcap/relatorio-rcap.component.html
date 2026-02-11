@@ -15,11 +15,11 @@
                     [p-options]="filialOptions">
                 </po-select>
 
-                <po-select class="po-sm-12 po-md-3 po-lg-1" p-label="Tipo" name="tipo" [ngModel]="tipo"
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Tipo" name="tipo" [ngModel]="tipo"
                     (p-change)="tipo = $event" [p-options]="tipoOptions">
                 </po-select>
 
-                <po-select class="po-sm-12 po-md-3 po-lg-1" p-label="Liquidado?" name="liquidado" [ngModel]="liquidado"
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Liquidado?" name="liquidado" [ngModel]="liquidado"
                     (p-change)="liquidado = $event" [p-options]="liquidadoOptions">
                 </po-select>
 
@@ -31,13 +31,13 @@
                     p-label="Fornecedor">
                 </po-input>
 
-                <po-select class="po-sm-12 po-md-6 po-lg-2" p-label="Papeleta" name="papeleta" [ngModel]="papeleta"
-                    (p-change)="papeleta = $event" [p-options]="papeletaOptions">
-                </po-select>
-
             </div>
 
             <div class="po-row po-mt-1 filters-actions">
+
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Papeleta" name="papeleta" [ngModel]="papeleta"
+                    (p-change)="papeleta = $event" [p-options]="papeletaOptions">
+                </po-select>
 
                 <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Imprimir?" name="imprimir" [ngModel]="imprimir"
                     (p-change)="imprimir = $event" [p-options]="imprimirOptions">
@@ -48,11 +48,11 @@
                     [p-options]="agruparNaturezaTesOptions">
                 </po-select>
 
-                <po-datepicker class="po-sm-12 po-md-3 po-lg-3" name="startDate" [ngModel]="startDate"
+                <po-datepicker class="po-sm-12 po-md-3 po-lg-2" name="startDate" [ngModel]="startDate"
                     (p-change)="onStartChanged($event)" p-format="dd/mm/yyyy" p-label="Data Inicial">
                 </po-datepicker>
 
-                <po-datepicker class="po-sm-12 po-md-3 po-lg-3" name="endDate" [ngModel]="endDate"
+                <po-datepicker class="po-sm-12 po-md-3 po-lg-2" name="endDate" [ngModel]="endDate"
                     (p-change)="onEndChanged($event)" p-format="dd/mm/yyyy" p-label="Data Final">
                 </po-datepicker>
 
