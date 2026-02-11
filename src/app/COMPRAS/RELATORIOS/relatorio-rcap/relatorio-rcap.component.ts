@@ -93,6 +93,7 @@ export class RelatorioRcapComponent implements OnInit {
   ];
 
   private endDateAlteradaManual = false;
+  private requestIdAtual = 0;
   private feriadosCache = new Map<number, Set<string>>();
   private feriadosJsonCache: Record<string, Array<{ date: string; name: string; type: string }>> | null = null;
 
@@ -227,10 +228,17 @@ export class RelatorioRcapComponent implements OnInit {
     this.updatePageItems();
   }
 
-  private async processarResposta(response: any): Promise<void> {
+  private isRequestAtiva(requestId: number): boolean {
+    return requestId === this.requestIdAtual;
+  }
+
+  private async processarResposta(response: any, requestId: number): Promise<void> {
+    if (!this.isRequestAtiva(requestId)) return;
+
     this.itemsAll = response?.dados ?? [];
 
     if (!this.itemsAll.length) {
+      if (!this.isRequestAtiva(requestId)) return;
       this.total = 0;
       this.page = 1;
       this.items = [];
@@ -253,6 +261,7 @@ export class RelatorioRcapComponent implements OnInit {
 
       // SLA (Date + Time) com exceção acordada: mesmo dia e sem horas -> 24h
       for (let i = 0; i < this.itemsAll.length; i++) {
+        if (!this.isRequestAtiva(requestId)) return;
         const item = this.itemsAll[i];
 
         const dtFim = this.parseDateOnly(item.digitacao);
@@ -313,6 +322,7 @@ export class RelatorioRcapComponent implements OnInit {
       }
 
       // totais
+      if (!this.isRequestAtiva(requestId)) return;
       this.totalNotas = this.itemsAll.length;
       this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
       this.percentDentroSLA = this.totalNotas
@@ -381,10 +391,13 @@ export class RelatorioRcapComponent implements OnInit {
         }
       }
 
+      if (!this.isRequestAtiva(requestId)) return;
+
       this.loading = false;
       this.imprimir = 'N'
 
     } catch (e) {
+      if (!this.isRequestAtiva(requestId)) return;
       console.error('Erro no processamento', e);
       this.loading = false;
       this.imprimir = 'N';
@@ -501,10 +514,11 @@ export class RelatorioRcapComponent implements OnInit {
   }
 
   async carregarDados(): Promise<void> {
+    const requestId = ++this.requestIdAtual;
     this.loading = true;
 
     if (environment.useMocks) {
-      await this.processarResposta(this.getMockResponse());
+      await this.processarResposta(this.getMockResponse(), requestId);
       return;
     }
 
@@ -523,8 +537,9 @@ export class RelatorioRcapComponent implements OnInit {
     };
 
     this.http.post<any>(url, body, { headers: this.getTenantHeaders() }).subscribe({
-      next: (response) => void this.processarResposta(response),
+      next: (response) => void this.processarResposta(response, requestId),
       error: (err) => {
+        if (!this.isRequestAtiva(requestId)) return;
         console.error(err);
         this.loading = false;
         this.imprimir = 'N';
@@ -649,6 +664,29 @@ export class RelatorioRcapComponent implements OnInit {
     return (hh * 3600) + (mm * 60) + ss;
   }
 
+  private parseExcelTime(hhmmss?: string): Date | null {
+    if (!hhmmss) return null;
+    const v = hhmmss.trim();
+    if (!/^\d{2}:\d{2}:\d{2}$/.test(v)) return null;
+
+    const [hh, mm, ss] = v.split(':').map(Number);
+    return new Date(1899, 11, 30, hh, mm, ss, 0);
+  }
+
+  private parseExcelDate(dateStr?: string): number | null {
+    const d = this.parseDateOnly(dateStr);
+    if (!d) return null;
+
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const day = d.getDate();
+
+    // Excel (1900 date system) usa 1899-12-30 como base.
+    const excelEpochUtc = Date.UTC(1899, 11, 30);
+    const valueUtc = Date.UTC(y, m, day);
+    return Math.round((valueUtc - excelEpochUtc) / 86400000);
+  }
+
   private buildDateTime(dateStr?: string, timeStr?: string): Date | null {
     const d = this.parseDateOnly(dateStr);
     if (!d) return null;
@@ -738,11 +776,11 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Natureza', key: 'natureza', width: 15 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
-      { header: 'Hr Digt', key: 'HrDigitacao', width: 15, style: { numFmt: '00:00:00' } },
+      { header: 'Hr Digt', key: 'HrDigitacao', width: 15, style: { numFmt: 'hh:mm:ss' } },
       { header: 'Venc Real', key: 'vencimento', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Venc PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Dt 3Way', key: 'Dt3Way', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
-      { header: 'Hr 3Way', key: 'Hr3Way', width: 15, style: { numFmt: '00:00:00' } },
+      { header: 'Hr 3Way', key: 'Hr3Way', width: 15, style: { numFmt: 'hh:mm:ss' } },
       { header: 'Tipo', key: 'tipo', width: 10 },
       { header: 'Estado', key: 'estado', width: 10 },
       { header: 'Líquido', key: 'liquido', width: 15, style: { numFmt: 'R$ #,##0.00' } },
@@ -769,11 +807,13 @@ export class RelatorioRcapComponent implements OnInit {
 
     const rows = this.itemsAll.map(item => ({
       ...item,
-      emissao: this.parseDateOnly(item.emissao) ?? null,
-      digitacao: this.parseDateOnly(item.digitacao) ?? null,
-      vencimento: this.parseDateOnly(item.vencimento) ?? null,
-      DtPreNota: this.parseDateOnly(item.DtPreNota) ?? null,
-      Dt3Way: this.parseDateOnly(item.Dt3Way) ?? null
+      emissao: this.parseExcelDate(item.emissao) ?? null,
+      digitacao: this.parseExcelDate(item.digitacao) ?? null,
+      HrDigitacao: this.parseExcelTime(item.HrDigitacao) ?? null,
+      vencimento: this.parseExcelDate(item.vencimento) ?? null,
+      DtPreNota: this.parseExcelDate(item.DtPreNota) ?? null,
+      Dt3Way: this.parseExcelDate(item.Dt3Way) ?? null,
+      Hr3Way: this.parseExcelTime(item.Hr3Way) ?? null
     }));
 
     worksheet.addRows(rows);
