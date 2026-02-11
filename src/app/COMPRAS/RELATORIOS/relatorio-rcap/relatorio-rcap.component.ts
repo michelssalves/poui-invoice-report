@@ -321,15 +321,46 @@ export class RelatorioRcapComponent implements OnInit {
         if (i % 500 === 0) await new Promise(r => setTimeout(r, 0));
       }
 
+      // Nota pode se repetir por múltiplos pedidos; mantém SLA só na 1a ocorrência.
+      const notasComSla = new Set<string>();
+      for (const item of this.itemsAll) {
+        const chaveNota = this.gerarChaveNota(item);
+        if (!chaveNota) continue;
+
+        if (notasComSla.has(chaveNota)) {
+          item.horasSLA = 0;
+          item.horasSLALabel = this.formatHorasSLA(0);
+          item.dentroSLA = true;
+          item.slaStatus = '';
+          continue;
+        }
+
+        notasComSla.add(chaveNota);
+      }
+
+      // Métricas de SLA por nota única (não por linha/pedido).
+      const metricasSla: Array<any> = [];
+      const notasMetricas = new Set<string>();
+      for (const item of this.itemsAll) {
+        const chaveNota = this.gerarChaveNota(item);
+        if (!chaveNota) {
+          metricasSla.push(item);
+          continue;
+        }
+        if (notasMetricas.has(chaveNota)) continue;
+        notasMetricas.add(chaveNota);
+        metricasSla.push(item);
+      }
+
       // totais
       if (!this.isRequestAtiva(requestId)) return;
-      this.totalNotas = this.itemsAll.length;
-      this.totalDentroSLA = this.itemsAll.filter(i => !!i.dentroSLA).length;
+      this.totalNotas = metricasSla.length;
+      this.totalDentroSLA = metricasSla.filter(i => !!i.dentroSLA).length;
       this.percentDentroSLA = this.totalNotas
         ? Math.round((this.totalDentroSLA / this.totalNotas) * 10000) / 100
         : 0;
 
-      this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
+      this.totalHorasSLA = metricasSla.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
       this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
       this.mediaDiasSLA = this.totalNotas
         ? Math.round((this.totalHorasSLA / 24 / this.totalNotas) * 100) / 100
@@ -754,6 +785,25 @@ export class RelatorioRcapComponent implements OnInit {
     }
 
     return `${h.toFixed(2)} h`;
+  }
+
+  private gerarChaveNota(item: any): string {
+    const filial = String(item?.filial ?? '').trim();
+    const nota = String(item?.nota ?? '').trim();
+    const serie = String(item?.serie ?? '').trim();
+    const fornecedor = String(item?.fornecedor ?? '').trim();
+    const loja = String(item?.loja ?? '').trim();
+
+    if (!filial || !nota) return '';
+    return `${filial}|${nota}|${serie}|${fornecedor}|${loja}`;
+  }
+
+  formatDecimalPtBr(value: number | null | undefined, min = 2, max = 2): string {
+    const n = Number(value ?? 0);
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: min,
+      maximumFractionDigits: max
+    }).format(isFinite(n) ? n : 0);
   }
 
   get totalPages(): number {
