@@ -664,13 +664,14 @@ export class RelatorioRcapComponent implements OnInit {
     return (hh * 3600) + (mm * 60) + ss;
   }
 
-  private parseExcelTime(hhmmss?: string): Date | null {
+  private parseExcelTime(hhmmss?: string): number | null {
     if (!hhmmss) return null;
     const v = hhmmss.trim();
     if (!/^\d{2}:\d{2}:\d{2}$/.test(v)) return null;
 
     const [hh, mm, ss] = v.split(':').map(Number);
-    return new Date(1899, 11, 30, hh, mm, ss, 0);
+    // Hora no Excel como fração do dia (evita distorção de timezone histórico).
+    return ((hh * 3600) + (mm * 60) + ss) / 86400;
   }
 
   private parseExcelDate(dateStr?: string): number | null {
