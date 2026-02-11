@@ -64,17 +64,16 @@
         <po-accordion-item p-label="Indicadores">
             <div class="po-row mb-4">
                 <div class="po-md-12 po-lg-12">
-                    <po-container class="po-lg-6 " [p-height]="435">
+                    <po-container class="po-sm-12 po-lg-6" [p-height]="435">
                         <po-chart [p-categories]="categoriasUsuarios" [p-series]="colunaItens"
                             [p-options]="chartOptions">
                         </po-chart>
                     </po-container>
-                    <po-container class="po-lg-3" [p-height]="435">
-                        <div class="po-font-text-bold "></div>
+                    <po-container class="po-sm-12 po-md-6 po-lg-3" [p-height]="435">
                         <po-chart [p-options]="chartOptions" [p-series]="pizzaItens">
                         </po-chart>
                     </po-container>
-                    <po-container class="po-md-3 widgets-coluna" [p-height]="435">
+                    <po-container class="po-sm-12 po-md-6 po-lg-3 widgets-coluna" [p-height]="435">
                         <div class="widgets-wrapper">
                             <po-widget class="widget-card">
                                 <div class="widget-value">{{ totalNotas }}</div>
@@ -95,12 +94,12 @@
                                 <div class="widget-value">{{ formatDecimalPtBr(totalHorasSLA, 2, 2) }} h</div>
                                 <div class="widget-label">Horas SLA</div>
                             </po-widget>
+                            <po-widget class="widget-card">
+                                <div class="widget-value">{{ percentDentroSLA }}%</div>
+                                <div class="widget-label">Dentro SLA (48h)</div>
+                                <div class="widget-label">{{ totalDentroSLA }}/{{ totalNotas }} dentro SLA</div>
+                            </po-widget>
                         </div>
-                        <po-widget class="widget-card">
-                            <div class="widget-value">{{ percentDentroSLA }}%</div>
-                            <div class="widget-label">Dentro SLA (48h)</div>
-                            <div class="widget-label">{{ totalDentroSLA }}/{{ totalNotas }} dentro SLA</div>
-                        </po-widget>
                     </po-container>
                 </div>
             </div>

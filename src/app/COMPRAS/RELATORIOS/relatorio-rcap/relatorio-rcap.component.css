@@ -38,18 +38,6 @@
 }
 
 /* ===== Alinhamento dos botões ===== */
-:host ::ng-deep .filters-actions .actions-right {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-  gap: 10px;
-  padding-bottom: 2px;
-}
-
-:host ::ng-deep .filters-actions .actions-right .po-button {
-  height: 40px;
-}
-
 :host ::ng-deep .filters-actions {
   border-top: 1px solid #e6e8eb;
   margin-top: 8px;
@@ -58,8 +46,7 @@
 
 /* ===== Tabela ===== */
 :host ::ng-deep .rcap-table .po-table-container {
-  height: calc(100vh - 280px);
-  max-height: 1100px;
+  height: clamp(320px, calc(100vh - 360px), 920px);
 }
 
 :host ::ng-deep .rcap-table .po-table-header-sticky th {
@@ -93,12 +80,17 @@
 .widgets-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+}
+
+.widgets-wrapper > .widget-card {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .widget-card {
   border-radius: 8px;
-  padding: 12px 10px;
+  padding: 10px;
   transition: all .2s ease;
 }
 
@@ -135,11 +127,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  height: 35px;
-  max-height: 35px;
-
-  padding: 0 16px;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
   margin: 6px auto 10px auto;
 
   background: #f7f7f7;
@@ -148,18 +138,19 @@
 
   width: calc(100% - 32px);
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .pager-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .pager-info {
   font-size: 12px;
-  line-height: 1;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
@@ -217,15 +208,24 @@
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+  padding-bottom: 2px;
+}
+
+:host ::ng-deep .actions-right .po-button {
+  height: 40px;
+}
+
+@media (max-width: 1200px) {
+  :host ::ng-deep .rcap-table .po-table-container {
+    height: clamp(280px, calc(100vh - 410px), 760px);
+  }
 }
 
 /* ===== Responsivo ===== */
 @media (max-width: 900px) {
   .pager-bar {
-    height: auto;
-    max-height: none;
     padding: 8px 12px;
     flex-direction: column;
     gap: 8px;
@@ -237,16 +237,30 @@
     justify-content: space-between;
   }
 
+  .pager-info {
+    white-space: normal;
+  }
+
   :host ::ng-deep .pager-bar .page-size select.po-select {
     width: 110px !important;
   }
 }
 
 @media (max-width: 768px){
+  :host ::ng-deep .rcap-table .po-table-container {
+    height: 56vh;
+    min-height: 260px;
+  }
+
   .actions-right{
     justify-content: stretch;
   }
+
   .actions-right po-button{
     flex: 1 1 160px;
+  }
+
+  .widget-value {
+    font-size: 24px;
   }
 }
