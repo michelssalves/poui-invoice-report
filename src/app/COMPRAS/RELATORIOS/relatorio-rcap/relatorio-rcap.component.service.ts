@@ -26,6 +26,7 @@ export class RelatorioRecapService {
             { property: 'horasSLALabel', label: 'SLA', type: 'number', visible: true },
             { property: 'slaStatus', label: 'Dentro SLA', width: '110px', visible: true },
             { property: 'natureza', label: 'Natureza', visible: true },
+            { property: 'tes', label: 'TES', visible: true },
             { property: 'tipo', label: 'Tipo', visible: true },
             { property: 'estado', label: 'Estado', visible: false },
             { property: 'inss', label: 'INSS', visible: false, type: 'currency', format: 'BRL' },

@@ -4367,7 +4367,7 @@ var routes = [
   { path: "", pathMatch: "full", redirectTo: "relatorio-rcap" },
   {
     path: "relatorio-rcap",
-    loadComponent: () => import("./chunk-VUZGSECL.js").then((m) => m.RelatorioRcapComponent)
+    loadComponent: () => import("./chunk-C5I5SUNT.js").then((m) => m.RelatorioRcapComponent)
   }
 ];
 

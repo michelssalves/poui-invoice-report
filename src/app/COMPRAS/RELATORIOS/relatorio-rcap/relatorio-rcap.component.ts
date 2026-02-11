@@ -73,6 +73,7 @@ export class RelatorioRcapComponent implements OnInit {
   papeleta: string = '2';
   liquidado: string = '3';
   imprimir: string = 'N';
+  agruparNaturezaTes: string = 'S';
   notaFiscal: string = '';
   fornecedor: string = '';
   path: string = 'C:\\temp';
@@ -143,6 +144,11 @@ export class RelatorioRcapComponent implements OnInit {
   ];
 
   imprimirOptions: PoSelectOption[] = [
+    { label: 'Sim', value: 'S' },
+    { label: 'Não', value: 'N' }
+  ];
+
+  agruparNaturezaTesOptions: PoSelectOption[] = [
     { label: 'Sim', value: 'S' },
     { label: 'Não', value: 'N' }
   ];
@@ -561,6 +567,7 @@ export class RelatorioRcapComponent implements OnInit {
       tipo: this.tipo,
       workflow: this.papeleta,
       liquidado: this.liquidado,
+      agruparNaturezaTes: this.agruparNaturezaTes,
       notaFiscal: this.notaFiscal,
       fornecedor: this.fornecedor,
       print: this.imprimir,
@@ -825,6 +832,7 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Razão Social', key: 'razao', width: 60 },
       { header: 'CNPJ', key: 'cnpj', width: 20 },
       { header: 'Natureza', key: 'natureza', width: 15 },
+      { header: 'TES', key: 'tes', width: 10 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Digitação', key: 'digitacao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Hr Digt', key: 'HrDigitacao', width: 15, style: { numFmt: 'hh:mm:ss' } },
@@ -937,3 +945,4 @@ export class RelatorioRcapComponent implements OnInit {
     });
   }
 }
+

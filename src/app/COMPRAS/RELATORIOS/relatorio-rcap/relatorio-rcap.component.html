@@ -35,23 +35,28 @@
                     (p-change)="papeleta = $event" [p-options]="papeletaOptions">
                 </po-select>
 
-                <po-select class="po-sm-12 po-md-6 po-lg-1" p-label="Imprimir?" name="imprimir" [ngModel]="imprimir"
-                    (p-change)="imprimir = $event" [p-options]="imprimirOptions">
-                </po-select>
-
             </div>
 
             <div class="po-row po-mt-1 filters-actions">
 
-                <po-datepicker class="po-sm-12 po-md-6 po-lg-3" name="startDate" [ngModel]="startDate"
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Imprimir?" name="imprimir" [ngModel]="imprimir"
+                    (p-change)="imprimir = $event" [p-options]="imprimirOptions">
+                </po-select>
+
+                <po-select class="po-sm-12 po-md-3 po-lg-2" p-label="Agrupar Nat/TES?" name="agruparNaturezaTes"
+                    [ngModel]="agruparNaturezaTes" (p-change)="agruparNaturezaTes = $event"
+                    [p-options]="agruparNaturezaTesOptions">
+                </po-select>
+
+                <po-datepicker class="po-sm-12 po-md-3 po-lg-3" name="startDate" [ngModel]="startDate"
                     (p-change)="onStartChanged($event)" p-format="dd/mm/yyyy" p-label="Data Inicial">
                 </po-datepicker>
 
-                <po-datepicker class="po-sm-12 po-md-6 po-lg-3" name="endDate" [ngModel]="endDate"
+                <po-datepicker class="po-sm-12 po-md-3 po-lg-3" name="endDate" [ngModel]="endDate"
                     (p-change)="onEndChanged($event)" p-format="dd/mm/yyyy" p-label="Data Final">
                 </po-datepicker>
 
-                <div class="po-sm-12 po-md-12 po-lg-6 actions-right">
+                <div class="po-sm-12 po-md-12 po-lg-2 actions-right po-mb-1">
                     <po-button p-label="Filtrar" p-kind="secondary" (p-click)="filtrar()"></po-button>
                     <po-button p-label="Excel" p-kind="primary" (p-click)="exportToExcel()"></po-button>
                 </div>
