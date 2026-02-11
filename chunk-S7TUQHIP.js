@@ -1,6 +1,6 @@
 import {
-  environment
-} from "./chunk-RJXFIB2B.js";
+  resolveRuntimeEnvironment
+} from "./chunk-NTX4OG6C.js";
 import {
   CommonModule,
   FormsModule,
@@ -32132,6 +32132,7 @@ var RelatorioRecapService = class _RelatorioRecapService {
       { property: "horasSLALabel", label: "SLA", type: "number", visible: true },
       { property: "slaStatus", label: "Dentro SLA", width: "110px", visible: true },
       { property: "natureza", label: "Natureza", visible: true },
+      { property: "tes", label: "TES", visible: true },
       { property: "tipo", label: "Tipo", visible: true },
       { property: "estado", label: "Estado", visible: false },
       { property: "inss", label: "INSS", visible: false, type: "currency", format: "BRL" },
@@ -32210,126 +32211,133 @@ function RelatorioRcapComponent_div_1_Template(rf, ctx) {
       \u0275\u0275twoWayBindingSet(ctx_r1.fornecedor, $event) || (ctx_r1.fornecedor = $event);
       return \u0275\u0275resetView($event);
     });
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "po-select", 12);
-    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_select_p_change_10_listener($event) {
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(10, "div", 12)(11, "po-select", 13);
+    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_select_p_change_11_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.papeleta = $event);
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "po-select", 13);
-    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_select_p_change_11_listener($event) {
+    \u0275\u0275elementStart(12, "po-select", 14);
+    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_select_p_change_12_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.imprimir = $event);
     });
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(12, "div", 14)(13, "po-datepicker", 15);
-    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_datepicker_p_change_13_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "po-select", 15);
+    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_select_p_change_13_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.onStartChanged($event));
+      return \u0275\u0275resetView(ctx_r1.agruparNaturezaTes = $event);
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(14, "po-datepicker", 16);
     \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_datepicker_p_change_14_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.onStartChanged($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(15, "po-datepicker", 17);
+    \u0275\u0275listener("p-change", function RelatorioRcapComponent_div_1_Template_po_datepicker_p_change_15_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.onEndChanged($event));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "div", 17)(16, "po-button", 18);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_16_listener() {
+    \u0275\u0275elementStart(16, "div", 18)(17, "po-button", 19);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_17_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.filtrar());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "po-button", 19);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_17_listener() {
+    \u0275\u0275elementStart(18, "po-button", 20);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_18_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.exportToExcel());
     });
     \u0275\u0275elementEnd()()()()();
-    \u0275\u0275elementStart(18, "po-accordion", 20)(19, "po-accordion-item", 21)(20, "div", 22)(21, "div", 23)(22, "po-container", 24);
-    \u0275\u0275element(23, "po-chart", 25);
+    \u0275\u0275elementStart(19, "po-accordion", 21)(20, "po-accordion-item", 22)(21, "div", 23)(22, "div", 24)(23, "po-container", 25);
+    \u0275\u0275element(24, "po-chart", 26);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "po-container", 26);
-    \u0275\u0275element(25, "po-chart", 27);
+    \u0275\u0275elementStart(25, "po-container", 27);
+    \u0275\u0275element(26, "po-chart", 28);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(26, "po-container", 28)(27, "div", 29)(28, "po-widget", 30)(29, "div", 31);
-    \u0275\u0275text(30);
+    \u0275\u0275elementStart(27, "po-container", 29)(28, "div", 30)(29, "po-widget", 31)(30, "div", 32);
+    \u0275\u0275text(31);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(31, "div", 32);
-    \u0275\u0275text(32, "NFs");
+    \u0275\u0275elementStart(32, "div", 33);
+    \u0275\u0275text(33, "NFs");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(33, "po-widget", 30)(34, "div", 31);
-    \u0275\u0275text(35);
+    \u0275\u0275elementStart(34, "po-widget", 31)(35, "div", 32);
+    \u0275\u0275text(36);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(36, "div", 32);
-    \u0275\u0275text(37, "M\xE9dia Dia");
+    \u0275\u0275elementStart(37, "div", 33);
+    \u0275\u0275text(38, "M\xE9dia Dia");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(38, "po-widget", 30)(39, "div", 31);
-    \u0275\u0275text(40);
+    \u0275\u0275elementStart(39, "po-widget", 31)(40, "div", 32);
+    \u0275\u0275text(41);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(41, "div", 32);
-    \u0275\u0275text(42, "M\xE9dia Horas");
+    \u0275\u0275elementStart(42, "div", 33);
+    \u0275\u0275text(43, "M\xE9dia Horas");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(43, "po-widget", 33)(44, "div", 31);
-    \u0275\u0275text(45);
+    \u0275\u0275elementStart(44, "po-widget", 34)(45, "div", 32);
+    \u0275\u0275text(46);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(46, "div", 32);
-    \u0275\u0275text(47, "Horas SLA");
+    \u0275\u0275elementStart(47, "div", 33);
+    \u0275\u0275text(48, "Horas SLA");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(48, "po-widget", 30)(49, "div", 31);
-    \u0275\u0275text(50);
+    \u0275\u0275elementStart(49, "po-widget", 31)(50, "div", 32);
+    \u0275\u0275text(51);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(51, "div", 32);
-    \u0275\u0275text(52, "Dentro SLA (48h)");
+    \u0275\u0275elementStart(52, "div", 33);
+    \u0275\u0275text(53, "Dentro SLA (48h)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(53, "div", 32);
-    \u0275\u0275text(54);
+    \u0275\u0275elementStart(54, "div", 33);
+    \u0275\u0275text(55);
     \u0275\u0275elementEnd()()()()()()()();
-    \u0275\u0275elementStart(55, "div", 34)(56, "div", 35)(57, "po-button", 36);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_57_listener() {
+    \u0275\u0275elementStart(56, "div", 35)(57, "div", 36)(58, "po-button", 37);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_58_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.prevPage());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(58, "po-button", 37);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_58_listener() {
+    \u0275\u0275elementStart(59, "po-button", 38);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_59_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.nextPage());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(59, "span", 38);
-    \u0275\u0275text(60, " P\xE1gina ");
-    \u0275\u0275elementStart(61, "b");
-    \u0275\u0275text(62);
+    \u0275\u0275elementStart(60, "span", 39);
+    \u0275\u0275text(61, " P\xE1gina ");
+    \u0275\u0275elementStart(62, "b");
+    \u0275\u0275text(63);
     \u0275\u0275elementEnd();
-    \u0275\u0275text(63, " / ");
-    \u0275\u0275elementStart(64, "b");
-    \u0275\u0275text(65);
+    \u0275\u0275text(64, " / ");
+    \u0275\u0275elementStart(65, "b");
+    \u0275\u0275text(66);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(66, "span", 39);
-    \u0275\u0275text(67, "\u2022");
+    \u0275\u0275elementStart(67, "span", 40);
+    \u0275\u0275text(68, "\u2022");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(68, " Total: ");
-    \u0275\u0275elementStart(69, "b");
-    \u0275\u0275text(70);
+    \u0275\u0275text(69, " Total: ");
+    \u0275\u0275elementStart(70, "b");
+    \u0275\u0275text(71);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(71, "div", 40)(72, "po-select", 41);
-    \u0275\u0275listener("ngModelChange", function RelatorioRcapComponent_div_1_Template_po_select_ngModelChange_72_listener($event) {
+    \u0275\u0275elementStart(72, "div", 41)(73, "po-select", 42);
+    \u0275\u0275listener("ngModelChange", function RelatorioRcapComponent_div_1_Template_po_select_ngModelChange_73_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setPageSize($event));
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275element(73, "po-table", 42);
+    \u0275\u0275element(74, "po-table", 43);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -32346,11 +32354,13 @@ function RelatorioRcapComponent_div_1_Template(rf, ctx) {
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.notaFiscal);
     \u0275\u0275advance();
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.fornecedor);
-    \u0275\u0275advance();
+    \u0275\u0275advance(2);
     \u0275\u0275property("ngModel", ctx_r1.papeleta)("p-options", ctx_r1.papeletaOptions);
     \u0275\u0275advance();
     \u0275\u0275property("ngModel", ctx_r1.imprimir)("p-options", ctx_r1.imprimirOptions);
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngModel", ctx_r1.agruparNaturezaTes)("p-options", ctx_r1.agruparNaturezaTesOptions);
+    \u0275\u0275advance();
     \u0275\u0275property("ngModel", ctx_r1.startDate);
     \u0275\u0275advance();
     \u0275\u0275property("ngModel", ctx_r1.endDate);
@@ -32401,7 +32411,8 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     this.sampleAirfare = sampleAirfare;
     this.poNotification = poNotification;
   }
-  API_URL = environment.apiUrl;
+  runtimeEnvironment = resolveRuntimeEnvironment();
+  API_URL = this.runtimeEnvironment.apiUrl;
   columns;
   items = [];
   itemsAll = [];
@@ -32425,6 +32436,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
   papeleta = "2";
   liquidado = "3";
   imprimir = "N";
+  agruparNaturezaTes = "S";
   notaFiscal = "";
   fornecedor = "";
   path = "C:\\temp";
@@ -32487,12 +32499,22 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     { label: "Sim", value: "S" },
     { label: "N\xE3o", value: "N" }
   ];
+  agruparNaturezaTesOptions = [
+    { label: "Sim", value: "S" },
+    { label: "N\xE3o", value: "N" }
+  ];
   getTenantHeaders() {
     return new HttpHeaders({
       tenantid: `${this.empresa},${this.filial}`
     });
   }
   ngOnInit() {
+    const queryEnv = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("env") : null;
+    console.log("[RCAP] Ambiente em runtime", {
+      envQuery: queryEnv || "(padrao do build)",
+      apiUrl: this.runtimeEnvironment.apiUrl,
+      production: this.runtimeEnvironment.production
+    });
     this.atualizarFiliaisPorEmpresa(this.empresa);
     this.columns = this.sampleAirfare.getColumns();
     this.carregarDados();
@@ -32684,7 +32706,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
         this.total = this.itemsAll.length;
         this.page = 1;
         this.updatePageItems();
-        if (environment.useMocks) {
+        if (this.runtimeEnvironment.useMocks) {
         } else if (this.imprimir === "S") {
           const fileName = this.normalizarNomeArquivo(response?.zipName);
           const downloadUrl = this.montarUrlDownload(response);
@@ -32802,7 +32824,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     return __async(this, null, function* () {
       const requestId = ++this.requestIdAtual;
       this.loading = true;
-      if (environment.useMocks) {
+      if (this.runtimeEnvironment.useMocks) {
         yield this.processarResposta(this.getMockResponse(), requestId);
         return;
       }
@@ -32813,6 +32835,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
         tipo: this.tipo,
         workflow: this.papeleta,
         liquidado: this.liquidado,
+        agruparNaturezaTes: this.agruparNaturezaTes,
         notaFiscal: this.notaFiscal,
         fornecedor: this.fornecedor,
         print: this.imprimir,
@@ -33042,6 +33065,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
         { header: "Raz\xE3o Social", key: "razao", width: 60 },
         { header: "CNPJ", key: "cnpj", width: 20 },
         { header: "Natureza", key: "natureza", width: 15 },
+        { header: "TES", key: "tes", width: 10 },
         { header: "Emiss\xE3o", key: "emissao", width: 15, style: { numFmt: "dd/mm/yyyy" } },
         { header: "Digita\xE7\xE3o", key: "digitacao", width: 15, style: { numFmt: "dd/mm/yyyy" } },
         { header: "Hr Digt", key: "HrDigitacao", width: 15, style: { numFmt: "hh:mm:ss" } },
@@ -33144,9 +33168,9 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
   static \u0275fac = function RelatorioRcapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RelatorioRcapComponent)(\u0275\u0275directiveInject(HttpClient), \u0275\u0275directiveInject(RelatorioRecapService), \u0275\u0275directiveInject(PoNotificationService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RelatorioRcapComponent, selectors: [["app-relatorio-rcap"]], features: [\u0275\u0275ProvidersFeature([RelatorioRecapService])], decls: 2, vars: 2, consts: [["class", "sample-container", 4, "ngIf"], [4, "ngIf"], [1, "sample-container"], [1, "filters-accordion", "po-lg-12", "po-mt-2"], ["p-label", "Filtros"], [1, "po-row"], ["p-label", "Empresa", "name", "empresa", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Filial", "name", "filial", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-disabled", "p-options"], ["p-label", "Tipo", "name", "tipo", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["p-label", "Liquidado?", "name", "liquidado", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["name", "notaFiscal", "p-clean", "", "p-label", "Nota Fiscal", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["name", "fornecedor", "p-clean", "", "p-label", "Fornecedor", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["p-label", "Papeleta", "name", "papeleta", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Imprimir?", "name", "imprimir", 1, "po-sm-12", "po-md-6", "po-lg-1", 3, "p-change", "ngModel", "p-options"], [1, "po-row", "po-mt-1", "filters-actions"], ["name", "startDate", "p-format", "dd/mm/yyyy", "p-label", "Data Inicial", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], ["name", "endDate", "p-format", "dd/mm/yyyy", "p-label", "Data Final", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], [1, "po-sm-12", "po-md-12", "po-lg-6", "actions-right"], ["p-label", "Filtrar", "p-kind", "secondary", 3, "p-click"], ["p-label", "Excel", "p-kind", "primary", 3, "p-click"], [1, "filters-accordion", "po-lg-12", "po-mt-2", "po-mb-1"], ["p-label", "Indicadores"], [1, "po-row", "mb-4"], [1, "po-md-12", "po-lg-12"], [1, "po-sm-12", "po-lg-6", 3, "p-height"], [3, "p-categories", "p-series", "p-options"], [1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-height"], [3, "p-options", "p-series"], [1, "po-sm-12", "po-md-6", "po-lg-3", "widgets-coluna", 3, "p-height"], [1, "widgets-wrapper"], [1, "widget-card"], [1, "widget-value"], [1, "widget-label"], [1, "widget-card", "destaque"], [1, "pager-bar"], [1, "pager-left"], ["p-label", "Anterior", "p-kind", "tertiary", 3, "p-click", "p-disabled"], ["p-label", "Pr\xF3xima", "p-kind", "tertiary", 3, "p-click", "p-disabled"], [1, "pager-info"], [1, "po-ml-1"], [1, "pager-right"], ["p-label", "Tamanho", 1, "page-size", 3, "ngModelChange", "ngModel", "p-options"], [1, "rcap-table", 3, "p-sort", "p-striped", "p-columns", "p-items"]], template: function RelatorioRcapComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RelatorioRcapComponent, selectors: [["app-relatorio-rcap"]], features: [\u0275\u0275ProvidersFeature([RelatorioRecapService])], decls: 2, vars: 2, consts: [["class", "sample-container", 4, "ngIf"], [4, "ngIf"], [1, "sample-container"], [1, "filters-accordion", "po-lg-12", "po-mt-2"], ["p-label", "Filtros"], [1, "po-row"], ["p-label", "Empresa", "name", "empresa", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Filial", "name", "filial", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-disabled", "p-options"], ["p-label", "Tipo", "name", "tipo", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Liquidado?", "name", "liquidado", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["name", "notaFiscal", "p-clean", "", "p-label", "Nota Fiscal", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["name", "fornecedor", "p-clean", "", "p-label", "Fornecedor", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], [1, "po-row", "po-mt-1", "filters-actions"], ["p-label", "Papeleta", "name", "papeleta", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Imprimir?", "name", "imprimir", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Agrupar?", "name", "agruparNaturezaTes", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["name", "startDate", "p-format", "dd/mm/yyyy", "p-label", "Data Inicial", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel"], ["name", "endDate", "p-format", "dd/mm/yyyy", "p-label", "Data Final", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel"], [1, "po-sm-12", "po-md-12", "po-lg-2", "actions-right", "po-mb-1"], ["p-label", "Filtrar", "p-kind", "secondary", 3, "p-click"], ["p-label", "Excel", "p-kind", "primary", 3, "p-click"], [1, "filters-accordion", "po-lg-12", "po-mt-2", "po-mb-1"], ["p-label", "Indicadores"], [1, "po-row", "mb-4"], [1, "po-md-12", "po-lg-12"], [1, "po-sm-12", "po-lg-6", 3, "p-height"], [3, "p-categories", "p-series", "p-options"], [1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-height"], [3, "p-options", "p-series"], [1, "po-sm-12", "po-md-6", "po-lg-3", "widgets-coluna", 3, "p-height"], [1, "widgets-wrapper"], [1, "widget-card"], [1, "widget-value"], [1, "widget-label"], [1, "widget-card", "destaque"], [1, "pager-bar"], [1, "pager-left"], ["p-label", "Anterior", "p-kind", "tertiary", 3, "p-click", "p-disabled"], ["p-label", "Pr\xF3xima", "p-kind", "tertiary", 3, "p-click", "p-disabled"], [1, "pager-info"], [1, "po-ml-1"], [1, "pager-right"], ["p-label", "Tamanho", 1, "page-size", 3, "ngModelChange", "ngModel", "p-options"], [1, "rcap-table", 3, "p-sort", "p-striped", "p-columns", "p-items"]], template: function RelatorioRcapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275template(0, RelatorioRcapComponent_div_0_Template, 2, 0, "div", 0)(1, RelatorioRcapComponent_div_1_Template, 74, 43, "div", 1);
+      \u0275\u0275template(0, RelatorioRcapComponent_div_0_Template, 2, 0, "div", 0)(1, RelatorioRcapComponent_div_1_Template, 75, 45, "div", 1);
     }
     if (rf & 2) {
       \u0275\u0275property("ngIf", ctx.loading);
@@ -33177,7 +33201,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     PoFieldModule,
     PoTableModule,
     PoToolbarModule
-  ], styles: ["\n\n[_nghost-%COMP%]     po-accordion.filters-accordion {\n  border-radius: 12px;\n  overflow: hidden;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header {\n  background: #f7f9fc;\n  border: 1px solid #e6e8eb;\n  border-radius: 12px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-button {\n  padding: 12px 14px;\n  min-height: 48px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-title {\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-icon {\n  opacity: 0.85;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-content {\n  border: 1px solid #e6e8eb;\n  border-top: none;\n  border-radius: 0 0 12px 12px;\n  background: #ffffff;\n  padding: 12px 14px 14px;\n}\n[_nghost-%COMP%]     .filters-actions {\n  border-top: 1px solid #e6e8eb;\n  margin-top: 8px;\n  padding-top: 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-container {\n  height: clamp(320px, calc(100vh - 360px), 920px);\n}\n[_nghost-%COMP%]     .rcap-table .po-table-header-sticky th {\n  background: #f7f9fc;\n  border-bottom: 1px solid #e6e8eb;\n  font-weight: 600;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-row:hover td {\n  background: #f3f5f7;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions {\n  padding: 4px 0 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button {\n  opacity: 0.75;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button:hover {\n  opacity: 1;\n}\n[_nghost-%COMP%]     .po-table-column-cell {\n  font-variant-numeric: tabular-nums;\n}\n.widgets-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n.widgets-wrapper[_ngcontent-%COMP%]    > .widget-card[_ngcontent-%COMP%] {\n  width: 100%;\n  box-sizing: border-box;\n}\n.widget-card[_ngcontent-%COMP%] {\n  border-radius: 8px;\n  padding: 10px;\n  transition: all .2s ease;\n}\n.widget-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);\n}\n.widget-value[_ngcontent-%COMP%] {\n  font-size: 28px;\n  font-weight: 600;\n  text-align: center;\n  color: var(--po-color-neutral-dark-80);\n}\n.widget-label[_ngcontent-%COMP%] {\n  margin-top: 4px;\n  font-size: 13px;\n  text-align: center;\n  color: var(--po-color-neutral-dark-60);\n}\n.widget-card.destaque[_ngcontent-%COMP%] {\n  background: var(--po-color-primary-light-95);\n  border-left: 4px solid var(--po-color-primary);\n}\n.widget-card.destaque[_ngcontent-%COMP%]   .widget-value[_ngcontent-%COMP%] {\n  color: var(--po-color-primary);\n}\n.pager-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 10px;\n  min-height: 44px;\n  padding: 8px 12px;\n  margin: 6px auto 10px auto;\n  background: #f7f7f7;\n  border: 1px solid #e5e5e5;\n  border-radius: 6px;\n  width: calc(100% - 32px);\n  box-sizing: border-box;\n  overflow: visible;\n}\n.pager-left[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.pager-info[_ngcontent-%COMP%] {\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n[_nghost-%COMP%]     .pager-bar po-button .po-button {\n  height: 28px !important;\n  min-height: 28px !important;\n  padding: 0 10px !important;\n  font-size: 12px !important;\n}\n.pager-right[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-title {\n  margin: 0 !important;\n  padding: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-label {\n  font-size: 12px !important;\n  line-height: 1 !important;\n  white-space: nowrap;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-content {\n  padding: 0 !important;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n  height: 28px !important;\n  min-height: 28px !important;\n  width: 90px !important;\n  padding: 0 8px !important;\n  font-size: 12px !important;\n}\n.page-size[_ngcontent-%COMP%] {\n  margin: 0 !important;\n}\n.actions-right[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: flex-end;\n  align-items: flex-end;\n  gap: 10px;\n  flex-wrap: wrap;\n  padding-bottom: 2px;\n}\n[_nghost-%COMP%]     .actions-right .po-button {\n  height: 40px;\n}\n@media (max-width: 1200px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: clamp(280px, calc(100vh - 410px), 760px);\n  }\n}\n@media (max-width: 900px) {\n  .pager-bar[_ngcontent-%COMP%] {\n    padding: 8px 12px;\n    flex-direction: column;\n    gap: 8px;\n  }\n  .pager-left[_ngcontent-%COMP%], \n   .pager-right[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: space-between;\n  }\n  .pager-info[_ngcontent-%COMP%] {\n    white-space: normal;\n  }\n  [_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n    width: 110px !important;\n  }\n}\n@media (max-width: 768px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: 56vh;\n    min-height: 260px;\n  }\n  .actions-right[_ngcontent-%COMP%] {\n    justify-content: stretch;\n  }\n  .actions-right[_ngcontent-%COMP%]   po-button[_ngcontent-%COMP%] {\n    flex: 1 1 160px;\n  }\n  .widget-value[_ngcontent-%COMP%] {\n    font-size: 24px;\n  }\n}\n/*# sourceMappingURL=relatorio-rcap.component.css.map */"] });
+  ], styles: ["\n\n[_nghost-%COMP%]     po-accordion.filters-accordion {\n  border-radius: 12px;\n  overflow: hidden;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header {\n  background: #f7f9fc;\n  border: 1px solid #e6e8eb;\n  border-radius: 12px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-button {\n  padding: 12px 14px;\n  min-height: 48px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-title {\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-icon {\n  opacity: 0.85;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-content {\n  border: 1px solid #e6e8eb;\n  border-top: none;\n  border-radius: 0 0 12px 12px;\n  background: #ffffff;\n  padding: 12px 14px 14px;\n}\n[_nghost-%COMP%]     .filters-actions {\n  border-top: 1px solid #e6e8eb;\n  margin-top: 8px;\n  padding-top: 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-container {\n  height: clamp(320px, calc(100vh - 360px), 920px);\n}\n[_nghost-%COMP%]     .rcap-table .po-table-header-sticky th {\n  background: #f7f9fc;\n  border-bottom: 1px solid #e6e8eb;\n  font-weight: 600;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-row:hover td {\n  background: #f3f5f7;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions {\n  padding: 4px 0 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button {\n  opacity: 0.75;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button:hover {\n  opacity: 1;\n}\n[_nghost-%COMP%]     .po-table-column-cell {\n  font-variant-numeric: tabular-nums;\n}\n.widgets-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n.widgets-wrapper[_ngcontent-%COMP%]    > .widget-card[_ngcontent-%COMP%] {\n  width: 100%;\n  box-sizing: border-box;\n}\n.widget-card[_ngcontent-%COMP%] {\n  border-radius: 8px;\n  padding: 10px;\n  transition: all .2s ease;\n}\n.widget-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);\n}\n.widget-value[_ngcontent-%COMP%] {\n  font-size: 28px;\n  font-weight: 600;\n  text-align: center;\n  color: var(--po-color-neutral-dark-80);\n}\n.widget-label[_ngcontent-%COMP%] {\n  margin-top: 4px;\n  font-size: 13px;\n  text-align: center;\n  color: var(--po-color-neutral-dark-60);\n}\n.widget-card.destaque[_ngcontent-%COMP%] {\n  background: var(--po-color-primary-light-95);\n  border-left: 4px solid var(--po-color-primary);\n}\n.widget-card.destaque[_ngcontent-%COMP%]   .widget-value[_ngcontent-%COMP%] {\n  color: var(--po-color-primary);\n}\n.pager-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 10px;\n  min-height: 44px;\n  padding: 8px 12px;\n  margin: 6px auto 10px auto;\n  background: #f7f7f7;\n  border: 1px solid #e5e5e5;\n  border-radius: 6px;\n  width: calc(100% - 32px);\n  box-sizing: border-box;\n  overflow: visible;\n}\n.pager-left[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.pager-info[_ngcontent-%COMP%] {\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n[_nghost-%COMP%]     .pager-bar po-button .po-button {\n  height: 28px !important;\n  min-height: 28px !important;\n  padding: 0 10px !important;\n  font-size: 12px !important;\n}\n.pager-right[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-title {\n  margin: 0 !important;\n  padding: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-label {\n  font-size: 12px !important;\n  line-height: 1 !important;\n  white-space: nowrap;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-content {\n  padding: 0 !important;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n  height: 28px !important;\n  min-height: 28px !important;\n  width: 90px !important;\n  padding: 0 8px !important;\n  font-size: 12px !important;\n}\n.page-size[_ngcontent-%COMP%] {\n  margin: 0 !important;\n}\n.actions-right[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: flex-end;\n  align-items: flex-end;\n  gap: 10px;\n  flex-wrap: nowrap;\n  padding-bottom: 2px;\n}\n[_nghost-%COMP%]     .actions-right .po-button {\n  height: 40px;\n}\n@media (max-width: 1200px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: clamp(280px, calc(100vh - 410px), 760px);\n  }\n  .actions-right[_ngcontent-%COMP%] {\n    flex-wrap: wrap;\n    justify-content: flex-start;\n  }\n}\n@media (max-width: 900px) {\n  .pager-bar[_ngcontent-%COMP%] {\n    padding: 8px 12px;\n    flex-direction: column;\n    gap: 8px;\n  }\n  .pager-left[_ngcontent-%COMP%], \n   .pager-right[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: space-between;\n  }\n  .pager-info[_ngcontent-%COMP%] {\n    white-space: normal;\n  }\n  [_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n    width: 110px !important;\n  }\n}\n@media (max-width: 768px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: 56vh;\n    min-height: 260px;\n  }\n  .actions-right[_ngcontent-%COMP%] {\n    justify-content: stretch;\n  }\n  .actions-right[_ngcontent-%COMP%]   po-button[_ngcontent-%COMP%] {\n    flex: 1 1 160px;\n  }\n  .widget-value[_ngcontent-%COMP%] {\n    font-size: 24px;\n  }\n}\n/*# sourceMappingURL=relatorio-rcap.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RelatorioRcapComponent, { className: "RelatorioRcapComponent", filePath: "src/app/compras/relatorios/relatorio-rcap/relatorio-rcap.component.ts", lineNumber: 42 });
@@ -33230,4 +33254,4 @@ exceljs/dist/exceljs.min.js:
    * @copyright Louis-Dominique Dubeau
    *)
 */
-//# sourceMappingURL=chunk-VUZGSECL.js.map
+//# sourceMappingURL=chunk-S7TUQHIP.js.map
