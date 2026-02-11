@@ -3,58 +3,72 @@
   [string]$Env = "dev"
 )
 
+$ErrorActionPreference = "Stop"
+
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $appName = "poui-invoice-report"
 
-# Mapeia env -> configuração Angular
+# Mapeia env -> configuracao Angular
 if ($Env -eq "prod") {
   $ngConfig = "production"
-  $suffix = "prod"
 } else {
   $ngConfig = "development"
-  $suffix = "dev"
 }
 
-$projeto = $scriptPath
+$projeto = Resolve-Path (Join-Path $scriptPath "..")
 $distPath = Join-Path $projeto "dist\$appName"
 $browserPath = Join-Path $distPath "browser"
-
 $resourcePath = Join-Path $projeto "Protheus\Resource"
 
-# ✅ pasta muda conforme ambiente
-$folderToZip = Join-Path $resourcePath "$appName"
+# Pasta muda conforme ambiente
+$folderToZip = Join-Path $resourcePath $appName
 
-# ✅ arquivo FINAL sem sufixo
+# Arquivo final sem sufixo
 $zipPath = Join-Path $resourcePath "$appName.zip"
 $appPath = Join-Path $resourcePath "$appName.app"
 
-cd $projeto
+Push-Location $projeto
 
-Write-Host "⿡ Executando build ($Env => $ngConfig)..." -ForegroundColor Cyan
+Write-Host "Executando build ($Env => $ngConfig)..." -ForegroundColor Cyan
 ng build -c $ngConfig
 
-if (!(Test-Path $browserPath)) {
-  Write-Host "❌ Build falhou ou pasta 'browser' não foi encontrada: $browserPath" -ForegroundColor Red
+if (!(Test-Path $distPath)) {
+  Pop-Location
+  Write-Host "Build falhou ou pasta de saida nao foi encontrada: $distPath" -ForegroundColor Red
   exit 1
 }
 
+# Angular application builder pode gerar em dist/app (sem browser) ou dist/app/browser.
+$sourcePath = $browserPath
+if (!(Test-Path $sourcePath)) {
+  $sourcePath = $distPath
+}
+
+if (!(Test-Path $resourcePath)) {
+  New-Item -ItemType Directory -Path $resourcePath -Force | Out-Null
+}
+
 if (Test-Path $folderToZip) { Remove-Item $folderToZip -Recurse -Force }
-New-Item -ItemType Directory -Path $folderToZip | Out-Null
+New-Item -ItemType Directory -Path $folderToZip -Force | Out-Null
 
-Write-Host "⿢ Copiando arquivos do browser para $folderToZip..." -ForegroundColor Cyan
-Copy-Item "$browserPath\*" -Destination $folderToZip -Recurse -Force
+Write-Host "Copiando arquivos de $sourcePath para $folderToZip..." -ForegroundColor Cyan
+Copy-Item "$sourcePath\*" -Destination $folderToZip -Recurse -Force
 
-Write-Host "⿣ Removendo pasta browser..." -ForegroundColor Cyan
-Remove-Item $browserPath -Recurse -Force
+if (Test-Path $browserPath) {
+  Write-Host "Removendo pasta browser..." -ForegroundColor Cyan
+  Remove-Item $browserPath -Recurse -Force
+}
 
 # remove antigos
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 if (Test-Path $appPath) { Remove-Item $appPath -Force }
 
-Write-Host "⿤ Compactando para ZIP..." -ForegroundColor Cyan
+Write-Host "Compactando para ZIP..." -ForegroundColor Cyan
 Compress-Archive -Path $folderToZip -DestinationPath $zipPath -Force
 
 Rename-Item -Path $zipPath -NewName (Split-Path $appPath -Leaf) -Force
 
-Write-Host "`n✅ Finalizado ($Env)."
-Write-Host "📦 App gerado em: $appPath" -ForegroundColor Green
+Pop-Location
+
+Write-Host "`nFinalizado ($Env)."
+Write-Host "App gerado em: $appPath" -ForegroundColor Green

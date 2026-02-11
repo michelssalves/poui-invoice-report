@@ -2,7 +2,7 @@
 var environment = {
   production: false,
   apiUrl: "http://vhwin1065:9023/rest/protheus/v1/poui",
-  useMocks: true,
+  useMocks: false,
   auth: {
     user: "admin",
     password: "tcp_tcp"
@@ -13,4 +13,4 @@ var environment = {
 export {
   environment
 };
-//# sourceMappingURL=chunk-T57ICMF6.js.map
+//# sourceMappingURL=chunk-RJXFIB2B.js.map

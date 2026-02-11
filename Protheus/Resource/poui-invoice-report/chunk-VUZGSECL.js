@@ -1,9 +1,8 @@
 import {
   environment
-} from "./chunk-T57ICMF6.js";
+} from "./chunk-RJXFIB2B.js";
 import {
   CommonModule,
-  DecimalPipe,
   FormsModule,
   HttpClient,
   HttpHeaders,
@@ -50,8 +49,6 @@ import {
   ɵɵgetCurrentView,
   ɵɵlistener,
   ɵɵnextContext,
-  ɵɵpipe,
-  ɵɵpipeBind2,
   ɵɵproperty,
   ɵɵresetView,
   ɵɵrestoreView,
@@ -63,7 +60,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-Z2GH3N54.js";
+} from "./chunk-BH3N7IE2.js";
 
 // node_modules/exceljs/dist/exceljs.min.js
 var require_exceljs_min = __commonJS({
@@ -32260,80 +32257,79 @@ function RelatorioRcapComponent_div_1_Template(rf, ctx) {
     \u0275\u0275element(23, "po-chart", 25);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(24, "po-container", 26);
-    \u0275\u0275element(25, "div", 27)(26, "po-chart", 28);
+    \u0275\u0275element(25, "po-chart", 27);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(27, "po-container", 29)(28, "div", 30)(29, "po-widget", 31)(30, "div", 32);
-    \u0275\u0275text(31);
+    \u0275\u0275elementStart(26, "po-container", 28)(27, "div", 29)(28, "po-widget", 30)(29, "div", 31);
+    \u0275\u0275text(30);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(32, "div", 33);
-    \u0275\u0275text(33, "NFs");
+    \u0275\u0275elementStart(31, "div", 32);
+    \u0275\u0275text(32, "NFs");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(34, "po-widget", 31)(35, "div", 32);
-    \u0275\u0275text(36);
+    \u0275\u0275elementStart(33, "po-widget", 30)(34, "div", 31);
+    \u0275\u0275text(35);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(37, "div", 33);
-    \u0275\u0275text(38, "M\xE9dia Dia");
+    \u0275\u0275elementStart(36, "div", 32);
+    \u0275\u0275text(37, "M\xE9dia Dia");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(39, "po-widget", 31)(40, "div", 32);
-    \u0275\u0275text(41);
+    \u0275\u0275elementStart(38, "po-widget", 30)(39, "div", 31);
+    \u0275\u0275text(40);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(42, "div", 33);
-    \u0275\u0275text(43, "M\xE9dia Horas");
+    \u0275\u0275elementStart(41, "div", 32);
+    \u0275\u0275text(42, "M\xE9dia Horas");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(44, "po-widget", 34)(45, "div", 32);
-    \u0275\u0275text(46);
-    \u0275\u0275pipe(47, "number");
+    \u0275\u0275elementStart(43, "po-widget", 33)(44, "div", 31);
+    \u0275\u0275text(45);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(48, "div", 33);
-    \u0275\u0275text(49, "Horas SLA");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(50, "po-widget", 31)(51, "div", 32);
-    \u0275\u0275text(52);
+    \u0275\u0275elementStart(46, "div", 32);
+    \u0275\u0275text(47, "Horas SLA");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(48, "po-widget", 30)(49, "div", 31);
+    \u0275\u0275text(50);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(53, "div", 33);
-    \u0275\u0275text(54, "Dentro SLA (48h)");
+    \u0275\u0275elementStart(51, "div", 32);
+    \u0275\u0275text(52, "Dentro SLA (48h)");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(55, "div", 33);
-    \u0275\u0275text(56);
-    \u0275\u0275elementEnd()()()()()()();
-    \u0275\u0275elementStart(57, "div", 35)(58, "div", 36)(59, "po-button", 37);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_59_listener() {
+    \u0275\u0275elementStart(53, "div", 32);
+    \u0275\u0275text(54);
+    \u0275\u0275elementEnd()()()()()()()();
+    \u0275\u0275elementStart(55, "div", 34)(56, "div", 35)(57, "po-button", 36);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_57_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.prevPage());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(60, "po-button", 38);
-    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_60_listener() {
+    \u0275\u0275elementStart(58, "po-button", 37);
+    \u0275\u0275listener("p-click", function RelatorioRcapComponent_div_1_Template_po_button_p_click_58_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.nextPage());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(61, "span", 39);
-    \u0275\u0275text(62, " P\xE1gina ");
-    \u0275\u0275elementStart(63, "b");
-    \u0275\u0275text(64);
+    \u0275\u0275elementStart(59, "span", 38);
+    \u0275\u0275text(60, " P\xE1gina ");
+    \u0275\u0275elementStart(61, "b");
+    \u0275\u0275text(62);
     \u0275\u0275elementEnd();
-    \u0275\u0275text(65, " / ");
-    \u0275\u0275elementStart(66, "b");
-    \u0275\u0275text(67);
+    \u0275\u0275text(63, " / ");
+    \u0275\u0275elementStart(64, "b");
+    \u0275\u0275text(65);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(68, "span", 40);
-    \u0275\u0275text(69, "\u2022");
+    \u0275\u0275elementStart(66, "span", 39);
+    \u0275\u0275text(67, "\u2022");
     \u0275\u0275elementEnd();
-    \u0275\u0275text(70, " Total: ");
-    \u0275\u0275elementStart(71, "b");
-    \u0275\u0275text(72);
+    \u0275\u0275text(68, " Total: ");
+    \u0275\u0275elementStart(69, "b");
+    \u0275\u0275text(70);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(73, "div", 41)(74, "po-select", 42);
-    \u0275\u0275listener("ngModelChange", function RelatorioRcapComponent_div_1_Template_po_select_ngModelChange_74_listener($event) {
+    \u0275\u0275elementStart(71, "div", 40)(72, "po-select", 41);
+    \u0275\u0275listener("ngModelChange", function RelatorioRcapComponent_div_1_Template_po_select_ngModelChange_72_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setPageSize($event));
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275element(75, "po-table", 43);
+    \u0275\u0275element(73, "po-table", 42);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -32364,7 +32360,7 @@ function RelatorioRcapComponent_div_1_Template(rf, ctx) {
     \u0275\u0275property("p-categories", ctx_r1.categoriasUsuarios)("p-series", ctx_r1.colunaItens)("p-options", ctx_r1.chartOptions);
     \u0275\u0275advance();
     \u0275\u0275property("p-height", 435);
-    \u0275\u0275advance(2);
+    \u0275\u0275advance();
     \u0275\u0275property("p-options", ctx_r1.chartOptions)("p-series", ctx_r1.pizzaItens);
     \u0275\u0275advance();
     \u0275\u0275property("p-height", 435);
@@ -32375,8 +32371,8 @@ function RelatorioRcapComponent_div_1_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1("", ctx_r1.mediaHorasSLA, " h");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind2(47, 43, ctx_r1.totalHorasSLA, "1.2-2"), " h");
-    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1("", ctx_r1.formatDecimalPtBr(ctx_r1.totalHorasSLA, 2, 2), " h");
+    \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1("", ctx_r1.percentDentroSLA, "%");
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate2("", ctx_r1.totalDentroSLA, "/", ctx_r1.totalNotas, " dentro SLA");
@@ -32445,7 +32441,9 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     { label: "500", value: 500 }
   ];
   endDateAlteradaManual = false;
+  requestIdAtual = 0;
   feriadosCache = /* @__PURE__ */ new Map();
+  feriadosJsonCache = null;
   chartOptions = {
     tooltip: true,
     legend: true,
@@ -32558,10 +32556,17 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     this.page = 1;
     this.updatePageItems();
   }
-  processarResposta(response) {
+  isRequestAtiva(requestId) {
+    return requestId === this.requestIdAtual;
+  }
+  processarResposta(response, requestId) {
     return __async(this, null, function* () {
+      if (!this.isRequestAtiva(requestId))
+        return;
       this.itemsAll = response?.dados ?? [];
       if (!this.itemsAll.length) {
+        if (!this.isRequestAtiva(requestId))
+          return;
         this.total = 0;
         this.page = 1;
         this.items = [];
@@ -32577,6 +32582,8 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
         }).filter((y) => typeof y === "number" && !isNaN(y));
         yield this.garantirFeriados(anos);
         for (let i = 0; i < this.itemsAll.length; i++) {
+          if (!this.isRequestAtiva(requestId))
+            return;
           const item = this.itemsAll[i];
           const dtFim = this.parseDateOnly(item.digitacao);
           if (!dtFim) {
@@ -32615,10 +32622,39 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
           if (i % 500 === 0)
             yield new Promise((r) => setTimeout(r, 0));
         }
-        this.totalNotas = this.itemsAll.length;
-        this.totalDentroSLA = this.itemsAll.filter((i) => !!i.dentroSLA).length;
+        const notasComSla = /* @__PURE__ */ new Set();
+        for (const item of this.itemsAll) {
+          const chaveNota = this.gerarChaveNota(item);
+          if (!chaveNota)
+            continue;
+          if (notasComSla.has(chaveNota)) {
+            item.horasSLA = 0;
+            item.horasSLALabel = this.formatHorasSLA(0);
+            item.dentroSLA = true;
+            item.slaStatus = "";
+            continue;
+          }
+          notasComSla.add(chaveNota);
+        }
+        const metricasSla = [];
+        const notasMetricas = /* @__PURE__ */ new Set();
+        for (const item of this.itemsAll) {
+          const chaveNota = this.gerarChaveNota(item);
+          if (!chaveNota) {
+            metricasSla.push(item);
+            continue;
+          }
+          if (notasMetricas.has(chaveNota))
+            continue;
+          notasMetricas.add(chaveNota);
+          metricasSla.push(item);
+        }
+        if (!this.isRequestAtiva(requestId))
+          return;
+        this.totalNotas = metricasSla.length;
+        this.totalDentroSLA = metricasSla.filter((i) => !!i.dentroSLA).length;
         this.percentDentroSLA = this.totalNotas ? Math.round(this.totalDentroSLA / this.totalNotas * 1e4) / 100 : 0;
-        this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
+        this.totalHorasSLA = metricasSla.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
         this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
         this.mediaDiasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / 24 / this.totalNotas * 100) / 100 : 0;
         const totalPedido = this.itemsAll.filter((i) => !i.contrato || i.contrato.trim() === "").length;
@@ -32659,9 +32695,13 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
             this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
           }
         }
+        if (!this.isRequestAtiva(requestId))
+          return;
         this.loading = false;
         this.imprimir = "N";
       } catch (e) {
+        if (!this.isRequestAtiva(requestId))
+          return;
         console.error("Erro no processamento", e);
         this.loading = false;
         this.imprimir = "N";
@@ -32669,220 +32709,125 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     });
   }
   getMockResponse() {
+    const users = [
+      { codUsr: "michel", user: "Michel Alves" },
+      { codUsr: "ana", user: "Ana Souza" },
+      { codUsr: "carlos", user: "Carlos Lima" },
+      { codUsr: "bianca", user: "Bianca Rocha" },
+      { codUsr: "joao", user: "Jo\xE3o Santos" }
+    ];
+    const pad = (n, size = 6) => String(n).padStart(size, "0");
+    const dateYMD = (base2, addDays) => {
+      const d = new Date(base2);
+      d.setDate(d.getDate() + addDays);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}/${m}/${day}`;
+    };
+    const timeHMS = (h, m) => `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`;
+    const base = new Date(2026, 1, 9);
+    const dados = Array.from({ length: 50 }, (_, idx) => {
+      const i = idx + 1;
+      const u = users[idx % 5];
+      const hasContrato = idx % 2 === 0;
+      const emissao = dateYMD(base, -(idx % 10));
+      const digitacao = dateYMD(base, 0);
+      const vencimento = dateYMD(base, 2 + idx % 7);
+      const dtPreNota = dateYMD(base, 1 + idx % 4);
+      const legado = idx % 9 === 0;
+      const Dt3Way = legado ? "0000-00-00" : dateYMD(base, -(idx % 3));
+      const Hr3Way = legado ? "00:00:00" : timeHMS(9 + idx % 6, idx * 7 % 60);
+      const HrDigitacao = timeHMS(10 + idx % 7, idx * 11 % 60);
+      const liquido = Math.round((500 + idx * 37.55) * 100) / 100;
+      const bruto = Math.round(liquido * 1.02 * 100) / 100;
+      const inss = idx % 5 === 0 ? 0 : Math.round(liquido * 0.01 * 100) / 100;
+      const pis = Math.round(liquido * 65e-4 * 100) / 100;
+      const cofins = Math.round(liquido * 0.03 * 100) / 100;
+      const csll = Math.round(liquido * 0.01 * 100) / 100;
+      const ipi = idx % 4 === 0 ? Math.round(liquido * 0.02 * 100) / 100 : 0;
+      const frete = idx % 3 === 0 ? Math.round(25.5 * 100) / 100 : 0;
+      const desconto = idx % 6 === 0 ? Math.round(10 * 100) / 100 : 0;
+      const despesa = idx % 7 === 0 ? Math.round(3.25 * 100) / 100 : 0;
+      const TTPedido = Math.round(bruto * (hasContrato ? 1.15 : 1.05) * 100) / 100;
+      const diferenca = Math.round((TTPedido - bruto) * 100) / 100;
+      return {
+        item: i,
+        filial: "01",
+        nota: pad(370 + i, 9),
+        // "000000371" etc
+        serie: "E22",
+        fornecedor: pad(4166 + idx % 20, 6),
+        loja: String(idx % 3 + 1).padStart(2, "0"),
+        razao: `FORNECEDOR MOCK ${String(idx % 20 + 1).padStart(2, "0")} LTDA`,
+        cnpj: "10802919000152",
+        emissao,
+        digitacao,
+        HrDigitacao,
+        vencimento,
+        natureza: hasContrato ? "COMP" : "SERV",
+        DtPreNota: dtPreNota,
+        Dt3Way,
+        Hr3Way,
+        tipo: idx % 2 === 0 ? "NFSE" : "NFS",
+        estado: idx % 2 === 0 ? "PR" : "SP",
+        inss,
+        pis,
+        cofins,
+        csll,
+        ipi,
+        frete,
+        desconto,
+        despesa,
+        liquido,
+        bruto,
+        TTPedido,
+        diferenca,
+        pedido: String(215200 + i),
+        codUsr: u.codUsr,
+        // ✅ 5 usuários
+        user: u.user,
+        contrato: hasContrato ? `CTR-${String(100 + idx % 15)}` : ""
+        // ✅ com e sem
+      };
+    });
     return {
       ok: true,
       folder: "RCAP_DEV_000001",
       zipName: "Papeletas_20260209.zip",
-      dados: [
-        {
-          item: 1,
-          filial: "01",
-          nota: "000000377",
-          serie: "E22",
-          fornecedor: "004166",
-          loja: "01",
-          razao: "ABBATUR TRANSPORTE, TURISMO E LOCA\xC7\xC3O LTDA",
-          cnpj: "10802919000152",
-          emissao: "2026/02/09",
-          digitacao: "2026/02/09",
-          HrDigitacao: "10:20:00",
-          vencimento: "2026/02/11",
-          natureza: "SERV",
-          DtPreNota: "2026/02/10",
-          Dt3Way: "2026/02/09",
-          Hr3Way: "09:10:00",
-          tipo: "NFSE",
-          estado: "PR",
-          inss: 0,
-          pis: 0,
-          cofins: 0,
-          csll: 0,
-          ipi: 0,
-          frete: 0,
-          desconto: 0,
-          despesa: 0.02,
-          liquido: 5981.18,
-          bruto: 5981.18,
-          TTPedido: 22576.1,
-          diferenca: 100,
-          pedido: "215205",
-          codUsr: "michel",
-          user: "Michel Alves",
-          contrato: ""
-        },
-        {
-          item: 2,
-          filial: "01",
-          nota: "000000378",
-          serie: "E22",
-          fornecedor: "004166",
-          loja: "01",
-          razao: "FORNECEDOR TESTE LTDA",
-          cnpj: "00000000000000",
-          emissao: "2026/02/08",
-          digitacao: "2026/02/09",
-          HrDigitacao: "14:00:00",
-          vencimento: "2026/02/12",
-          natureza: "COMP",
-          DtPreNota: "2026/02/09",
-          Dt3Way: "0000-00-00",
-          // simula dado legado
-          Hr3Way: "00:00:00",
-          tipo: "NFS",
-          estado: "SP",
-          inss: 10,
-          pis: 5,
-          cofins: 20,
-          csll: 3,
-          ipi: 0,
-          frete: 15,
-          desconto: 2,
-          despesa: 1,
-          liquido: 1200,
-          bruto: 1250,
-          TTPedido: 1300,
-          diferenca: 50,
-          pedido: "215206",
-          codUsr: "ana",
-          user: "Ana Souza",
-          contrato: "CTR-001"
-        }
-      ]
+      dados
     };
   }
   carregarDados() {
-    this.loading = true;
-    if (environment.useMocks) {
-      const responseMock = this.getMockResponse();
-      this.processarResposta(responseMock);
-      return;
-    }
-    const url = `${this.API_URL}/listar-relatorio-rcap`;
-    const body = {
-      dataInicial: this.ToAAAMMDD(this.startDate),
-      dataFinal: this.ToAAAMMDD(this.endDate),
-      tipo: this.tipo,
-      workflow: this.papeleta,
-      liquidado: this.liquidado,
-      notaFiscal: this.notaFiscal,
-      fornecedor: this.fornecedor,
-      print: this.imprimir,
-      path: this.path
-    };
-    this.http.post(url, body, { headers: this.getTenantHeaders() }).subscribe({
-      next: (response) => __async(this, null, function* () {
-        this.itemsAll = response?.dados ?? [];
-        if (!this.itemsAll.length) {
-          this.total = 0;
-          this.page = 1;
-          this.items = [];
-          this.zerarTotais();
-          this.loading = false;
-          return;
-        }
-        try {
-          const anos = this.itemsAll.flatMap((i) => {
-            const a = this.parseDateOnly(i?.Dt3Way)?.getFullYear();
-            const b = this.parseDateOnly(i?.digitacao)?.getFullYear();
-            return [a, b];
-          }).filter((y) => typeof y === "number" && !isNaN(y));
-          yield this.garantirFeriados(anos);
-          for (let i = 0; i < this.itemsAll.length; i++) {
-            const item = this.itemsAll[i];
-            const dtFim = this.parseDateOnly(item.digitacao);
-            if (!dtFim) {
-              item.horasSLA = 0;
-              item.dentroSLA = true;
-              item.slaStatus = "Dentro";
-              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
-              continue;
-            }
-            const dtIni = this.isDataNula(item.Dt3Way) ? this.parseDateOnly(item.digitacao) : this.parseDateOnly(item.Dt3Way);
-            if (!dtIni) {
-              item.horasSLA = 0;
-              item.dentroSLA = true;
-              item.slaStatus = "Dentro";
-              item.horasSLALabel = this.formatHorasSLA(item.horasSLA);
-              continue;
-            }
-            const data3WayNula = this.isDataNula(item.Dt3Way);
-            const hora3WayNula = this.isHoraNula(item.Hr3Way);
-            const horaDigitNula = this.isHoraNula(item.HrDigitacao);
-            const hrIniNula = data3WayNula || hora3WayNula;
-            const hrFimNula = horaDigitNula;
-            let horas = 0;
-            if (hrIniNula && hrFimNula) {
-              horas = 24;
-            } else {
-              const usarDigitComoIni = data3WayNula || hora3WayNula;
-              const ini = this.buildDateTime(usarDigitComoIni ? item.digitacao : item.Dt3Way, usarDigitComoIni ? item.HrDigitacao : item.Hr3Way);
-              const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
-              horas = ini && fim ? this.calcularHorasUteisDateTime(ini, fim) : 24;
-            }
-            item.horasSLA = horas;
-            item.horasSLALabel = this.formatHorasSLA(horas);
-            item.dentroSLA = horas <= this.slaHoras;
-            item.slaStatus = item.dentroSLA ? "Dentro" : "Fora";
-            if (i % 500 === 0)
-              yield new Promise((r) => setTimeout(r, 0));
-          }
-          this.totalNotas = this.itemsAll.length;
-          this.totalDentroSLA = this.itemsAll.filter((i) => !!i.dentroSLA).length;
-          this.percentDentroSLA = this.totalNotas ? Math.round(this.totalDentroSLA / this.totalNotas * 1e4) / 100 : 0;
-          this.totalHorasSLA = this.itemsAll.reduce((sum, item) => sum + (item.horasSLA || 0), 0);
-          this.mediaHorasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / this.totalNotas) : 0;
-          this.mediaDiasSLA = this.totalNotas ? Math.round(this.totalHorasSLA / 24 / this.totalNotas * 100) / 100 : 0;
-          const totalPedido = this.itemsAll.filter((i) => !i.contrato || i.contrato.trim() === "").length;
-          const totalContrato = this.itemsAll.filter((i) => i.contrato && i.contrato.trim() !== "").length;
-          const mapaUsuarios = {};
-          for (const i of this.itemsAll) {
-            const usuario = i.codUsr;
-            if (!usuario)
-              continue;
-            mapaUsuarios[usuario] = (mapaUsuarios[usuario] ?? 0) + 1;
-          }
-          const usuarios = Object.keys(mapaUsuarios);
-          this.categoriasUsuarios = usuarios;
-          this.colunaItens = [{
-            label: "Notas",
-            data: usuarios.map((u) => Number(mapaUsuarios[u]) || 0)
-          }];
-          this.setChartDataLabelEnabled(usuarios.length <= 30);
-          this.pizzaItens = [
-            { label: "Pedido", data: totalPedido, color: "po-color-08" },
-            { label: "Contrato", data: totalContrato, color: "po-color-07" }
-          ];
-          const round2 = (v) => Math.round(v * 100) / 100;
-          this.totalLiquido = round2(this.itemsAll.reduce((sum, item) => sum + (item.liquido || 0), 0));
-          this.totalBruto = round2(this.itemsAll.reduce((sum, item) => sum + (item.bruto || 0), 0));
-          this.totalImpostos = round2(this.itemsAll.reduce((sum, item) => sum + (item.inss || 0) + (item.pis || 0) + (item.cofins || 0) + (item.csll || 0) + (item.ipi || 0), 0));
-          this.total = this.itemsAll.length;
-          this.page = 1;
-          this.updatePageItems();
-          if (environment.useMocks) {
-          } else if (this.imprimir === "S") {
-            const fileName = this.normalizarNomeArquivo(response?.zipName);
-            const downloadUrl = this.montarUrlDownload(response);
-            const folder = response?.folder;
-            if (!downloadUrl) {
-              this.poNotification.warning("N\xE3o foi poss\xEDvel montar a URL do ZIP.");
-            } else {
-              this.baixarArquivoPorUrl(downloadUrl, fileName, folder);
-            }
-          }
-          this.loading = false;
-          this.imprimir = "N";
-        } catch (e) {
-          console.error("Erro no processamento", e);
-          this.loading = false;
-          this.imprimir = "N";
-        }
-      }),
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-        this.imprimir = "N";
+    return __async(this, null, function* () {
+      const requestId = ++this.requestIdAtual;
+      this.loading = true;
+      if (environment.useMocks) {
+        yield this.processarResposta(this.getMockResponse(), requestId);
+        return;
       }
+      const url = `${this.API_URL}/listar-relatorio-rcap`;
+      const body = {
+        dataInicial: this.ToAAAMMDD(this.startDate),
+        dataFinal: this.ToAAAMMDD(this.endDate),
+        tipo: this.tipo,
+        workflow: this.papeleta,
+        liquidado: this.liquidado,
+        notaFiscal: this.notaFiscal,
+        fornecedor: this.fornecedor,
+        print: this.imprimir,
+        path: this.path
+      };
+      this.http.post(url, body, { headers: this.getTenantHeaders() }).subscribe({
+        next: (response) => void this.processarResposta(response, requestId),
+        error: (err) => {
+          if (!this.isRequestAtiva(requestId))
+            return;
+          console.error(err);
+          this.loading = false;
+          this.imprimir = "N";
+        }
+      });
     });
   }
   atualizarFiliaisPorEmpresa(empresa) {
@@ -32927,19 +32872,20 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     });
   }
   carregarFeriadosAno(ano) {
-    if (this.feriadosCache.has(ano))
-      return Promise.resolve();
-    return new Promise((resolve) => {
-      this.http.get(`https://brasilapi.com.br/api/feriados/v1/${ano}`).subscribe({
-        next: (feriados) => {
-          this.feriadosCache.set(ano, new Set((feriados ?? []).map((f) => f.date)));
-          resolve();
-        },
-        error: () => {
-          this.feriadosCache.set(ano, /* @__PURE__ */ new Set());
-          resolve();
-        }
-      });
+    return __async(this, null, function* () {
+      if (this.feriadosCache.has(ano))
+        return;
+      if (!this.feriadosJsonCache) {
+        this.feriadosJsonCache = yield new Promise((resolve) => {
+          this.http.get("assets/feriados-br.json").subscribe({
+            next: resolve,
+            error: () => resolve({})
+          });
+        });
+      }
+      const lista = this.feriadosJsonCache?.[String(ano)] ?? [];
+      console.log(`Feriados carregados para ${ano}:`, lista);
+      this.feriadosCache.set(ano, new Set(lista.map((f) => f.date)));
     });
   }
   // -------------------- SLA (DateTime) --------------------
@@ -32985,6 +32931,26 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
       return 0;
     const [hh, mm, ss] = v.split(":").map(Number);
     return hh * 3600 + mm * 60 + ss;
+  }
+  parseExcelTime(hhmmss) {
+    if (!hhmmss)
+      return null;
+    const v = hhmmss.trim();
+    if (!/^\d{2}:\d{2}:\d{2}$/.test(v))
+      return null;
+    const [hh, mm, ss] = v.split(":").map(Number);
+    return (hh * 3600 + mm * 60 + ss) / 86400;
+  }
+  parseExcelDate(dateStr) {
+    const d = this.parseDateOnly(dateStr);
+    if (!d)
+      return null;
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const day = d.getDate();
+    const excelEpochUtc = Date.UTC(1899, 11, 30);
+    const valueUtc = Date.UTC(y, m, day);
+    return Math.round((valueUtc - excelEpochUtc) / 864e5);
   }
   buildDateTime(dateStr, timeStr) {
     const d = this.parseDateOnly(dateStr);
@@ -33041,6 +33007,23 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     }
     return `${h.toFixed(2)} h`;
   }
+  gerarChaveNota(item) {
+    const filial = String(item?.filial ?? "").trim();
+    const nota = String(item?.nota ?? "").trim();
+    const serie = String(item?.serie ?? "").trim();
+    const fornecedor = String(item?.fornecedor ?? "").trim();
+    const loja = String(item?.loja ?? "").trim();
+    if (!filial || !nota)
+      return "";
+    return `${filial}|${nota}|${serie}|${fornecedor}|${loja}`;
+  }
+  formatDecimalPtBr(value, min = 2, max = 2) {
+    const n = Number(value ?? 0);
+    return new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: min,
+      maximumFractionDigits: max
+    }).format(isFinite(n) ? n : 0);
+  }
   get totalPages() {
     return Math.max(1, Math.ceil((this.total || 0) / (this.pageSize || 1)));
   }
@@ -33061,11 +33044,11 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
         { header: "Natureza", key: "natureza", width: 15 },
         { header: "Emiss\xE3o", key: "emissao", width: 15, style: { numFmt: "dd/mm/yyyy" } },
         { header: "Digita\xE7\xE3o", key: "digitacao", width: 15, style: { numFmt: "dd/mm/yyyy" } },
-        { header: "Hr Digt", key: "HrDigitacao", width: 15, style: { numFmt: "00:00:00" } },
+        { header: "Hr Digt", key: "HrDigitacao", width: 15, style: { numFmt: "hh:mm:ss" } },
         { header: "Venc Real", key: "vencimento", width: 15, style: { numFmt: "dd/mm/yyyy" } },
         { header: "Venc PreNota", key: "DtPreNota", width: 15, style: { numFmt: "dd/mm/yyyy" } },
         { header: "Dt 3Way", key: "Dt3Way", width: 15, style: { numFmt: "dd/mm/yyyy" } },
-        { header: "Hr 3Way", key: "Hr3Way", width: 15, style: { numFmt: "00:00:00" } },
+        { header: "Hr 3Way", key: "Hr3Way", width: 15, style: { numFmt: "hh:mm:ss" } },
         { header: "Tipo", key: "tipo", width: 10 },
         { header: "Estado", key: "estado", width: 10 },
         { header: "L\xEDquido", key: "liquido", width: 15, style: { numFmt: "R$ #,##0.00" } },
@@ -33089,11 +33072,13 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
       worksheet.getRow(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "4e73df" } };
       worksheet.getRow(1).alignment = { horizontal: "center" };
       const rows = this.itemsAll.map((item) => __spreadProps(__spreadValues({}, item), {
-        emissao: this.parseDateOnly(item.emissao) ?? null,
-        digitacao: this.parseDateOnly(item.digitacao) ?? null,
-        vencimento: this.parseDateOnly(item.vencimento) ?? null,
-        DtPreNota: this.parseDateOnly(item.DtPreNota) ?? null,
-        Dt3Way: this.parseDateOnly(item.Dt3Way) ?? null
+        emissao: this.parseExcelDate(item.emissao) ?? null,
+        digitacao: this.parseExcelDate(item.digitacao) ?? null,
+        HrDigitacao: this.parseExcelTime(item.HrDigitacao) ?? null,
+        vencimento: this.parseExcelDate(item.vencimento) ?? null,
+        DtPreNota: this.parseExcelDate(item.DtPreNota) ?? null,
+        Dt3Way: this.parseExcelDate(item.Dt3Way) ?? null,
+        Hr3Way: this.parseExcelTime(item.Hr3Way) ?? null
       }));
       worksheet.addRows(rows);
       worksheet.eachRow((row, rowNumber) => {
@@ -33159,9 +33144,9 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
   static \u0275fac = function RelatorioRcapComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RelatorioRcapComponent)(\u0275\u0275directiveInject(HttpClient), \u0275\u0275directiveInject(RelatorioRecapService), \u0275\u0275directiveInject(PoNotificationService));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RelatorioRcapComponent, selectors: [["app-relatorio-rcap"]], features: [\u0275\u0275ProvidersFeature([RelatorioRecapService])], decls: 2, vars: 2, consts: [["class", "sample-container", 4, "ngIf"], [4, "ngIf"], [1, "sample-container"], [1, "filters-accordion", "po-lg-12", "po-mt-2"], ["p-label", "Filtros"], [1, "po-row"], ["p-label", "Empresa", "name", "empresa", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Filial", "name", "filial", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-disabled", "p-options"], ["p-label", "Tipo", "name", "tipo", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["p-label", "Liquidado?", "name", "liquidado", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["name", "notaFiscal", "p-clean", "", "p-label", "Nota Fiscal", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["name", "fornecedor", "p-clean", "", "p-label", "Fornecedor", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["p-label", "Papeleta", "name", "papeleta", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Imprimir?", "name", "imprimir", 1, "po-sm-12", "po-md-6", "po-lg-1", 3, "p-change", "ngModel", "p-options"], [1, "po-row", "po-mt-1", "filters-actions"], ["name", "startDate", "p-format", "dd/mm/yyyy", "p-label", "Data Inicial", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], ["name", "endDate", "p-format", "dd/mm/yyyy", "p-label", "Data Final", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], [1, "po-sm-12", "po-md-12", "po-lg-6", "actions-right"], ["p-label", "Filtrar", "p-kind", "secondary", 3, "p-click"], ["p-label", "Excel", "p-kind", "primary", 3, "p-click"], [1, "filters-accordion", "po-lg-12", "po-mt-2", "po-mb-1"], ["p-label", "Indicadores"], [1, "po-row", "mb-4"], [1, "po-md-12", "po-lg-12"], [1, "po-lg-6", 3, "p-height"], [3, "p-categories", "p-series", "p-options"], [1, "po-lg-3", 3, "p-height"], [1, "po-font-text-bold"], [3, "p-options", "p-series"], [1, "po-md-3", "widgets-coluna", 3, "p-height"], [1, "widgets-wrapper"], [1, "widget-card"], [1, "widget-value"], [1, "widget-label"], [1, "widget-card", "destaque"], [1, "pager-bar"], [1, "pager-left"], ["p-label", "Anterior", "p-kind", "tertiary", 3, "p-click", "p-disabled"], ["p-label", "Pr\xF3xima", "p-kind", "tertiary", 3, "p-click", "p-disabled"], [1, "pager-info"], [1, "po-ml-1"], [1, "pager-right"], ["p-label", "Tamanho", 1, "page-size", 3, "ngModelChange", "ngModel", "p-options"], [1, "rcap-table", 3, "p-sort", "p-striped", "p-columns", "p-items"]], template: function RelatorioRcapComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RelatorioRcapComponent, selectors: [["app-relatorio-rcap"]], features: [\u0275\u0275ProvidersFeature([RelatorioRecapService])], decls: 2, vars: 2, consts: [["class", "sample-container", 4, "ngIf"], [4, "ngIf"], [1, "sample-container"], [1, "filters-accordion", "po-lg-12", "po-mt-2"], ["p-label", "Filtros"], [1, "po-row"], ["p-label", "Empresa", "name", "empresa", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Filial", "name", "filial", 1, "po-sm-12", "po-md-3", "po-lg-2", 3, "p-change", "ngModel", "p-disabled", "p-options"], ["p-label", "Tipo", "name", "tipo", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["p-label", "Liquidado?", "name", "liquidado", 1, "po-sm-12", "po-md-3", "po-lg-1", 3, "p-change", "ngModel", "p-options"], ["name", "notaFiscal", "p-clean", "", "p-label", "Nota Fiscal", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["name", "fornecedor", "p-clean", "", "p-label", "Fornecedor", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "ngModelChange", "ngModel"], ["p-label", "Papeleta", "name", "papeleta", 1, "po-sm-12", "po-md-6", "po-lg-2", 3, "p-change", "ngModel", "p-options"], ["p-label", "Imprimir?", "name", "imprimir", 1, "po-sm-12", "po-md-6", "po-lg-1", 3, "p-change", "ngModel", "p-options"], [1, "po-row", "po-mt-1", "filters-actions"], ["name", "startDate", "p-format", "dd/mm/yyyy", "p-label", "Data Inicial", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], ["name", "endDate", "p-format", "dd/mm/yyyy", "p-label", "Data Final", 1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-change", "ngModel"], [1, "po-sm-12", "po-md-12", "po-lg-6", "actions-right"], ["p-label", "Filtrar", "p-kind", "secondary", 3, "p-click"], ["p-label", "Excel", "p-kind", "primary", 3, "p-click"], [1, "filters-accordion", "po-lg-12", "po-mt-2", "po-mb-1"], ["p-label", "Indicadores"], [1, "po-row", "mb-4"], [1, "po-md-12", "po-lg-12"], [1, "po-sm-12", "po-lg-6", 3, "p-height"], [3, "p-categories", "p-series", "p-options"], [1, "po-sm-12", "po-md-6", "po-lg-3", 3, "p-height"], [3, "p-options", "p-series"], [1, "po-sm-12", "po-md-6", "po-lg-3", "widgets-coluna", 3, "p-height"], [1, "widgets-wrapper"], [1, "widget-card"], [1, "widget-value"], [1, "widget-label"], [1, "widget-card", "destaque"], [1, "pager-bar"], [1, "pager-left"], ["p-label", "Anterior", "p-kind", "tertiary", 3, "p-click", "p-disabled"], ["p-label", "Pr\xF3xima", "p-kind", "tertiary", 3, "p-click", "p-disabled"], [1, "pager-info"], [1, "po-ml-1"], [1, "pager-right"], ["p-label", "Tamanho", 1, "page-size", 3, "ngModelChange", "ngModel", "p-options"], [1, "rcap-table", 3, "p-sort", "p-striped", "p-columns", "p-items"]], template: function RelatorioRcapComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275template(0, RelatorioRcapComponent_div_0_Template, 2, 0, "div", 0)(1, RelatorioRcapComponent_div_1_Template, 76, 46, "div", 1);
+      \u0275\u0275template(0, RelatorioRcapComponent_div_0_Template, 2, 0, "div", 0)(1, RelatorioRcapComponent_div_1_Template, 74, 43, "div", 1);
     }
     if (rf & 2) {
       \u0275\u0275property("ngIf", ctx.loading);
@@ -33171,7 +33156,6 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
   }, dependencies: [
     CommonModule,
     NgIf,
-    DecimalPipe,
     FormsModule,
     NgControlStatus,
     NgModel,
@@ -33193,7 +33177,7 @@ var RelatorioRcapComponent = class _RelatorioRcapComponent {
     PoFieldModule,
     PoTableModule,
     PoToolbarModule
-  ], styles: ["\n\n[_nghost-%COMP%]     po-accordion.filters-accordion {\n  border-radius: 12px;\n  overflow: hidden;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header {\n  background: #f7f9fc;\n  border: 1px solid #e6e8eb;\n  border-radius: 12px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-button {\n  padding: 12px 14px;\n  min-height: 48px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-title {\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-icon {\n  opacity: 0.85;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-content {\n  border: 1px solid #e6e8eb;\n  border-top: none;\n  border-radius: 0 0 12px 12px;\n  background: #ffffff;\n  padding: 12px 14px 14px;\n}\n[_nghost-%COMP%]     .filters-actions .actions-right {\n  display: flex;\n  justify-content: flex-end;\n  align-items: flex-end;\n  gap: 10px;\n  padding-bottom: 2px;\n}\n[_nghost-%COMP%]     .filters-actions .actions-right .po-button {\n  height: 40px;\n}\n[_nghost-%COMP%]     .filters-actions {\n  border-top: 1px solid #e6e8eb;\n  margin-top: 8px;\n  padding-top: 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-container {\n  height: calc(100vh - 280px);\n  max-height: 1100px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-header-sticky th {\n  background: #f7f9fc;\n  border-bottom: 1px solid #e6e8eb;\n  font-weight: 600;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-row:hover td {\n  background: #f3f5f7;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions {\n  padding: 4px 0 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button {\n  opacity: 0.75;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button:hover {\n  opacity: 1;\n}\n[_nghost-%COMP%]     .po-table-column-cell {\n  font-variant-numeric: tabular-nums;\n}\n.widgets-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n}\n.widget-card[_ngcontent-%COMP%] {\n  border-radius: 8px;\n  padding: 12px 10px;\n  transition: all .2s ease;\n}\n.widget-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);\n}\n.widget-value[_ngcontent-%COMP%] {\n  font-size: 28px;\n  font-weight: 600;\n  text-align: center;\n  color: var(--po-color-neutral-dark-80);\n}\n.widget-label[_ngcontent-%COMP%] {\n  margin-top: 4px;\n  font-size: 13px;\n  text-align: center;\n  color: var(--po-color-neutral-dark-60);\n}\n.widget-card.destaque[_ngcontent-%COMP%] {\n  background: var(--po-color-primary-light-95);\n  border-left: 4px solid var(--po-color-primary);\n}\n.widget-card.destaque[_ngcontent-%COMP%]   .widget-value[_ngcontent-%COMP%] {\n  color: var(--po-color-primary);\n}\n.pager-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  height: 35px;\n  max-height: 35px;\n  padding: 0 16px;\n  margin: 6px auto 10px auto;\n  background: #f7f7f7;\n  border: 1px solid #e5e5e5;\n  border-radius: 6px;\n  width: calc(100% - 32px);\n  box-sizing: border-box;\n  overflow: hidden;\n}\n.pager-left[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n}\n.pager-info[_ngcontent-%COMP%] {\n  font-size: 12px;\n  line-height: 1;\n  white-space: nowrap;\n}\n[_nghost-%COMP%]     .pager-bar po-button .po-button {\n  height: 28px !important;\n  min-height: 28px !important;\n  padding: 0 10px !important;\n  font-size: 12px !important;\n}\n.pager-right[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-title {\n  margin: 0 !important;\n  padding: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-label {\n  font-size: 12px !important;\n  line-height: 1 !important;\n  white-space: nowrap;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-content {\n  padding: 0 !important;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n  height: 28px !important;\n  min-height: 28px !important;\n  width: 90px !important;\n  padding: 0 8px !important;\n  font-size: 12px !important;\n}\n.page-size[_ngcontent-%COMP%] {\n  margin: 0 !important;\n}\n.actions-right[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: flex-end;\n  align-items: flex-end;\n  gap: 12px;\n  flex-wrap: wrap;\n}\n@media (max-width: 900px) {\n  .pager-bar[_ngcontent-%COMP%] {\n    height: auto;\n    max-height: none;\n    padding: 8px 12px;\n    flex-direction: column;\n    gap: 8px;\n  }\n  .pager-left[_ngcontent-%COMP%], \n   .pager-right[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: space-between;\n  }\n  [_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n    width: 110px !important;\n  }\n}\n@media (max-width: 768px) {\n  .actions-right[_ngcontent-%COMP%] {\n    justify-content: stretch;\n  }\n  .actions-right[_ngcontent-%COMP%]   po-button[_ngcontent-%COMP%] {\n    flex: 1 1 160px;\n  }\n}\n/*# sourceMappingURL=relatorio-rcap.component.css.map */"] });
+  ], styles: ["\n\n[_nghost-%COMP%]     po-accordion.filters-accordion {\n  border-radius: 12px;\n  overflow: hidden;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header {\n  background: #f7f9fc;\n  border: 1px solid #e6e8eb;\n  border-radius: 12px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-button {\n  padding: 12px 14px;\n  min-height: 48px;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-title {\n  font-weight: 600;\n  font-size: 0.95rem;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-header-icon {\n  opacity: 0.85;\n}\n[_nghost-%COMP%]     .filters-accordion .po-accordion-item-content {\n  border: 1px solid #e6e8eb;\n  border-top: none;\n  border-radius: 0 0 12px 12px;\n  background: #ffffff;\n  padding: 12px 14px 14px;\n}\n[_nghost-%COMP%]     .filters-actions {\n  border-top: 1px solid #e6e8eb;\n  margin-top: 8px;\n  padding-top: 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-container {\n  height: clamp(320px, calc(100vh - 360px), 920px);\n}\n[_nghost-%COMP%]     .rcap-table .po-table-header-sticky th {\n  background: #f7f9fc;\n  border-bottom: 1px solid #e6e8eb;\n  font-weight: 600;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-row:hover td {\n  background: #f3f5f7;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions {\n  padding: 4px 0 8px;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button {\n  opacity: 0.75;\n}\n[_nghost-%COMP%]     .rcap-table .po-table-actions-column-manager .po-button:hover {\n  opacity: 1;\n}\n[_nghost-%COMP%]     .po-table-column-cell {\n  font-variant-numeric: tabular-nums;\n}\n.widgets-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n.widgets-wrapper[_ngcontent-%COMP%]    > .widget-card[_ngcontent-%COMP%] {\n  width: 100%;\n  box-sizing: border-box;\n}\n.widget-card[_ngcontent-%COMP%] {\n  border-radius: 8px;\n  padding: 10px;\n  transition: all .2s ease;\n}\n.widget-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);\n}\n.widget-value[_ngcontent-%COMP%] {\n  font-size: 28px;\n  font-weight: 600;\n  text-align: center;\n  color: var(--po-color-neutral-dark-80);\n}\n.widget-label[_ngcontent-%COMP%] {\n  margin-top: 4px;\n  font-size: 13px;\n  text-align: center;\n  color: var(--po-color-neutral-dark-60);\n}\n.widget-card.destaque[_ngcontent-%COMP%] {\n  background: var(--po-color-primary-light-95);\n  border-left: 4px solid var(--po-color-primary);\n}\n.widget-card.destaque[_ngcontent-%COMP%]   .widget-value[_ngcontent-%COMP%] {\n  color: var(--po-color-primary);\n}\n.pager-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 10px;\n  min-height: 44px;\n  padding: 8px 12px;\n  margin: 6px auto 10px auto;\n  background: #f7f7f7;\n  border: 1px solid #e5e5e5;\n  border-radius: 6px;\n  width: calc(100% - 32px);\n  box-sizing: border-box;\n  overflow: visible;\n}\n.pager-left[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.pager-info[_ngcontent-%COMP%] {\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n[_nghost-%COMP%]     .pager-bar po-button .po-button {\n  height: 28px !important;\n  min-height: 28px !important;\n  padding: 0 10px !important;\n  font-size: 12px !important;\n}\n.pager-right[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container {\n  display: flex !important;\n  align-items: center !important;\n  gap: 8px;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-title {\n  margin: 0 !important;\n  padding: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-label {\n  font-size: 12px !important;\n  line-height: 1 !important;\n  white-space: nowrap;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size .po-field-container-content {\n  padding: 0 !important;\n  margin: 0 !important;\n}\n[_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n  height: 28px !important;\n  min-height: 28px !important;\n  width: 90px !important;\n  padding: 0 8px !important;\n  font-size: 12px !important;\n}\n.page-size[_ngcontent-%COMP%] {\n  margin: 0 !important;\n}\n.actions-right[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: flex-end;\n  align-items: flex-end;\n  gap: 10px;\n  flex-wrap: wrap;\n  padding-bottom: 2px;\n}\n[_nghost-%COMP%]     .actions-right .po-button {\n  height: 40px;\n}\n@media (max-width: 1200px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: clamp(280px, calc(100vh - 410px), 760px);\n  }\n}\n@media (max-width: 900px) {\n  .pager-bar[_ngcontent-%COMP%] {\n    padding: 8px 12px;\n    flex-direction: column;\n    gap: 8px;\n  }\n  .pager-left[_ngcontent-%COMP%], \n   .pager-right[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: space-between;\n  }\n  .pager-info[_ngcontent-%COMP%] {\n    white-space: normal;\n  }\n  [_nghost-%COMP%]     .pager-bar .page-size select.po-select {\n    width: 110px !important;\n  }\n}\n@media (max-width: 768px) {\n  [_nghost-%COMP%]     .rcap-table .po-table-container {\n    height: 56vh;\n    min-height: 260px;\n  }\n  .actions-right[_ngcontent-%COMP%] {\n    justify-content: stretch;\n  }\n  .actions-right[_ngcontent-%COMP%]   po-button[_ngcontent-%COMP%] {\n    flex: 1 1 160px;\n  }\n  .widget-value[_ngcontent-%COMP%] {\n    font-size: 24px;\n  }\n}\n/*# sourceMappingURL=relatorio-rcap.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RelatorioRcapComponent, { className: "RelatorioRcapComponent", filePath: "src/app/compras/relatorios/relatorio-rcap/relatorio-rcap.component.ts", lineNumber: 42 });
@@ -33246,4 +33230,4 @@ exceljs/dist/exceljs.min.js:
    * @copyright Louis-Dominique Dubeau
    *)
 */
-//# sourceMappingURL=chunk-4W7X4KOK.js.map
+//# sourceMappingURL=chunk-VUZGSECL.js.map

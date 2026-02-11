@@ -1,6 +1,6 @@
 import {
   environment
-} from "./chunk-T57ICMF6.js";
+} from "./chunk-RJXFIB2B.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -228,7 +228,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery
-} from "./chunk-Z2GH3N54.js";
+} from "./chunk-BH3N7IE2.js";
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var LINE_START = "\n - ";
@@ -4367,7 +4367,7 @@ var routes = [
   { path: "", pathMatch: "full", redirectTo: "relatorio-rcap" },
   {
     path: "relatorio-rcap",
-    loadComponent: () => import("./chunk-4W7X4KOK.js").then((m) => m.RelatorioRcapComponent)
+    loadComponent: () => import("./chunk-VUZGSECL.js").then((m) => m.RelatorioRcapComponent)
   }
 ];
 
@@ -25418,7 +25418,6 @@ var AppComponent = class _AppComponent {
   printMenuAction(menu) {
     AppComponentService;
     this.menuItemSelected = menu.label;
-    console.log("asa" + this.menuItemSelected);
   }
   atualizaTituloDinamico() {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
@@ -25427,33 +25426,14 @@ var AppComponent = class _AppComponent {
         route = route.firstChild;
       }
       const breadcrumb = route?.snapshot.data?.["breadcrumb"] || "";
-      console.log("Breadcrumb atualizado:", breadcrumb);
       this.breadcrumbItems = [
         { label: this.menuItemSelected },
         { label: breadcrumb }
       ];
     });
   }
-  //Ao clicar no Cadastro
-  dashboardClick() {
-    this.router.navigate(["/", "dashboard"]);
-  }
-  contasAPagarClick() {
-    this.router.navigate(["/", "conta-a-pagar"]);
-  }
-  //Ao clicar no Cadastro
-  testeClick() {
-    this.router.navigate(["/", "teste"]);
-  }
-  //Ao clicar no Cadastro
-  errorLogsClick() {
-    this.router.navigate(["/", "erros-log"]);
-  }
   relatorioRcapClick() {
     this.router.navigate(["/", "relatorio-rcap"]);
-  }
-  onClick() {
-    alert("Clicked in menu item");
   }
   closeApp() {
     if (this.proAppConfigService.insideProtheus()) {
