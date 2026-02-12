@@ -128,9 +128,11 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "d6c1196d-473c-4af0-9937-be8ee788a7d2"
   }
 },
 "cli": {
   "analytics": false
-}
 }
