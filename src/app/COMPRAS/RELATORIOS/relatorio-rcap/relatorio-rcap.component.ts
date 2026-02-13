@@ -306,24 +306,34 @@ export class RelatorioRcapComponent implements OnInit {
         const hora3WayNula = this.isHoraNula(item.Hr3Way);
         const horaDigitNula = this.isHoraNula(item.HrDigitacao);
 
-        const hrIniNula = data3WayNula || hora3WayNula;
+        const hrIniNula = hora3WayNula || data3WayNula;
         const hrFimNula = horaDigitNula;
 
         let horas = 0;
 
         // ✅ REGRA HISTÓRICA / DADOS LEGADOS
-        // Se não existe hora confiável → SLA fixo 24h
-        if (hrIniNula && hrFimNula) {
+        // Mesmo dia sem horas em ambos os lados mantém 24h.
+        if (hrIniNula && hrFimNula && this.sameDay(dtIni, dtFim)) {
           horas = 24;
         } else {
-          const usarDigitComoIni = data3WayNula || hora3WayNula;
+          // Quando não existir hora no 3Way mas houver Dt3Way, usa início 00:00:00
+          // para não colapsar o cálculo em 0h.
+          let dataInicio = data3WayNula ? item.digitacao : item.Dt3Way;
+          let horaInicio = data3WayNula
+            ? (horaDigitNula ? '00:00:00' : item.HrDigitacao)
+            : (hora3WayNula ? '00:00:00' : item.Hr3Way);
 
-          const ini = this.buildDateTime(
-            usarDigitComoIni ? item.digitacao : item.Dt3Way,
-            usarDigitComoIni ? item.HrDigitacao : item.Hr3Way
-          );
+          // Legado: horas zeradas em dias diferentes -> não conta o dia da aprovação 3Way.
+          if (!data3WayNula && hora3WayNula && horaDigitNula && !this.sameDay(dtIni, dtFim)) {
+            const proximoDia = new Date(dtIni.getFullYear(), dtIni.getMonth(), dtIni.getDate() + 1);
+            dataInicio = this.toISODate(proximoDia);
+            horaInicio = '00:00:00';
+          }
 
-          const fim = this.buildDateTime(item.digitacao, item.HrDigitacao);
+          const horaFim = horaDigitNula ? '23:59:59' : item.HrDigitacao;
+
+          const ini = this.buildDateTime(dataInicio, horaInicio);
+          const fim = this.buildDateTime(item.digitacao, horaFim);
 
           horas = (ini && fim)
             ? this.calcularHorasUteisDateTime(ini, fim)
