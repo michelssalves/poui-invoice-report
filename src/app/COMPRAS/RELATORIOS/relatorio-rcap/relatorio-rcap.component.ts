@@ -18,7 +18,7 @@ import {
 } from '@po-ui/ng-components';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { resolveRuntimeEnvironment } from '../../../../environments/runtime-environment';
+import { RuntimeConfigService } from '../../../core/services/runtime-config.service';
 import { RelatorioRecapService } from './relatorio-rcap.component.service';
 
 @Component({
@@ -43,11 +43,17 @@ export class RelatorioRcapComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private sampleAirfare: RelatorioRecapService,
-    private poNotification: PoNotificationService
-  ) { }
+    private poNotification: PoNotificationService,
+    private runtimeConfigService: RuntimeConfigService
+  ) {
+    this.API_URL = this.runtimeEnvironment.apiUrl;
+  }
 
-  private readonly runtimeEnvironment = resolveRuntimeEnvironment();
-  readonly API_URL = this.runtimeEnvironment.apiUrl;
+  private get runtimeEnvironment() {
+    return this.runtimeConfigService.getRuntimeEnvironment();
+  }
+
+  readonly API_URL: string;
 
   columns!: Array<PoTableColumn>;
   items: Array<any> = [];
