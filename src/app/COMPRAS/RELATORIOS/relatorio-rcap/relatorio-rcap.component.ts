@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -595,15 +595,40 @@ export class RelatorioRcapComponent implements OnInit {
       path: this.path
     };
 
-    this.http.post<any>(url, body, { headers: this.getTenantHeaders() }).subscribe({
+    const headers = this.getTenantHeaders().set('X-PO-No-Message', 'true');
+
+    this.http.post<any>(url, body, { headers }).subscribe({
       next: (response) => void this.processarResposta(response, requestId),
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         if (!this.isRequestAtiva(requestId)) return;
-        console.error(err);
+        this.detalharErroHttp(err, url, body);
         this.loading = false;
         this.imprimir = 'N';
       }
     });
+  }
+
+  private detalharErroHttp(err: HttpErrorResponse, url: string, body: any): void {
+    const backendMessage =
+      err?.error?.message ||
+      err?.error?.detailedMessage ||
+      err?.message ||
+      'Falha sem detalhe retornado pelo servidor.';
+
+    const mensagem = err.status === 0
+      ? `Falha de conexão com o servidor (${this.API_URL}). Verifique serviço REST/porta.`
+      : `Erro HTTP ${err.status}: ${backendMessage}`;
+
+    console.group('[RCAP] Erro na chamada listar-relatorio-rcap');
+    console.error('status:', err.status);
+    console.error('statusText:', err.statusText);
+    console.error('url:', url);
+    console.error('payload:', body);
+    console.error('error:', err.error);
+    console.error('message:', err.message);
+    console.groupEnd();
+
+    this.poNotification.error(mensagem);
   }
 
   private atualizarFiliaisPorEmpresa(empresa: string): void {
