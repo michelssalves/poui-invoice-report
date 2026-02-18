@@ -56,7 +56,19 @@
 }
 
 :host ::ng-deep .rcap-table .po-table-row:hover td {
-  background: #f3f5f7;
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: inherit !important;
+  cursor: pointer;
+}
+
+:host ::ng-deep .rcap-table .po-table-row:hover td * {
+  color: inherit !important;
+}
+
+/* Fallback maximo: garante contraste mesmo que a classe da linha mude */
+:host ::ng-deep .rcap-table table tbody tr:hover td,
+:host ::ng-deep .rcap-table table tbody tr:hover td * {
+  color: #1d2426 !important;
 }
 
 :host ::ng-deep .rcap-table .po-table-actions {
