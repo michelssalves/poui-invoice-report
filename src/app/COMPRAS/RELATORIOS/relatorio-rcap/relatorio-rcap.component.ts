@@ -7,6 +7,7 @@ import {
   PoButtonModule,
   PoChartOptions,
   PoChartSerie,
+  PoChartType,
   PoFieldModule,
   PoLoadingModule,
   PoModule,
@@ -89,6 +90,7 @@ export class RelatorioRcapComponent implements OnInit {
   endDate: Date = new Date(new Date().setDate(new Date().getDate() - 1));
 
   pizzaItens: Array<PoChartSerie> = [];
+  readonly pizzaChartType = PoChartType.Pie;
   colunaItens: Array<PoChartSerie> = [];
   categoriasUsuarios: string[] = [];
 
@@ -344,6 +346,19 @@ export class RelatorioRcapComponent implements OnInit {
           horas = (ini && fim)
             ? this.calcularHorasUteisDateTime(ini, fim)
             : 24; // fallback defensivo
+
+          // Fallback: quando ha hora inicial/final no mesmo dia e o util resultar 0
+          // (ex.: data marcada como nao util), exibe ao menos o tempo corrido em minutos.
+          if (
+            horas === 0 &&
+            ini &&
+            fim &&
+            this.sameDay(ini, fim) &&
+            !hrIniNula &&
+            !hrFimNula
+          ) {
+            horas = this.calcularHorasCorridasDateTime(ini, fim);
+          }
         }
 
         item.horasSLA = horas;
@@ -832,11 +847,17 @@ export class RelatorioRcapComponent implements OnInit {
     return Math.round((totalMs / msHour) * 100) / 100;
   }
 
+  private calcularHorasCorridasDateTime(inicio: Date, fim: Date): number {
+    if (!inicio || !fim || inicio >= fim) return 0;
+    const msHour = 3600000;
+    return Math.round(((fim.getTime() - inicio.getTime()) / msHour) * 100) / 100;
+  }
+
   private formatHorasSLA(horas: number | null | undefined): string {
     const h = Number(horas);
     if (!isFinite(h) || h < 0) return '';
 
-    if (h === 0) return '0 h';
+    if (h === 0) return '0 min';
 
     if (h < 1) {
       const min = Math.max(1, Math.round(h * 60));

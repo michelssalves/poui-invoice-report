@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 
 import { PoBreadcrumbItem, PoBreadcrumbModule, PoMenuItem } from '@po-ui/ng-components';
 
 import { AppComponentService } from './app.component.service';
 
-import { ProAppConfigService } from '@totvs/protheus-lib-core';
+import { ProAppConfigService, ProJsToAdvplService } from '@totvs/protheus-lib-core';
 
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import {
@@ -42,7 +42,7 @@ export class AppComponent {
       icon: 'an an-newspaper',
       shortLabel: 'Fiscal',
       subItems: [
-        { label: '📄 Rcap', action: this.relatorioRcapClick.bind(this) }
+        { label: 'Rcap', action: this.relatorioRcapClick.bind(this) }
       ]
     },
     {
@@ -56,6 +56,7 @@ export class AppComponent {
 
   constructor(
     public AppComponentService: AppComponentService,
+    private proJsToAdvplService: ProJsToAdvplService,
     private proAppConfigService: ProAppConfigService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -67,10 +68,11 @@ export class AppComponent {
       this.router.navigate(['/relatorio-rcap']);
     }
 
+    this.registerWebChannelTestHelpers();
+
   }
 
   printMenuAction(menu: PoMenuItem) {
-    AppComponentService
     this.menuItemSelected = menu.label;
   }
 
@@ -103,5 +105,14 @@ export class AppComponent {
     } else {
       alert('O App não está sendo executado dentro do Protheus.');
     }
+  }
+  private registerWebChannelTestHelpers(): void {
+    const w = window as any;
+
+    w.testJsToAdvplMensagem = () =>
+      this.proJsToAdvplService.jsToAdvpl('mensagemJavascript', 'getApiUrl');
+
+    w.testJsToAdvplReceber = () =>
+      this.proJsToAdvplService.jsToAdvpl('receberProtheus', '');
   }
 }

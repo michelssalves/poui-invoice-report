@@ -1,35 +1,21 @@
-﻿param(
-  [ValidateSet("dev","prod")]
-  [string]$Env = "dev"
-)
-
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $appName = "poui-invoice-report"
-
-# Mapeia env -> configuracao Angular
-if ($Env -eq "prod") {
-  $ngConfig = "production"
-} else {
-  $ngConfig = "development"
-}
+$ngConfig = "protheus"
 
 $projeto = Resolve-Path (Join-Path $scriptPath "..")
 $distPath = Join-Path $projeto "dist\$appName"
 $browserPath = Join-Path $distPath "browser"
 $resourcePath = Join-Path $projeto "Protheus\Resource"
 
-# Pasta muda conforme ambiente
 $folderToZip = Join-Path $resourcePath $appName
-
-# Arquivo final sem sufixo
 $zipPath = Join-Path $resourcePath "$appName.zip"
 $appPath = Join-Path $resourcePath "$appName.app"
 
 Push-Location $projeto
 
-Write-Host "Executando build ($Env => $ngConfig)..." -ForegroundColor Cyan
+Write-Host "Executando build (single => $ngConfig)..." -ForegroundColor Cyan
 ng build -c $ngConfig
 
 if (!(Test-Path $distPath)) {
@@ -38,7 +24,6 @@ if (!(Test-Path $distPath)) {
   exit 1
 }
 
-# Angular application builder pode gerar em dist/app (sem browser) ou dist/app/browser.
 $sourcePath = $browserPath
 if (!(Test-Path $sourcePath)) {
   $sourcePath = $distPath
@@ -59,7 +44,6 @@ if (Test-Path $browserPath) {
   Remove-Item $browserPath -Recurse -Force
 }
 
-# remove antigos
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 if (Test-Path $appPath) { Remove-Item $appPath -Force }
 
@@ -70,5 +54,5 @@ Rename-Item -Path $zipPath -NewName (Split-Path $appPath -Leaf) -Force
 
 Pop-Location
 
-Write-Host "`nFinalizado ($Env)."
+Write-Host "`nFinalizado."
 Write-Host "App gerado em: $appPath" -ForegroundColor Green

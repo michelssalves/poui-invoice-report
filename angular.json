@@ -15,7 +15,8 @@
           "options": {
             "allowedCommonJsDependencies": [
               "exceljs",
-              "file-saver"
+              "file-saver",
+              "@totvs/twebchannel-js"
             ],
             "outputPath": "dist/poui-invoice-report",
             "index": "src/index.html",
@@ -39,7 +40,7 @@
             ]
           },
           "configurations": {
-            "production": {
+            "protheus": {
               "budgets": [
                 {
                   "type": "initial",
@@ -56,35 +57,33 @@
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "with": "src/environments/environment.protheus.ts"
                 }
               ]
             },
-            "development": {
+            "ghpages": {
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.test.ts"
+                  "with": "src/environments/environment.ghpages.ts"
                 }
               ],
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
+              "outputHashing": "all"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "protheus"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": {
-              "buildTarget": "poui-invoice-report:build:production"
+            "protheus": {
+              "buildTarget": "poui-invoice-report:build:protheus"
             },
-            "development": {
-              "buildTarget": "poui-invoice-report:build:development"
+            "ghpages": {
+              "buildTarget": "poui-invoice-report:build:ghpages"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "protheus"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n"
@@ -115,24 +114,17 @@
         "deploy": {
           "builder": "angular-cli-ghpages:deploy",
           "configurations": {
-            "development": {
-              "buildTarget": "poui-invoice-report:build:development",
-              "baseHref": "/poui-invoice-report/"
-            },
-            "production": {
-              "buildTarget": "poui-invoice-report:build:production",
+            "ghpages": {
+              "buildTarget": "poui-invoice-report:build:ghpages",
               "baseHref": "/poui-invoice-report/"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "ghpages"
         }
       }
     }
   },
   "cli": {
-    "analytics": "d6c1196d-473c-4af0-9937-be8ee788a7d2"
+    "analytics": false
   }
-},
-"cli": {
-  "analytics": false
 }

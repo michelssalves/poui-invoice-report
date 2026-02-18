@@ -1,6 +1,4 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+﻿import { Injectable } from '@angular/core';
 import { resolveRuntimeEnvironment } from '../../../environments/runtime-environment';
 
 type BaseEnvironment = ReturnType<typeof resolveRuntimeEnvironment>;
@@ -23,32 +21,16 @@ interface RuntimeConfigResponse {
 export class RuntimeConfigService {
   private environment: BaseEnvironment = resolveRuntimeEnvironment();
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   getRuntimeEnvironment(): BaseEnvironment {
     return this.environment;
   }
 
   async loadFromBackend(): Promise<void> {
-    const fallback = this.environment;
-    const endpoints = [
-      '/rest/protheus/v1/poui/runtime-config',
-      `${fallback.apiUrl}/runtime-config`
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        const response = await firstValueFrom(
-          this.http.get<RuntimeConfigResponse>(endpoint)
-        );
-
-        if (this.applyResponse(response)) {
-          return;
-        }
-      } catch {
-        // fallback para o próximo endpoint
-      }
-    }
+    // runtime-config via REST desativado.
+    // Configuracao vem do build + WebChannel (apiProtheus).
+    return;
   }
 
   private applyResponse(response?: RuntimeConfigResponse): boolean {

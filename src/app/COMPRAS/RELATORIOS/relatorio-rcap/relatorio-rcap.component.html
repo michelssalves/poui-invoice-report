@@ -1,4 +1,4 @@
-<div *ngIf="loading" class="sample-container">
+﻿<div *ngIf="loading" class="sample-container">
     <po-loading-overlay></po-loading-overlay>
 </div>
 <div *ngIf="!loading">
@@ -75,7 +75,7 @@
                         </po-chart>
                     </po-container>
                     <po-container class="po-sm-12 po-md-6 po-lg-3" [p-height]="435">
-                        <po-chart [p-options]="chartOptions" [p-series]="pizzaItens">
+                        <po-chart [p-type]="pizzaChartType" [p-options]="chartOptions" [p-series]="pizzaItens">
                         </po-chart>
                     </po-container>
                     <po-container class="po-sm-12 po-md-6 po-lg-3 widgets-coluna" [p-height]="435">

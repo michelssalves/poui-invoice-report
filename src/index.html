@@ -1,13 +1,32 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>PouiProjects</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- <script>
+    window.__POUI_API_URL = 'https://vprotheus04:9108/rest/protheus/v1/poui';
+    window.__POUI_PRODUCTION = true;
+  </script> -->
+  <script>
+    (function () {
+      // Precisa existir cedo para o WebApp não entrar em "without custom advplToJs feature".
+      window.advplToJs = window.advplToJs || function (type, content) {
+        if (type === 'apiProtheus') {
+          window.__POUI_API_URL = String(content || '').trim();
+        }
+        console.log('[oWebChannel][early] ADVPL->JS', type, content);
+      };
+    })();
+  </script>
 </head>
+
 <body>
   <app-root></app-root>
+  <script src="assets/preload/advpltojs.js"></script>
 </body>
+
 </html>
