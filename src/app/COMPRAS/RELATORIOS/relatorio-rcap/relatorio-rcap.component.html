@@ -133,7 +133,9 @@
         </div>
     </div>
 
-    <po-table class="rcap-table" [p-sort]="true" [p-striped]="true" [p-columns]="columns" [p-items]="items">
+    <po-table class="rcap-table" [p-sort]="true" [p-striped]="true" [p-columns]="columns" [p-items]="items"
+        (p-change-visible-columns)="onVisibleColumnsChanged($event)"
+        (p-restore-column-manager)="onRestoreColumnManager($event)">
     </po-table>
 
 </div>

@@ -41,6 +41,8 @@ import { RelatorioRecapService } from './relatorio-rcap.component.service';
   standalone: true
 })
 export class RelatorioRcapComponent implements OnInit {
+  private readonly columnsStorageKey = 'poui.rcap.columns.visible.v1';
+
   constructor(
     private http: HttpClient,
     private sampleAirfare: RelatorioRecapService,
@@ -180,8 +182,16 @@ export class RelatorioRcapComponent implements OnInit {
     });
 
     this.atualizarFiliaisPorEmpresa(this.empresa);
-    this.columns = this.sampleAirfare.getColumns();
+    this.inicializarColunas();
     this.carregarDados();
+  }
+
+  onVisibleColumnsChanged(visibleColumns: string[]): void {
+    this.aplicarColunasSalvas(visibleColumns);
+  }
+
+  onRestoreColumnManager(visibleColumns: string[]): void {
+    this.aplicarColunasSalvas(visibleColumns);
   }
 
   onChangeEmpresa(value: any): void {
@@ -488,82 +498,106 @@ export class RelatorioRcapComponent implements OnInit {
       { codUsr: 'ana', user: 'Ana Souza' },
       { codUsr: 'carlos', user: 'Carlos Lima' },
       { codUsr: 'bianca', user: 'Bianca Rocha' },
-      { codUsr: 'joao', user: 'João Santos' }
+      { codUsr: 'joao', user: 'Joao Santos' }
     ];
 
     const pad = (n: number, size = 6) => String(n).padStart(size, '0');
-
-    // Gera uma data YYYY/MM/DD a partir de um "offset" em dias
-    const dateYMD = (base: Date, addDays: number) => {
-      const d = new Date(base);
-      d.setDate(d.getDate() + addDays);
+    const toDateYMD = (d: Date) => {
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return `${y}/${m}/${day}`;
     };
+    const toTimeHMS = (d: Date) => {
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      const ss = String(d.getSeconds()).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    };
+    const cloneDate = (d: Date) => new Date(d.getTime());
+    const addDays = (d: Date, days: number) => {
+      const x = cloneDate(d);
+      x.setDate(x.getDate() + days);
+      return x;
+    };
+    const setTime = (d: Date, h: number, m: number, s = 0) => {
+      const x = cloneDate(d);
+      x.setHours(h, m, s, 0);
+      return x;
+    };
+    const addMinutes = (d: Date, minutes: number) => new Date(d.getTime() + minutes * 60000);
 
-    // Hora HH:MM:SS
-    const timeHMS = (h: number, m: number) =>
-      `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`;
+    const tesList = ['017', '018', '026', '033', '055'];
+    const naturezaList = ['2035', '3035', '3065', '3179', '7001'];
+    const tipoList = ['NFSE', 'NFS', 'SPED'];
+    const baseDay = new Date(2026, 1, 17); // 17/02/2026
 
-    const base = new Date(2026, 1, 9); // 09/02/2026 (mês 1 = fevereiro)
-
-    const dados = Array.from({ length: 50 }, (_, idx) => {
+    const dados = Array.from({ length: 60 }, (_, idx) => {
       const i = idx + 1;
+      const user = users[idx % users.length];
+      const hasContrato = idx % 2 === 0;
+      const dia = addDays(baseDay, -(idx % 4));
 
-      const u = users[idx % 5]; // ✅ só 5 users
-      const hasContrato = idx % 2 === 0; // ✅ alterna contrato/sem contrato
+      const scenario = idx % 6;
+      let dtInicio3Way: Date;
+      let dtFimDigit: Date;
 
-      // datas
-      const emissao = dateYMD(base, -(idx % 10));      // varia últimos 10 dias
-      const digitacao = dateYMD(base, 0);              // fixa no dia base (igual seu filtro)
-      const vencimento = dateYMD(base, 2 + (idx % 7)); // vence em 2..8 dias
-      const dtPreNota = dateYMD(base, 1 + (idx % 4));  // 1..4 dias
+      if (scenario === 0) {
+        dtInicio3Way = setTime(dia, 8 + (idx % 4), 10);
+        dtFimDigit = addMinutes(dtInicio3Way, 20 + (idx % 8) * 10);
+      } else if (scenario === 1) {
+        dtInicio3Way = setTime(dia, 8 + (idx % 5), 0);
+        dtFimDigit = addMinutes(dtInicio3Way, 90 + (idx % 7) * 30);
+      } else if (scenario === 2) {
+        dtInicio3Way = setTime(addDays(dia, -1), 16, 0);
+        dtFimDigit = setTime(dia, 9 + (idx % 3), 15);
+      } else if (scenario === 3) {
+        dtInicio3Way = setTime(dia, 0, 0);
+        dtFimDigit = setTime(dia, 11 + (idx % 4), 25);
+      } else if (scenario === 4) {
+        dtInicio3Way = setTime(addDays(dia, -4), 9, 0);
+        dtFimDigit = setTime(dia, 10, 0);
+      } else {
+        dtInicio3Way = setTime(dia, 14, idx % 2 === 0 ? 0 : 15);
+        dtFimDigit = addMinutes(dtInicio3Way, 10 + (idx % 5) * 10);
+      }
 
-      // alguns legados (Dt3Way/Hr3Way zerados) pra testar regra SLA 24h
-      const legado = idx % 9 === 0; // a cada 9 registros
-      const Dt3Way = legado ? '0000-00-00' : dateYMD(base, -(idx % 3));
-      const Hr3Way = legado ? '00:00:00' : timeHMS(9 + (idx % 6), (idx * 7) % 60);
+      const emissaoDate = addDays(dtInicio3Way, -1);
+      const dtPreNotaDate = addDays(dtInicio3Way, 1);
+      const vencimentoDate = addDays(dtFimDigit, 5 + (idx % 3));
 
-      // hora digitacao sempre presente (mas você pode zerar alguns se quiser)
-      const HrDigitacao = timeHMS(10 + (idx % 7), (idx * 11) % 60);
-
-      // valores
-      const liquido = Math.round((500 + idx * 37.55) * 100) / 100;
-      const bruto = Math.round((liquido * 1.02) * 100) / 100;
-
-      const inss = idx % 5 === 0 ? 0 : Math.round(liquido * 0.01 * 100) / 100;
+      const liquido = Math.round((1200 + idx * 37.8) * 100) / 100;
+      const bruto = Math.round((liquido * 1.07) * 100) / 100;
+      const inss = Math.round(liquido * 0.01 * 100) / 100;
       const pis = Math.round(liquido * 0.0065 * 100) / 100;
       const cofins = Math.round(liquido * 0.03 * 100) / 100;
       const csll = Math.round(liquido * 0.01 * 100) / 100;
-
-      const ipi = idx % 4 === 0 ? Math.round(liquido * 0.02 * 100) / 100 : 0;
-      const frete = idx % 3 === 0 ? Math.round(25.5 * 100) / 100 : 0;
-      const desconto = idx % 6 === 0 ? Math.round(10 * 100) / 100 : 0;
-      const despesa = idx % 7 === 0 ? Math.round(3.25 * 100) / 100 : 0;
-
-      const TTPedido = Math.round((bruto * (hasContrato ? 1.15 : 1.05)) * 100) / 100;
+      const ipi = idx % 3 === 0 ? Math.round(liquido * 0.02 * 100) / 100 : 0;
+      const frete = idx % 4 === 0 ? 40 : 0;
+      const desconto = idx % 5 === 0 ? 12.5 : 0;
+      const despesa = idx % 6 === 0 ? 9.75 : 0;
+      const TTPedido = Math.round((bruto * (hasContrato ? 1.12 : 1.05)) * 100) / 100;
       const diferenca = Math.round((TTPedido - bruto) * 100) / 100;
 
       return {
         item: i,
-        filial: '01',
-        nota: pad(370 + i, 9),       // "000000371" etc
+        filial: this.filial || '01',
+        nota: pad(53190 + i, 9),
         serie: 'E22',
-        fornecedor: pad(4166 + (idx % 20), 6),
+        fornecedor: pad(199500 + (idx % 40), 6),
         loja: String((idx % 3) + 1).padStart(2, '0'),
-        razao: `FORNECEDOR MOCK ${String(idx % 20 + 1).padStart(2, '0')} LTDA`,
+        razao: `FORNECEDOR MOCK ${String((idx % 40) + 1).padStart(2, '0')} LTDA`,
         cnpj: '10802919000152',
-        emissao,
-        digitacao,
-        HrDigitacao,
-        vencimento,
-        natureza: hasContrato ? 'COMP' : 'SERV',
-        DtPreNota: dtPreNota,
-        Dt3Way,
-        Hr3Way,
-        tipo: idx % 2 === 0 ? 'NFSE' : 'NFS',
+        emissao: toDateYMD(emissaoDate),
+        digitacao: toDateYMD(dtFimDigit),
+        HrDigitacao: toTimeHMS(dtFimDigit),
+        vencimento: toDateYMD(vencimentoDate),
+        natureza: naturezaList[idx % naturezaList.length],
+        tes: tesList[idx % tesList.length],
+        DtPreNota: toDateYMD(dtPreNotaDate),
+        Dt3Way: toDateYMD(dtInicio3Way),
+        Hr3Way: scenario === 3 ? '00:00:00' : toTimeHMS(dtInicio3Way),
+        tipo: tipoList[idx % tipoList.length],
         estado: idx % 2 === 0 ? 'PR' : 'SP',
         inss,
         pis,
@@ -578,16 +612,16 @@ export class RelatorioRcapComponent implements OnInit {
         TTPedido,
         diferenca,
         pedido: String(215200 + i),
-        codUsr: u.codUsr,     // ✅ 5 usuários
-        user: u.user,
-        contrato: hasContrato ? `CTR-${String(100 + (idx % 15))}` : '' // ✅ com e sem
+        codUsr: user.codUsr,
+        user: user.user,
+        contrato: hasContrato ? `CTR-${String(100 + (idx % 20))}` : ''
       };
     });
 
     return {
       ok: true,
       folder: 'RCAP_DEV_000001',
-      zipName: 'Papeletas_20260209.zip',
+      zipName: 'Papeletas_20260217.zip',
       dados
     };
   }
@@ -847,6 +881,93 @@ export class RelatorioRcapComponent implements OnInit {
     return Math.round((totalMs / msHour) * 100) / 100;
   }
 
+  private inicializarColunas(): void {
+    const defaultColumns = this.sampleAirfare.getColumns().map(column => ({ ...column }));
+    const visibleColumns = this.lerColunasSalvas() ?? this.getDefaultVisibleColumns(defaultColumns);
+    this.columns = this.setVisibleColumns(defaultColumns, visibleColumns);
+    this.salvarColunasVisiveis(visibleColumns);
+  }
+
+  private aplicarColunasSalvas(visibleColumns: string[] | null | undefined): void {
+    if (!Array.isArray(visibleColumns) || !this.columns?.length) {
+      return;
+    }
+
+    const visibleColumnsValidas = this.sanitizarColunasVisiveis(visibleColumns, this.columns);
+    this.columns = this.setVisibleColumns(this.columns, visibleColumnsValidas);
+    this.salvarColunasVisiveis(visibleColumnsValidas);
+  }
+
+  private getDefaultVisibleColumns(columns: PoTableColumn[]): string[] {
+    return columns
+      .filter(column => column.visible !== false)
+      .map(column => String(column.property))
+      .filter(Boolean);
+  }
+
+  private setVisibleColumns(columns: PoTableColumn[], visibleColumns: string[]): PoTableColumn[] {
+    const visibleSet = new Set(visibleColumns.map(String));
+    return columns.map(column => {
+      const property = String(column.property ?? '');
+      if (!property) {
+        return { ...column };
+      }
+
+      return {
+        ...column,
+        visible: visibleSet.has(property)
+      };
+    });
+  }
+
+  private sanitizarColunasVisiveis(visibleColumns: string[], columns: PoTableColumn[]): string[] {
+    const available = new Set(
+      columns
+        .map(column => String(column.property ?? ''))
+        .filter(Boolean)
+    );
+
+    return visibleColumns
+      .map(String)
+      .filter(property => available.has(property));
+  }
+
+  private lerColunasSalvas(): string[] | null {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return null;
+    }
+
+    try {
+      const raw = window.localStorage.getItem(this.columnsStorageKey);
+      if (!raw) {
+        return null;
+      }
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return null;
+      }
+
+      const defaultColumns = this.sampleAirfare.getColumns();
+      const visibleColumns = this.sanitizarColunasVisiveis(parsed, defaultColumns);
+      return visibleColumns.length ? visibleColumns : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private salvarColunasVisiveis(visibleColumns: string[]): void {
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(this.columnsStorageKey, JSON.stringify(visibleColumns));
+    } catch {
+      // sem ação: armazenamento pode estar indisponível (aba privada, quota, etc.)
+    }
+  }
+
   private calcularHorasCorridasDateTime(inicio: Date, fim: Date): number {
     if (!inicio || !fim || inicio >= fim) return 0;
     const msHour = 3600000;
@@ -1018,4 +1139,6 @@ export class RelatorioRcapComponent implements OnInit {
     });
   }
 }
+
+
 
