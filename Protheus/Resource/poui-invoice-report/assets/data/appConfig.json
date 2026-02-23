@@ -1,0 +1,9 @@
+﻿{
+  "name": "poui-invoice-report",
+  "version": "1.0",
+  "serverBackend": "/app-root",
+  "restEntryPoint": "",
+  "versionAPI": "",
+  "productLine": "Protheus",
+  "api_baseUrl": "/app-root"
+}
