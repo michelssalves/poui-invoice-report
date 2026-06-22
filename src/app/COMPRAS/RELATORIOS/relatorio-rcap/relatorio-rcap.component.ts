@@ -565,6 +565,8 @@ export class RelatorioRcapComponent implements OnInit {
       const emissaoDate = addDays(dtInicio3Way, -1);
       const dtPreNotaDate = addDays(dtInicio3Way, 1);
       const vencimentoDate = addDays(dtFimDigit, 5 + (idx % 3));
+      const dtEmissaoPedidoDate = addDays(dtInicio3Way, -3);
+      const dtPedidoDate = addDays(dtInicio3Way, -2);
 
       const liquido = Math.round((1200 + idx * 37.8) * 100) / 100;
       const bruto = Math.round((liquido * 1.07) * 100) / 100;
@@ -595,6 +597,9 @@ export class RelatorioRcapComponent implements OnInit {
         natureza: naturezaList[idx % naturezaList.length],
         tes: tesList[idx % tesList.length],
         DtPreNota: toDateYMD(dtPreNotaDate),
+        DtEmissaoPedido: toDateYMD(dtEmissaoPedidoDate),
+        DtPedido: toDateYMD(dtPedidoDate),
+        HrPedido: toTimeHMS(dtPedidoDate),
         Dt3Way: toDateYMD(dtInicio3Way),
         Hr3Way: scenario === 3 ? '00:00:00' : toTimeHMS(dtInicio3Way),
         tipo: tipoList[idx % tipoList.length],
@@ -612,6 +617,7 @@ export class RelatorioRcapComponent implements OnInit {
         TTPedido,
         diferenca,
         pedido: String(215200 + i),
+        pagamento: String(30 + (idx % 4) * 15).padStart(3, '0'),
         codUsr: user.codUsr,
         user: user.user,
         contrato: hasContrato ? `CTR-${String(100 + (idx % 20))}` : ''
@@ -1032,6 +1038,9 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Hr Digt', key: 'HrDigitacao', width: 15, style: { numFmt: 'hh:mm:ss' } },
       { header: 'Venc Real', key: 'vencimento', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Venc PreNota', key: 'DtPreNota', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Dt Emis Pedido', key: 'DtEmissaoPedido', width: 18, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Dt Pedido', key: 'DtPedido', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
+      { header: 'Hr Pedido', key: 'HrPedido', width: 15, style: { numFmt: 'hh:mm:ss' } },
       { header: 'Dt 3Way', key: 'Dt3Way', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
       { header: 'Hr 3Way', key: 'Hr3Way', width: 15, style: { numFmt: 'hh:mm:ss' } },
       { header: 'Tipo', key: 'tipo', width: 10 },
@@ -1047,6 +1056,7 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Desconto', key: 'desconto', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Despesa', key: 'despesa', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Pedido', key: 'pedido', width: 15 },
+      { header: 'Cond Pagto', key: 'pagamento', width: 15 },
       { header: 'R$ Pedido', key: 'TTPedido', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'R$ Saldo', key: 'diferenca', width: 15, style: { numFmt: 'R$ #,##0.00' } },
       { header: 'Usuário', key: 'user', width: 35 },
@@ -1065,6 +1075,9 @@ export class RelatorioRcapComponent implements OnInit {
       HrDigitacao: this.parseExcelTime(item.HrDigitacao) ?? null,
       vencimento: this.parseExcelDate(item.vencimento) ?? null,
       DtPreNota: this.parseExcelDate(item.DtPreNota) ?? null,
+      DtEmissaoPedido: this.parseExcelDate(item.DtEmissaoPedido) ?? null,
+      DtPedido: this.parseExcelDate(item.DtPedido) ?? null,
+      HrPedido: this.parseExcelTime(item.HrPedido) ?? null,
       Dt3Way: this.parseExcelDate(item.Dt3Way) ?? null,
       Hr3Way: this.parseExcelTime(item.Hr3Way) ?? null
     }));

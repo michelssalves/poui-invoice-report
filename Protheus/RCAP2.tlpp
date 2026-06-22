@@ -1,0 +1,1019 @@
+#Include "TOTVS.ch"
+#Include "RESTFUL.ch"
+#INCLUDE "FWMVCDEF.CH"
+#INCLUDE "TLPP-CORE.TH"
+#INCLUDE "TLPP-REST.TH"
+#Include 'TOPCONN.ch'
+#include "tbiconn.ch"
+
+Class TRelatorioRcap
+
+    Public Data nCodigoHttp      as integer
+    Public Data cCorpoRetorno    as character
+    Public Data jResposta        as object
+    Public Data cTipo            as character
+    Public Data cDataInicial     as character
+    Public Data cDataFinal       as character
+    Public Data cFornecedorDe    as character
+    Public Data cNotaFiscalDe    as character
+    Public Data cFornecedorAte   as character
+    Public Data cNotaFiscalAte   as character
+    Public Data cLiquidado       as character
+    Public Data cWhere           as character
+    Public Data aPedidosPapeleta as Array
+    Public Data aNomesPapeleta   as Array
+    Public Data aNotasPapeleta   as Array
+    Public Data aSeriesPapeleta  as Array
+    Public Data lImprime         as Logical
+
+    Public Method New() Constructor
+    Public Method RemoveZeros(cTexto)
+    Public Method ReduzirNome(cNome)
+    Public Method ImprimirPapeleta()
+    Public Method PrintPurchaseOrder(cWorkDir,cFolderName)
+    Public Method PrintInvoice(cWorkDir,cFolderName)
+
+    @Post("/protheus/v1/poui/listar-relatorio-rcap")
+    Public Method ListarNotas()
+
+    @Get('/protheus/v1/poui/listar-relatorio-rcap/download/:fileFolder/:fileName')
+    Public Method Download()
+
+    @Get('/protheus/v1/poui/listar-relatorio-rcap/excluir/:fileFolder/:fileName')
+    Public Method ExcluirPapeleta()
+
+    @Get('/protheus/v1/poui/runtime-config')
+    Public Method RuntimeConfig()
+
+EndClass
+
+Method New() Class TRelatorioRcap
+
+Return(Self)
+
+Method Download() Class TRelatorioRcap
+
+    Local jPath         := oRest:getPathParamsRequest() as Json
+    Local cFolder       := AllTrim(jPath["fileFolder"])
+    Local cFileName     := AllTrim(jPath["fileName"])
+    Local cFullPath     := "\spool\" + cFolder + "\" + cFileName
+
+    Local oFile         := FwFileReader():New(cFullPath) as Object
+    Local cBin          := "" as Character
+    Local jHeader       := JsonObject():New() as Json
+    Local cHeader       := "" as Character
+
+    If !File(cFullPath)
+        SetRestFault(404, "Arquivo não encontrado: " + cFullPath)
+        Return .F.
+    EndIf
+
+    If !oFile:Open()
+        SetRestFault(500, "Falha ao abrir arquivo: " + cFullPath)
+        Return .F.
+    EndIf
+
+    cBin := oFile:FullRead()
+    oFile:Close()
+
+    If Upper(Right(cFileName, 4)) == ".ZIP"
+        cHeader := '{"Content-Disposition":"attachment; filename=' + cFileName + '",' + ;
+            '"Content-Type":"application/zip"}'
+    ElseIf Upper(Right(cFileName, 4)) == ".PDF"
+        cHeader := '{"Content-Disposition":"attachment; filename=' + cFileName + '",' + ;
+            '"Content-Type":"application/pdf"}'
+    Else
+        cHeader := '{"Content-Disposition":"attachment; filename=' + cFileName + '",' + ;
+            '"Content-Type":"application/octet-stream"}'
+    EndIf
+
+    jHeader:FromJson(cHeader)
+    oRest:setHeaderResponse(jHeader)
+
+    oRest:setStatusCode(200)
+
+    oRest:setResponse(cBin)
+
+Return .T.
+
+Method ListarNotas() Class TRelatorioRcap
+
+    Local cAliasRcap
+    Local cAliasSD1
+    Local cAliasSC7
+    Local aDados            := {}
+    Local nIndex
+    Local cWhere
+    Local nBruto            := 0
+    Local nTTPedido         := 0
+    Local nDiferenca        := 0
+    Local cContrato         := ""
+    Local cBodyAux          := ""
+    Local nMoeda
+    Local lValid
+    Local DDataVencimento   := CTOD("//")
+    Local DDataVliberacao   := CTOD("//")
+    Local DDataEmissaoPedido := CTOD("//")
+    Local DDataVliberacaoPedido := CTOD("//")
+    Local cHoraDigitacao    := "00:00:00"
+    Local cHrLiberacao      := "00:00:00"
+    Local cHrLiberacaoPedido := "00:00:00"
+    Local jHeader           := JsonObject():New() as Json
+    Local cDtAtual          := DTOS(Date())
+    Local jBody             := JsonObject():New() as Json
+    Local cBody             := ""
+    Local cDataFinalFiltro  := ""
+    Local cNatureza         := ""
+    Local cTes              := ""
+    Local cAgruparNatTes    := "S"
+    Local lAgruparNatTes    := .T.
+    Local cAliasTTSC7
+    Local cAliasSCR
+    Local cLoginUsuario     := ""
+    Local cNomeUsuario      := ""
+    Local cNota             := ""
+    Local cForn             := ""
+    Local cNome             := ""
+    Local oFinJson          := JsonObject():New() as Json
+    Local aPreVenctos       := {}
+
+    Private IsInvoice       := .F.
+    Private IsPurchaseOrder := .F.
+
+    ::jResposta             := JsonObject():New()
+    ::jResposta["ok"]       := .T.
+    ::jResposta["dados"]    := {}
+    ::nCodigoHttp           := 200
+
+    jBody:fromJson( oRest:GetBodyRequest() )
+
+    If ( jBody <> Nil )
+
+        cBody := If(Empty(cBody), oRest:GetBodyRequest(), cBody)
+
+        cBodyAux := DecodeUTF8(cBody, "cp1252")
+
+        cBodyAux := If(Empty(cBodyAux), cBody, cBodyAux)
+
+        TLogConsole():Log("Starting... " +  cBodyAux , "TRcapImpostos", "1")
+
+        If !Empty(jBody[ 'print' ])
+            If jBody:GetJsonText("print") == 'S'
+                ::lImprime := .T.
+            Else
+                ::lImprime := .F.
+            End
+        End
+
+        If !Empty(jBody[ 'workflow' ])
+
+            If jBody:GetJsonText("workflow") == '1'
+
+                IsPurchaseOrder := .T.
+
+            ElseIf jBody:GetJsonText("workflow") == '2'
+
+                IsInvoice := .T.
+
+            Else
+
+                IsInvoice := .F.
+                IsPurchaseOrder := .F.
+
+            End
+
+        End
+
+        If !Empty(jBody[ 'tipo' ])
+            ::cTipo := jBody:GetJsonText("tipo")
+        Else
+            ::cTipo := '3'
+        End
+
+        If !Empty(jBody[ 'dataInicial' ])
+            ::cDataInicial := jBody:GetJsonText("dataInicial")
+        Else
+            ::cDataInicial := '20250512'
+
+        End
+        If !Empty(jBody[ 'dataFinal' ])
+            ::cDataFinal := jBody:GetJsonText("dataFinal")
+        Else
+            ::cDataFinal := '20250512'
+
+        End
+
+        If !Empty(jBody[ 'fornecedor' ])
+            ::cFornecedorDe := jBody:GetJsonText("fornecedor")
+        Else
+            ::cFornecedorDe := ''
+
+        End
+
+        If !Empty(jBody[ 'fornecedor' ])
+            ::cFornecedorAte := jBody:GetJsonText("fornecedor")
+        Else
+            ::cFornecedorAte := 'zzzzzz'
+
+        End
+
+        If !Empty(jBody[ 'notaFiscal' ])
+            ::cNotaFiscalDe := jBody:GetJsonText("notaFiscal")
+        Else
+            ::cNotaFiscalDe := ''
+
+        End
+
+        If !Empty(jBody[ 'notaFiscal' ])
+            ::cNotaFiscalAte := jBody:GetJsonText("notaFiscal")
+        Else
+            ::cNotaFiscalAte := 'zzzzzzzzz'
+
+        End
+
+        ::cLiquidado := jBody:GetJsonText("liquidado")
+
+        If !Empty(jBody[ 'agruparNaturezaTes' ])
+            cAgruparNatTes := Upper(AllTrim(jBody:GetJsonText("agruparNaturezaTes")))
+        Else
+            cAgruparNatTes := "S"
+        EndIf
+
+    EndIf
+
+    ::cWhere := "%"
+
+    If ::cLiquidado == '1'
+
+        ::cWhere += "AND E2.E2_SALDO = 0 "
+
+    ElseIf ::cLiquidado == '2'
+
+        ::cWhere += " AND E2.E2_SALDO <> 0 "
+
+    Endif
+
+    ::cWhere += "%"
+
+    cWhere := "%"
+
+    cDataFinalFiltro := StrTran(StrTran(AllTrim(self:cDataFinal), "-", ""), "/", "")
+
+    If (!Empty(cDataFinalFiltro) .And. Len(cDataFinalFiltro) == 8)
+
+        cWhere += "AND SD1.D1_EMISSAO <= '" + cDataFinalFiltro + "' "
+
+    Else
+
+        cWhere += "AND SD1.D1_EMISSAO <= '" + cDtAtual + "' "
+
+    EndIf
+
+    cWhere += "%"
+
+    lAgruparNatTes := (cAgruparNatTes <> "N")
+    If (::lImprime)
+        lAgruparNatTes := .T.
+    EndIf
+
+    cAliasRcap := GetNextAlias()
+
+    BEGINSQL ALIAS cAliasRcap
+        SELECT
+            DISTINCT E2.E2_TXMOEDA AS MOEDA,
+            F1.F1_FILIAL AS FILIAL,
+            F1.F1_DOC AS NOTA,
+            F1.F1_SERIE AS SERIE,
+            F1.F1_FORNECE AS FORNECEDOR,
+            F1.F1_LOJA AS LOJA,
+            F1.F1_COND AS PAGAMENTO,
+            A2.A2_NOME AS RAZAO,
+            A2.A2_CGC AS CGC,
+            F1.F1_EMISSAO AS EMISSAO,
+            A2.A2_EST AS ESTADO,
+            F1.F1_DTDIGIT AS DIGITACAO,
+            E2.E2_VALOR AS VLRLIQ,
+            F1.F1_ESPECIE AS TIPO,
+            E2.E2_INSS AS VLRINSS,
+            E2.E2_ISS AS VLRISS,
+            E2.E2_COFINS AS VLRCOFINS,
+            E2.E2_CSLL AS VLRCSLL,
+            E2.E2_IRRF AS VLRIR,
+            E2.E2_PIS AS VLRPIS,
+            E2.E2_VENCREA AS VENCREAL,
+            (
+                ISNULL(E2.E2_VALOR, 0) + ISNULL(E2.E2_INSS, 0) + ISNULL(E2.E2_ISS, 0) + ISNULL(E2.E2_COFINS, 0) + ISNULL(E2.E2_CSLL, 0) + ISNULL(E2.E2_IRRF, 0) + ISNULL(E2.E2_PIS, 0)
+            ) AS VALOR
+        FROM
+            %Table:SF1% F1 (NOLOCK)
+        INNER JOIN %Table:SE2% E2 (NOLOCK)
+        ON E2.E2_FILIAL = F1.F1_FILIAL
+            AND E2.E2_FORNECE = F1.F1_FORNECE
+            AND E2.E2_LOJA = F1.F1_LOJA
+            AND E2.E2_NUM = F1.F1_DOC
+            AND E2.E2_EMISSAO = F1.F1_EMISSAO
+            AND E2.%NotDel%
+        INNER JOIN %Table:SA2% A2 (NOLOCK)
+        ON A2.A2_COD = F1.F1_FORNECE
+            AND A2.A2_LOJA = F1.F1_LOJA
+            AND A2.%NotDel%
+        WHERE
+            F1.F1_DOC BETWEEN %Exp:self:cNotaFiscalDe% AND %Exp:self:cNotaFiscalAte%
+            AND F1.F1_FILIAL BETWEEN '' AND 'zz'
+            AND F1.F1_DTDIGIT BETWEEN %Exp:self:cDataInicial% AND %Exp:self:cDataFinal%
+            AND F1.F1_FORNECE BETWEEN %Exp:self:cFornecedorDe% AND %Exp:self:cFornecedorAte%
+            AND F1.%NotDel% %Exp:self:cWhere%
+    ENDSQL
+
+    TLogConsole():Log("SQL-01... " + cValToChar(GetLastQuery()[2]) , "TRcapImpostos", "1")
+
+    nIndex := 1
+
+    (cAliasRcap)->(DbGoTop())
+
+    ::aPedidosPapeleta := {}
+    ::aNomesPapeleta   := {}
+    ::aNotasPapeleta   := {}
+    ::aSeriesPapeleta  := {}
+
+    While ((cAliasRcap)->(!Eof()))
+
+        cAliasSC7 = GetNextAlias()
+
+        If lAgruparNatTes
+
+            BEGINSQL ALIAS cAliasSC7
+                SELECT
+                    SC7.C7_NUM PEDIDO,
+                    MIN(SC7.C7_EMISSAO) C7_EMISSAO,
+                    MIN(SC7.C7_CONTRA) C7_CONTRA,
+                    MIN(SC7.C7_TXMOEDA) C7_TXMOEDA,
+                    MIN(SC7.C7_XNATURE) C7_XNATURE,
+                    MIN(SD1.D1_TES) D1_TES
+                FROM
+                    %Table:SC7% SC7 (NOLOCK)
+                INNER JOIN %Table:SD1% SD1 (NOLOCK)
+                ON SD1.D1_PEDIDO = SC7.C7_NUM
+                    AND SD1.D1_ITEMPC = SC7.C7_ITEM
+                    AND SD1.D1_FILIAL = %Exp: xFilial("SD1")%
+                    AND SD1.D1_DOC = %Exp: (cAliasRcap)->NOTA%
+                    AND SD1.D1_SERIE = %Exp: (cAliasRcap)->SERIE%
+                    AND SD1.D1_FORNECE = %Exp: (cAliasRcap)->FORNECEDOR%
+                    AND SD1.D1_LOJA = %Exp: (cAliasRcap)->LOJA%
+                    AND SD1.%NotDel% %Exp:cWhere%
+                WHERE
+                    SC7.%NotDel%
+                    AND SC7.C7_RESIDUO <> 'S'
+                    AND SC7.C7_FILIAL = %Exp: xFilial("SC7")%
+                GROUP BY
+                    SC7.C7_NUM
+            ENDSQL
+
+        Else
+
+            BEGINSQL ALIAS cAliasSC7
+                SELECT
+                    DISTINCT SC7.C7_NUM PEDIDO,
+                    SC7.C7_EMISSAO C7_EMISSAO,
+                    SC7.C7_CONTRA C7_CONTRA,
+                    SC7.C7_TXMOEDA C7_TXMOEDA,
+                    SC7.C7_XNATURE C7_XNATURE,
+                    SD1.D1_TES D1_TES
+                FROM
+                    %Table:SC7% SC7 (NOLOCK)
+                INNER JOIN %Table:SD1% SD1 (NOLOCK)
+                ON SD1.D1_PEDIDO = SC7.C7_NUM
+                    AND SD1.D1_ITEMPC = SC7.C7_ITEM
+                    AND SD1.D1_FILIAL = %Exp: xFilial("SD1")%
+                    AND SD1.D1_DOC = %Exp: (cAliasRcap)->NOTA%
+                    AND SD1.D1_SERIE = %Exp: (cAliasRcap)->SERIE%
+                    AND SD1.D1_FORNECE = %Exp: (cAliasRcap)->FORNECEDOR%
+                    AND SD1.D1_LOJA = %Exp: (cAliasRcap)->LOJA%
+                    AND SD1.%NotDel% %Exp:cWhere%
+                WHERE
+                    SC7.%NotDel%
+                    AND SC7.C7_RESIDUO <> 'S'
+                    AND SC7.C7_FILIAL = %Exp: xFilial("SC7")%
+            ENDSQL
+
+        EndIf
+
+        While ((cAliasSC7)->(!Eof()))
+
+            DDataVencimento    := CTOD("//")
+            DDataVliberacao    := CTOD("//")
+            DDataEmissaoPedido := CTOD("//")
+            DDataVliberacaoPedido := CTOD("//")
+            cHrLiberacao       := "00:00:00"
+            cHrLiberacaoPedido := "00:00:00"
+            cHoraDigitacao     := "00:00:00"
+            cLoginUsuario      := "User"
+            cNomeUsuario       := "User"
+
+            cContrato          := (cAliasSC7)->C7_CONTRA
+            cNatureza          := (cAliasSC7)->C7_XNATURE
+            cTes               := (cAliasSC7)->D1_TES
+            nMoeda             := (cAliasSC7)->C7_TXMOEDA
+            DDataEmissaoPedido := StoD((cAliasSC7)->C7_EMISSAO)
+
+            cAliasSD1 := GetNextAlias()
+
+            BEGINSQL ALIAS cAliasSD1
+                SELECT
+                    (
+                        ISNULL(SUM(D1_TOTAL), 0) + (SUM(SD1.D1_VALFRE))
+                    ) ACUMULADO,
+                    SUM(D1_VALDESC) DESCONTO,
+                    SUM(D1_DESPESA) DESPESA
+                FROM
+                    %Table:SD1% SD1 (NOLOCK)
+                WHERE
+                    SD1.%NotDel%
+                    AND SD1.D1_FILIAL = %Exp: xFilial("SD1")%
+                    AND SD1.D1_PEDIDO = %Exp:(cAliasSC7)->PEDIDO%
+            ENDSQL
+
+            cAliasTTSC7 = GetNextAlias()
+
+            BEGINSQL ALIAS cAliasTTSC7
+                SELECT
+                    (
+                        SUM(SC7.C7_TOTAL) + SUM(SC7.C7_FRETE) / COUNT(*) + SUM(SC7.C7_DESPESA) + SUM(SC7.C7_SEGURO)
+                    ) - (
+                        SUM(SC7.C7_DESC1) + SUM(SC7.C7_DESC2) + SUM(SC7.C7_DESC3) + SUM(SC7.C7_VLDESC)
+                    ) AS TOTALPEDIDO,
+                    SUM(SC7.C7_VALIPI) AS IPI,
+                    SUM(SC7.C7_FRETE) AS FRETE
+                FROM
+                    %Table:SC7% SC7 (NOLOCK)
+                WHERE
+                    SC7.%NotDel%
+                    AND SC7.C7_FILIAL = %Exp: xFilial("SC7")%
+                    AND SC7.C7_FORNECE = %Exp:(cAliasRcap)->FORNECEDOR%
+                    AND SC7.C7_NUM = %Exp:(cAliasSC7)->PEDIDO%
+            ENDSQL
+
+            If ::cTipo == '1'
+
+                lValid := .F.
+
+                If( Empty(cContrato))
+                    lValid := .T.
+                EndIf
+
+            ElseIf ::cTipo == '2'
+
+                lValid := .F.
+
+                If( !Empty(cContrato))
+                    lValid := .T.
+                EndIf
+
+            Else
+
+                lValid := .T.
+
+            EndIf
+
+            If lValid
+
+                DbSelectArea( 'SF1' )
+                SF1->(DbSetOrder(1))
+                SF1->(DbSeek(FWxFilial( 'SF1' ) + (cAliasRcap)->NOTA + (cAliasRcap)->SERIE + (cAliasRcap)->FORNECEDOR + (cAliasRcap)->LOJA))
+
+                If !Empty(SF1->F1_FINJSON)
+
+                    oFinJson := JsonObject():New()
+                    oFinJson:FromJson(SF1->F1_FINJSON)
+
+                    If ValType(oFinJson["ACOLSSE2"]) == "A"
+                        aPreVenctos := oFinJson["ACOLSSE2"]
+                    Else
+                        aPreVenctos := {}
+                    EndIf
+
+                    If Len(aPreVenctos) >= 1 .And. !Empty(aPreVenctos[1]["E2_VENCTO "])
+                        DDataVencimento := StoD(aPreVenctos[1]["E2_VENCTO "])
+                    EndIf
+
+                EndIF
+
+                If !Empty((cAliasSC7)->PEDIDO)
+
+                    cAliasSCR := GetNextAlias()
+
+                    BeginSql Alias cAliasSCR
+                        SELECT
+                            TOP 1 SCR.CR_DATALIB,
+                            SCR.CR_XHORLIB
+                        FROM
+                            %Table:SCR% SCR (NOLOCK)
+                        WHERE
+                            SCR.%NotDel%
+                            AND SCR.CR_TIPO = 'NF'
+                            AND SCR.CR_NUM = %Exp:(cAliasSC7)->PEDIDO%
+                            AND SCR.CR_XNUMNF = %Exp:(cAliasRcap)->NOTA%
+                            AND (
+                                SCR.CR_XSERNF = %Exp:AllTrim((cAliasRcap)->SERIE)%;
+                        OR SCR.CR_XSERNF = %Exp:StrZero(Val(AllTrim((cAliasRcap)->SERIE)),3)%
+                        )
+                        AND SCR.CR_DATALIB <> ''
+                        AND SCR.CR_STATUS = '03'
+                        AND SCR.CR_FILIAL = %xFilial:SCR%
+                    EndSql
+
+                    If (cAliasSCR)->(!EOF())
+
+                        DDataVliberacao := StoD((cAliasSCR)->CR_DATALIB)
+
+                        If Empty((cAliasSCR)->CR_XHORLIB)
+
+                            cHrLiberacao := "00:00:00"
+
+                        Else
+
+                            cHrLiberacao := (cAliasSCR)->CR_XHORLIB
+
+                        Endif
+
+                    EndIf
+
+                    (cAliasSCR)->(DBCloseArea())
+
+                EndIf
+
+                If !Empty((cAliasSC7)->PEDIDO)
+
+                    cAliasSCR := GetNextAlias()
+
+                    BeginSql Alias cAliasSCR
+                        SELECT
+                            TOP 1 SCR.CR_DATALIB,
+                            SCR.CR_XHORLIB
+                        FROM
+                            %Table:SCR% SCR (NOLOCK)
+                        WHERE
+                            SCR.%NotDel%
+                            AND SCR.CR_TIPO = 'PC'
+                            AND SCR.CR_NUM = %Exp:(cAliasSC7)->PEDIDO%
+                            AND SCR.CR_DATALIB <> ''
+                            AND SCR.CR_STATUS = '03'
+                            AND SCR.CR_FILIAL = %xFilial:SCR%
+                    EndSql
+
+                    If (cAliasSCR)->(!EOF())
+
+                        DDataVliberacaoPedido := StoD((cAliasSCR)->CR_DATALIB)
+
+                        If Empty((cAliasSCR)->CR_XHORLIB)
+
+                            cHrLiberacaoPedido := "00:00:00"
+
+                        Else
+
+                            cHrLiberacaoPedido := (cAliasSCR)->CR_XHORLIB
+
+                        Endif
+
+                    EndIf
+
+                    (cAliasSCR)->(DBCloseArea())
+
+                EndIf
+
+                If (!Empty(SF1->F1_XUSRCLA))
+
+                    cLoginUsuario := AllTrim(FWSFALLUSERS({SF1->F1_XUSRCLA})[1][3])
+                    cNomeUsuario  := AllTrim(UsrFullName(SF1->F1_XUSRCLA))
+
+                    If Empty(SF1->F1_XHORCLA)
+
+                        cHoraDigitacao := "00:00:00"
+
+                    Else
+
+                        cHoraDigitacao := SF1->F1_XHORCLA
+
+                    Endif
+
+                Else
+                    //Para lançamentos antigos não havia o codigo do usuário que classificava por isso essa excessão
+                    cLoginUsuario := 'User'
+                    cNomeUsuario  := 'User'
+
+                EndIf
+
+                If ((cAliasRcap)->MOEDA == 0)
+                    nBruto := (cAliasRcap)->VALOR
+
+                    If (nMoeda > 0)
+                        nTTPedido := ((cAliasTTSC7)->TOTALPEDIDO + (cAliasTTSC7)->IPI) * nMoeda
+                        nDiferenca := ((cAliasTTSC7)->TOTALPEDIDO * nMoeda) - (cAliasSD1)->ACUMULADO
+                    Else
+                        nTTPedido := (cAliasTTSC7)->TOTALPEDIDO + (cAliasTTSC7)->IPI
+                        nDiferenca := (cAliasTTSC7)->TOTALPEDIDO - (cAliasSD1)->ACUMULADO
+                    EndIf
+                Else
+                    nBruto := (cAliasRcap)->VALOR * (cAliasRcap)->MOEDA
+                    nTTPedido := (cAliasTTSC7)->TOTALPEDIDO * (cAliasRcap)->MOEDA
+                    nDiferenca := ((cAliasTTSC7)->TOTALPEDIDO * (cAliasRcap)->MOEDA) - ((cAliasSD1)->ACUMULADO * (cAliasRcap)->MOEDA)
+                EndIf
+
+                AAdd(aDados, { ;
+                    "item" : nIndex, ;
+                    "filial" : Alltrim((cAliasRcap)->FILIAL), ;
+                    "nota" : Alltrim((cAliasRcap)->NOTA), ;
+                    "serie" : Alltrim((cAliasRcap)->SERIE), ;
+                    "fornecedor" : Alltrim((cAliasRcap)->FORNECEDOR), ;
+                    "pagamento" : Alltrim((cAliasRcap)->PAGAMENTO), ;
+                    "loja" : Alltrim((cAliasRcap)->LOJA), ;
+                    "razao" : Alltrim((cAliasRcap)->RAZAO), ;
+                    "cnpj" : Alltrim((cAliasRcap)->CGC), ;
+                    "emissao" : StoD((cAliasRcap)->EMISSAO), ;
+                    "digitacao" : StoD((cAliasRcap)->DIGITACAO), ;
+                    "HrDigitacao" : cHoraDigitacao, ;
+                    "vencimento" : StoD((cAliasRcap)->VENCREAL), ;
+                    "natureza": cNatureza, ;
+                    "tes" : Alltrim(cTes), ;
+                    "DtEmissaoPedido" : DDataEmissaoPedido, ;
+                    "DtPedido" : DDataVliberacaoPedido, ;
+                    "HrPedido" : cHrLiberacaoPedido, ;
+                    "DtPreNota" : DDataVencimento, ;
+                    "Dt3Way" : DDataVliberacao, ;
+                    "Hr3Way" : cHrLiberacao, ;
+                    "tipo" : Alltrim((cAliasRcap)->TIPO), ;
+                    "estado" : (cAliasRcap)->ESTADO, ;
+                    "inss" : (cAliasRcap)->VLRINSS, ;
+                    "pis" : (cAliasRcap)->VLRPIS, ;
+                    "cofins" : (cAliasRcap)->VLRCOFINS, ;
+                    "csll" : (cAliasRcap)->VLRCSLL, ;
+                    "ipi" : (cAliasTTSC7)->IPI, ;
+                    "frete" : (cAliasTTSC7)->FRETE, ;
+                    "desconto" : (cAliasSD1)->DESCONTO, ;
+                    "despesa" : (cAliasSD1)->DESPESA, ;
+                    "liquido" : (cAliasRcap)->VLRLIQ, ;
+                    "bruto" : nBruto, ;
+                    "TTPedido" : nTTPedido, ;
+                    "diferenca" : nDiferenca, ;
+                    "pedido" : Alltrim((cAliasSC7)->PEDIDO), ;
+                    "codUsr" : Alltrim(cLoginUsuario), ;
+                    "user"   : Alltrim(cNomeUsuario), ;
+                    "contrato": cContrato ;
+                    })
+
+                nIndex++
+
+                If ( ::lImprime )
+
+                    cNota := AllTrim(::RemoveZeros((cAliasRcap)->NOTA))
+                    cForn := StrTran(StrTran(StrTran(::ReduzirNome(FwNoAccent(AllTrim((cAliasRcap)->RAZAO))), ".", " "), "/", " "), "-", " ")
+                    cNome := Upper( AllTrim(TRANSFORM((cAliasRcap)->VLRLIQ, "@E 999999999.99")) + ' NF ' + cNota + '-' + cForn)
+
+                    AAdd(::aPedidosPapeleta, (cAliasSC7)->PEDIDO)
+                    AAdd(::aNomesPapeleta  , cNome)
+                    AAdd(::aNotasPapeleta  , (cAliasRcap)->NOTA)
+                    AAdd(::aSeriesPapeleta , (cAliasRcap)->SERIE)
+
+                EndIf
+
+            EndIf
+
+            (cAliasSD1)->(DbCloseArea())
+
+            (cAliasTTSC7)->(DbCloseArea())
+
+            (cAliasSC7)->(dbSkip())
+
+        EndDo
+
+        (cAliasSC7)->(dbCloseArea())
+
+        (cAliasRcap)->(dbSkip())
+
+    EndDo
+
+    (cAliasRcap)->(dbCloseArea())
+
+    ::jResposta["dados"] := aDados
+
+    If (::lImprime)
+
+        ::ImprimirPapeleta()
+
+    EndIf
+
+    jHeader:FromJson('{"Content-Type":"application/json; charset=utf-8"}')
+    oRest:setHeaderResponse(jHeader)
+
+    ::cCorpoRetorno := EncodeUTF8(::jResposta:toJSON())
+
+    oRest:setStatusCode(::nCodigoHttp)
+    oRest:setResponse(::cCorpoRetorno)
+
+Return
+
+Method ImprimirPapeleta() Class TRelatorioRcap
+
+    Local cBaseSp     := ""
+    Local cWorkDir    := ""
+    Local cZipFile    := ""
+    Local cZipName    := ""
+    Local aDir        := {}
+    Local aFiles      := {}
+    Local n           := 0
+    Local cFolderName := "RCAP_" + DToS(Date()) + "_" + StrTran(Time(),":","")
+
+    cBaseSp := SuperGetMV("MV_RELT", , "\spool\")
+
+    If Empty(cBaseSp)
+        cBaseSp := "\spool\"
+    EndIf
+
+    If Right(cBaseSp, 1) <> "\"
+        cBaseSp += "\"
+    EndIf
+
+    cWorkDir := cBaseSp + cFolderName + "\"
+
+    If !ExistDir(cWorkDir)
+        MakeDir(cWorkDir)
+    EndIf
+
+    If (IsInvoice)
+
+        ::PrintInvoice(cWorkDir, cFolderName)
+
+    ElseIf ( IsPurchaseOrder )
+
+        ::PrintPurchaseOrder(cWorkDir,cFolderName)
+    Else
+
+        ::PrintInvoice(cWorkDir,cFolderName)
+
+        ::PrintPurchaseOrder(cWorkDir,cFolderName)
+
+    EndIf
+
+    aDir := Directory(cWorkDir + "*.pdf")
+
+    For n := 1 To Len(aDir)
+        AAdd(aFiles, cWorkDir + aDir[n][1])
+    Next
+
+    If Len(aFiles) == 0
+        ::jResposta["ok"]      := .F.
+        ::jResposta["message"] := "Nenhum PDF gerado para compactar."
+        Return
+    EndIf
+
+    cZipName := "Papeletas_" + DToS(Date()) + ".zip"
+
+    cZipFile := cWorkDir + cZipName
+
+    If ( FZip(cZipFile, aFiles, cWorkDir, "", .F.) != 0)
+
+        ::jResposta["ok"]      := .F.
+        ::jResposta["message"] := "Falha ao compactar os PDFs."
+
+        Return
+
+    EndIf
+
+    ::jResposta["ok"]        := .T.
+    ::jResposta["folder"]    := cFolderName
+    ::jResposta["zipName"]   := cZipName
+    ::jResposta["zipPath"]   := cZipFile
+
+Return
+
+Method PrintInvoice(cWorkDir, cFolderName) Class TRelatorioRcap
+
+    Local i        := 0
+    Local cChave   := ""
+    Local cArquivo := ""
+
+    IsInvoice := .T.
+
+    dbSelectArea("SC7")
+    SC7->(dbSetOrder(1))
+
+    For i := 1 To Len(::aPedidosPapeleta)
+
+        If SC7->(MsSeek(xFilial("SC7") + PadR(::aPedidosPapeleta[i], TamSX3("C7_NUM")[1])))
+
+            cChave := cValToChar(::aNomesPapeleta[i]) + "|" + ;
+                cValToChar(::aNotasPapeleta[i]) + "|" + ;
+                cValToChar(::aSeriesPapeleta[i])
+
+            u_Matr110("SC7", SC7->(RecNo()), 1, cChave, cFolderName, -1)
+
+            cArquivo := cWorkDir + ::aNomesPapeleta[i] + '-PED ' + trim(::aPedidosPapeleta[i]) + ".pdf"
+
+            If File(cArquivo)
+                TLogConsole():Log("Arquivo Existe" + cValToChar(cArquivo) , "TRcapImpostos", "1")
+            Else
+                TLogConsole():Log("Arquivo Não Existe" + cValToChar(cArquivo) , "TRcapImpostos", "1")
+            EndIf
+
+        EndIf
+    Next
+
+Return
+
+Method PrintPurchaseOrder(cWorkDir, cFolderName) Class TRelatorioRcap
+
+    Local i        := 0
+    Local cNome    := ""
+    Local cArquivo := ""
+
+    IsInvoice := .F.
+
+    dbSelectArea("SC7")
+    SC7->(dbSetOrder(1))
+
+    For i := 1 To len(::aPedidosPapeleta)
+        If (SC7->(MsSeek(xFilial("SC7")+PadR(::aPedidosPapeleta[i], TamSX3("C7_NUM")[1]))))
+
+            cNome := cValToChar(i)
+
+            u_Matr110( 'SC7', SC7->(RECNO()) , 1 , cNome  , cFolderName , -1 )
+
+            cArquivo := cWorkDir + cNome + '-PED ' + trim(::aPedidosPapeleta[i]) + ".pdf"
+
+            If File(cArquivo)
+                TLogConsole():Log("Arquivo Existe" + cValToChar(cArquivo) , "TRcapImpostos", "1")
+            Else
+                TLogConsole():Log("Arquivo Não Existe" + cValToChar(cArquivo) , "TRcapImpostos", "1")
+            EndIf
+
+        EndIf
+    Next
+
+Return
+
+Method ExcluirPapeleta() Class TRelatorioRcap
+
+    Local cBaseSp     := ""
+    Local cWorkDir    := ""
+    Local aDir        := {}
+    Local n           := 0
+    Local cZipName    := ""
+    Local cZipFile    := ""
+    Local cFolderName := ""
+    Local jPath       := oRest:getPathParamsRequest() as Json
+
+    cZipName    := jPath[ 'fileName' ]
+    cFolderName := jPath[ 'fileFolder' ]
+
+    cBaseSp := SuperGetMV("MV_RELT", , "\spool\")
+
+    If Empty(cBaseSp)
+        cBaseSp := "\spool\"
+    EndIf
+
+    If Right(cBaseSp,1) <> "\"
+        cBaseSp += "\"
+    EndIf
+
+    // Pasta completa
+    cWorkDir := cBaseSp + cFolderName + "\"
+
+    cZipFile := cWorkDir + cZipName
+
+    // 1. Remover pasta
+    If (!FwDirRemove(cWorkDir, .F., .T. ))
+
+        TLogConsole():Log("Não Deletei a pasta"  + cValToChar(cWorkDir), "RCAP2", "1")
+        // 1. Apagar PDFs
+        aDir := Directory(cWorkDir + "*.pdf")
+        For n := 1 To Len(aDir)
+            FErase(cWorkDir + aDir[n][1])
+        Next
+
+        // 2. Apagar ZIP
+        If File(cZipFile)
+            FErase(cZipFile)
+        EndIf
+
+        // 3. Remover pasta
+        If ExistDir(cWorkDir)
+            FwDirRemove(cWorkDir, .F., .T. )
+        EndIf
+    Else
+
+        TLogConsole():Log("Deletei a pasta"  + cValToChar(cWorkDir), "RCAP2", "1")
+
+    EndIf
+
+Return
+
+Method RuntimeConfig() Class TRelatorioRcap
+
+    Local jResponse     := JsonObject():New() as Json
+    Local jAuth         := JsonObject():New() as Json
+    Local cApiUrl       := AllTrim(SuperGetMV("MV_POUIAPI", , "http://VHWIN1065:9023/rest/protheus/v1/poui"))
+    Local cApiHost      := AllTrim(SuperGetMV("MV_POUIHST", , ""))
+    Local cApiPort      := AllTrim(SuperGetMV("MV_POUIPRT", , ""))
+    Local cApiProtocol  := Lower(AllTrim(SuperGetMV("MV_POUIPRO", , "http")))
+    Local cApiPath      := AllTrim(SuperGetMV("MV_POUIPTH", , "/rest/protheus/v1/poui"))
+    Local cAuthUser     := AllTrim(SuperGetMV("MV_POUIUSR", , "admin"))
+    Local cAuthPassword := AllTrim(SuperGetMV("MV_POUIPWD", , "tcp_tcp"))
+    Local cErpModule    := AllTrim(SuperGetMV("MV_POUIERP", , "COM"))
+    Local cProdFlag     := Upper(AllTrim(SuperGetMV("MV_POUIPRD", , "N")))
+    Local lProduction   := .F.
+    Local cResponse
+    If Empty(cApiUrl)
+        If !Empty(cApiHost)
+            cApiUrl := cApiProtocol + "://" + cApiHost
+            If !Empty(cApiPort)
+                cApiUrl += ":" + cApiPort
+            EndIf
+            If !Empty(cApiPath)
+                cApiUrl += cApiPath
+            EndIf
+        ElseIf !Empty(cApiPath)
+            cApiUrl := cApiPath
+        Else
+            cApiUrl := "http://VHWIN1065:9023/rest/protheus/v1/poui"
+        EndIf
+    EndIf
+    lProduction := ( cProdFlag == "S" .Or. cProdFlag == "1" .Or. cProdFlag == "TRUE" .Or. cProdFlag == "PROD" )
+    jAuth["user"]     := cAuthUser
+    jAuth["password"] := cAuthPassword
+    jResponse["ok"]          := .T.
+    jResponse["apiUrl"]      := cApiUrl
+    jResponse["apiHost"]     := cApiHost
+    jResponse["apiPort"]     := cApiPort
+    jResponse["apiProtocol"] := cApiProtocol
+    jResponse["apiPath"]     := cApiPath
+    jResponse["production"]  := lProduction
+    jResponse["auth"]        := jAuth
+    jResponse["erpModule"]   := cErpModule
+    cResponse := EncodeUTF8(jResponse:toJSON())
+    oRest:setStatusCode(200)
+    oRest:setResponse(cResponse)
+Return .T.
+Method RemoveZeros(cTexto) Class TRelatorioRcap
+
+    Local cRetorno  := ""
+    Local lContinua := .T.
+    Default cTexto  := ""
+
+    cRetorno := Alltrim(cTexto)
+
+    While lContinua
+
+        If SubStr(cRetorno, 1, 1) <> "0" .Or. Len(cRetorno) ==0
+            lContinua := .f.
+        EndIf
+
+        If lContinua
+            cRetorno := Substr(cRetorno, 2, Len(cRetorno))
+        EndIf
+    EndDo
+
+Return cRetorno
+
+Method ReduzirNome(cNome) Class TRelatorioRcap
+
+    Local aString   := {}
+    Local nAt       := 0
+    Local cParteStr := ""
+
+    While ( nAt:= At(" ",cNome) ) > 0 .And. ( Len(cNome) > 0 )
+
+        cParteStr:= Alltrim( Subs(cNome,1,nAt) )
+
+        aAdd( aString, cParteStr)
+
+        cNome:= Alltrim( Subs(cNome,nAt) )
+
+    EndDo
+
+    If Len(cNome) > 0
+        aAdd( aString, cNome )
+    EndIf
+
+    If Len(aString) >= 2
+        cNome := aString[1] + ' ' + aString[2]
+    ElseIf Len(aString) == 1
+        cNome := aString[1]
+    Else
+        cNome := ""
+    EndIf
+
+Return cNome
+
+
+
+
+
+
+
+
+
+
+
+
+
+
