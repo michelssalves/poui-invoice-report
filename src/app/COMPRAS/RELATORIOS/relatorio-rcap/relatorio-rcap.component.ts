@@ -819,6 +819,21 @@ export class RelatorioRcapComponent implements OnInit {
     return ((hh * 3600) + (mm * 60) + ss) / 86400;
   }
 
+  private formatCpfCnpj(value: unknown): string {
+    const original = String(value ?? '').trim();
+    const digits = original.replace(/\D/g, '');
+
+    if (digits.length === 11) {
+      return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    if (digits.length === 14) {
+      return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    return original;
+  }
+
   private parseExcelDate(dateStr?: string): number | null {
     const d = this.parseDateOnly(dateStr);
     if (!d) return null;
@@ -1031,6 +1046,7 @@ export class RelatorioRcapComponent implements OnInit {
       { header: 'Loja', key: 'loja', width: 10 },
       { header: 'Razão Social', key: 'razao', width: 60 },
       { header: 'CNPJ', key: 'cnpj', width: 20 },
+      { header: 'CPF/CNPJ Formatado', key: 'cnpjFormatado', width: 22 },
       { header: 'Natureza', key: 'natureza', width: 15 },
       { header: 'TES', key: 'tes', width: 10 },
       { header: 'Emissão', key: 'emissao', width: 15, style: { numFmt: 'dd/mm/yyyy' } },
@@ -1070,6 +1086,7 @@ export class RelatorioRcapComponent implements OnInit {
 
     const rows = this.itemsAll.map(item => ({
       ...item,
+      cnpjFormatado: this.formatCpfCnpj(item.cnpj),
       emissao: this.parseExcelDate(item.emissao) ?? null,
       digitacao: this.parseExcelDate(item.digitacao) ?? null,
       HrDigitacao: this.parseExcelTime(item.HrDigitacao) ?? null,
