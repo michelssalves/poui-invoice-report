@@ -136,6 +136,8 @@ Method ListarNotas() Class TRelatorioRcap
     Local cNome             := ""
     Local oFinJson          := JsonObject():New() as Json
     Local aPreVenctos       := {}
+    Local oHeaders  := oRest:GetHeaderRequest()
+    Local cHeader    := ""
 
     Private IsInvoice       := .F.
     Private IsPurchaseOrder := .F.
@@ -144,6 +146,7 @@ Method ListarNotas() Class TRelatorioRcap
     ::jResposta["ok"]       := .T.
     ::jResposta["dados"]    := {}
     ::nCodigoHttp           := 200
+    cHeader := FWJsonSerialize(oHeaders)
 
     jBody:fromJson( oRest:GetBodyRequest() )
 
